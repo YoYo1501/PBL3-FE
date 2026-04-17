@@ -1,0 +1,12 @@
+<svg width="474" height="122" viewBox="0 0 474 122" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="474" height="122" fill="#F5F5F5"/>
+  <rect x="12" y="15" width="95" height="95" fill="white" stroke="#0B4C78" stroke-width="3"/>
+  <path d="M43 30C66 34 83 51 87 74" stroke="#0B5B8E" stroke-width="6" stroke-linecap="round"/>
+  <path d="M43 39C62 43 76 57 80 76" stroke="#0B5B8E" stroke-width="6" stroke-linecap="round"/>
+  <path d="M43 48C57 51 68 62 71 76" stroke="#0B5B8E" stroke-width="6" stroke-linecap="round"/>
+  <path d="M43 57C52 60 59 67 61 76" stroke="#0B5B8E" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="48" cy="82" r="16" fill="white" stroke="#0B5B8E" stroke-width="3"/>
+  <text x="48" y="87" text-anchor="middle" font-size="15" font-weight="700" fill="#0B5B8E" font-family="Arial, Helvetica, sans-serif">DN</text>
+  <text x="176" y="55" fill="#173B56" font-size="25" font-weight="700" font-family="Arial, Helvetica, sans-serif">TRUNG TÂM QUẢN LÝ</text>
+  <text x="127" y="95" fill="#173B56" font-size="23" font-weight="700" font-family="Arial, Helvetica, sans-serif">KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG</text>
+</svg>

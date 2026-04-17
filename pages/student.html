@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang thông tin sinh viên</title>
+    <meta name="description" content="Cổng thông tin sinh viên ký túc xá">
+    <link rel="stylesheet" href="../css/student.css">
+</head>
+<body class="student-app">
+    <div class="top-bar">
+        <div class="welcome-menu" id="welcome-menu">
+            <button type="button" class="welcome-trigger" id="welcome-trigger" aria-expanded="false">
+                <span class="welcome-copy">
+                    <span>Welcome,</span>
+                    <strong id="header-name">Đang tải...</strong>
+                </span>
+                <span class="welcome-caret">▾</span>
+            </button>
+            <div class="welcome-dropdown" id="welcome-dropdown">
+                <button type="button" class="welcome-dropdown-item" id="logout-btn">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="portal-header">
+        <div class="portal-logo">
+            <div class="portal-logo-mark">KTX</div>
+            <div class="portal-logo-copy">
+                <strong>TRUNG TÂM QUẢN LÝ</strong>
+                <span>KÝ TÚC XÁ VÀ KHU ĐÔ THỊ</span>
+            </div>
+        </div>
+        <h1 class="portal-title">TRANG THÔNG TIN SINH VIÊN</h1>
+    </header>
+
+    <div class="portal-layout">
+        <aside class="sidebar">
+            <nav>
+                <ul class="sidebar-list">
+                    <li class="menu-item menu-item-info active" data-target="section-info">
+                        <span class="menu-icon">●</span>
+                        <span>Thông tin sinh viên</span>
+                    </li>
+                    <li class="menu-item menu-item-room" data-target="section-room">
+                        <span class="menu-icon">●</span>
+                        <span>Thông tin lưu trú</span>
+                    </li>
+                    <li class="menu-item menu-item-invoice" data-target="section-invoice">
+                        <span class="menu-icon">●</span>
+                        <span>Hóa đơn, biên lai</span>
+                    </li>
+                    <li class="menu-group" id="request-menu-group">
+                        <button class="menu-group-toggle menu-item-request" id="request-menu-toggle" type="button" aria-expanded="false">
+                            <span><span class="menu-icon">●</span> Yêu cầu</span>
+                            <span class="menu-group-caret">▾</span>
+                        </button>
+                        <ul class="submenu" id="request-submenu">
+                            <li class="submenu-item" data-target="section-request" data-req-type="Checkout">Yêu cầu trả phòng</li>
+                            <li class="submenu-item" data-target="section-request" data-req-type="Maintenance">Yêu cầu sửa chữa</li>
+                            <li class="submenu-item" data-target="section-request" data-req-type="RoomTransfer">Yêu cầu chuyển phòng</li>
+                            <li class="submenu-item" data-target="section-request" data-req-type="Other">Yêu cầu khác</li>
+                        </ul>
+                    </li>
+                    <li class="menu-item menu-item-notify" data-target="section-notify">
+                        <span class="menu-icon">●</span>
+                        <span>Thông báo</span>
+                        <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section id="section-info" class="tab-panel active">
+                <div class="inner-tabs">
+                    <button class="s-tab active" data-info="info-general" type="button">THÔNG TIN CHUNG</button>
+                    <button class="s-tab" data-info="info-contact" type="button">THÔNG TIN LIÊN HỆ</button>
+                    <button class="s-tab" data-info="info-password" type="button">ĐỔI MẬT KHẨU</button>
+                </div>
+
+                <div class="info-sub-panel active" id="info-general">
+                    <div class="content-card">
+                        <h2 class="section-title">THÔNG TIN CÁ NHÂN</h2>
+                        <table class="table-details portal-table">
+                            <tr><th>Họ và tên</th><td id="sv-fullname">—</td></tr>
+                            <tr><th>Số CCCD</th><td id="sv-citizenid">—</td></tr>
+                            <tr><th>Giới tính</th><td id="sv-gender">—</td></tr>
+                            <tr><th>Email</th><td id="sv-email">—</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-sub-panel" id="info-contact">
+                    <div class="dual-grid">
+                        <article class="content-card">
+                            <h2 class="section-title">THÔNG TIN CƯ TRÚ, LIÊN HỆ</h2>
+                            <div class="form-row">
+                                <label for="edit-phone">Số điện thoại</label>
+                                <input type="text" id="edit-phone" maxlength="10" placeholder="Nhập số điện thoại">
+                            </div>
+                            <div class="form-row">
+                                <label for="edit-address">Địa chỉ thường trú</label>
+                                <input type="text" id="edit-address" placeholder="Nhập địa chỉ thường trú">
+                            </div>
+                        </article>
+
+                        <article class="content-card">
+                            <h2 class="section-title">THÔNG TIN LIÊN LẠC</h2>
+                            <div class="form-row">
+                                <label for="edit-relative-name">Họ tên thân nhân</label>
+                                <input type="text" id="edit-relative-name" placeholder="Nhập họ tên thân nhân">
+                            </div>
+                            <div class="form-row">
+                                <label for="edit-relative-phone">Số điện thoại thân nhân</label>
+                                <input type="text" id="edit-relative-phone" placeholder="Nhập số điện thoại thân nhân">
+                            </div>
+                            <div class="form-row">
+                                <label for="edit-relationship">Quan hệ</label>
+                                <input type="text" id="edit-relationship" placeholder="Ví dụ: Bố, Mẹ, Anh/Chị">
+                            </div>
+                        </article>
+                    </div>
+                    <p class="form-error" id="contact-error"></p>
+                    <div class="action-row">
+                        <button id="save-contact-btn" type="button" class="btn-primary">Lưu thông tin</button>
+                    </div>
+                </div>
+
+                <div class="info-sub-panel" id="info-password">
+                    <div class="content-card narrow-card">
+                        <h2 class="section-title">ĐỔI MẬT KHẨU</h2>
+                        <div class="form-row">
+                            <label for="pw-current">Mật khẩu hiện tại</label>
+                            <input type="password" id="pw-current">
+                        </div>
+                        <div class="form-row">
+                            <label for="pw-new">Mật khẩu mới</label>
+                            <input type="password" id="pw-new">
+                        </div>
+                        <div class="form-row">
+                            <label for="pw-confirm">Xác nhận mật khẩu mới</label>
+                            <input type="password" id="pw-confirm">
+                        </div>
+                        <p class="form-error" id="pw-error"></p>
+                        <div class="action-row">
+                            <button id="change-pw-btn" type="button" class="btn-primary">Đổi mật khẩu</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-room" class="tab-panel">
+                <div class="content-card">
+                    <h2 class="page-heading">Thông tin lưu trú hiện tại</h2>
+                    <div id="room-content">
+                        <div class="loading-state">Đang tải thông tin phòng...</div>
+                    </div>
+                </div>
+
+                <div class="content-card section-gap">
+                    <div id="contract-content">
+                        <div class="loading-state">Đang tải hợp đồng...</div>
+                    </div>
+                    <div id="renewal-section" style="display:none">
+                        <h2 class="section-title">GÓI GIA HẠN</h2>
+                        <div id="renewal-packages-list" class="grid-2"></div>
+                        <p class="form-error" id="renewal-error"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-invoice" class="tab-panel">
+                <div class="content-card">
+                    <h2 class="page-heading">Hóa đơn, biên lai</h2>
+                    <div id="invoice-content">
+                        <div class="loading-state">Đang tải hóa đơn...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-request" class="tab-panel">
+                <div class="content-card">
+                    <h2 class="page-heading" id="request-section-title">Yêu cầu</h2>
+                    <p class="section-subtitle" id="request-section-desc">Gửi yêu cầu tới ban quản lý ký túc xá.</p>
+                </div>
+
+                <div class="content-card" id="request-form-card">
+                    <h2 class="section-title">TẠO YÊU CẦU MỚI</h2>
+                    <div class="form-row">
+                        <label for="req-title">Tiêu đề yêu cầu</label>
+                        <input type="text" id="req-title" maxlength="200">
+                    </div>
+                    <div class="form-row">
+                        <label for="req-desc">Nội dung chi tiết</label>
+                        <textarea id="req-desc" rows="4"></textarea>
+                    </div>
+                    <p class="form-error" id="req-error"></p>
+                    <div class="action-row">
+                        <button type="button" class="btn-primary" id="req-submit-btn">Gửi yêu cầu</button>
+                    </div>
+                </div>
+
+                <div class="content-card section-gap">
+                    <h2 class="section-title">LỊCH SỬ YÊU CẦU</h2>
+                    <div id="my-requests-list">
+                        <div class="loading-state">Đang tải...</div>
+                    </div>
+                </div>
+            </section>
+
+            <div id="transfer-form-template" style="display:none">
+                <div class="content-card section-gap">
+                    <h2 class="section-title">YÊU CẦU CHUYỂN PHÒNG</h2>
+                    <div class="form-row">
+                        <label for="transfer-search">Tìm kiếm phòng</label>
+                        <input type="text" id="transfer-search" placeholder="Nhập mã phòng, tên tòa nhà...">
+                    </div>
+                    <div id="transfer-room-list" class="room-list">
+                        <div class="loading-state">Đang tải danh sách phòng khả dụng...</div>
+                    </div>
+                    <div class="form-row" id="transfer-selected-info" style="display:none">
+                        <label>Phòng đã chọn</label>
+                        <input type="text" id="transfer-selected-display" readonly>
+                        <input type="hidden" id="transfer-selected-id">
+                    </div>
+                    <div class="form-row">
+                        <label for="transfer-reason">Lý do chuyển phòng</label>
+                        <textarea id="transfer-reason" rows="4"></textarea>
+                    </div>
+                    <p class="form-error" id="transfer-error"></p>
+                    <div class="action-row">
+                        <button type="button" class="btn-primary" id="transfer-submit-btn">Gửi yêu cầu chuyển phòng</button>
+                    </div>
+                </div>
+            </div>
+
+            <section id="section-notify" class="tab-panel">
+                <div class="content-card">
+                    <h2 class="page-heading">Thông báo</h2>
+                    <div id="notify-content">
+                        <div class="loading-state">Đang tải thông báo...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal-backdrop" id="force-change-pw-modal">
+        <div class="modal-card">
+            <h3>Đổi mật khẩu lần đầu</h3>
+            <p class="modal-desc">Vì lý do bảo mật, bạn cần đổi mật khẩu trước khi tiếp tục sử dụng hệ thống.</p>
+            <div class="form-row">
+                <label for="fcp-old">Mật khẩu cũ</label>
+                <input type="password" id="fcp-old">
+            </div>
+            <div class="form-row">
+                <label for="fcp-new">Mật khẩu mới</label>
+                <input type="password" id="fcp-new">
+            </div>
+            <div class="form-row">
+                <label for="fcp-confirm">Xác nhận mật khẩu mới</label>
+                <input type="password" id="fcp-confirm">
+            </div>
+            <p class="modal-error" id="fcp-error"></p>
+            <div class="action-row">
+                <button class="btn-primary" id="fcp-submit-btn" type="button">Đổi mật khẩu</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-message" id="toast" style="display:none"></div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        requireRole('Student');
+    </script>
+    <script src="../js/student.js"></script>
+</body>
+</html>

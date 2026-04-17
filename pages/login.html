@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập hệ thống</title>
+    <meta name="description" content="Đăng nhập hệ thống quản lý ký túc xá">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body class="login-page">
+    <div class="top-stripe"></div>
+
+    <header class="portal-header">
+        <div class="portal-logo">
+            <img src="../assets/images/dn-ktx-banner.svg" alt="Trung tâm quản lý ký túc xá Đại học Đà Nẵng" class="portal-logo-image">
+        </div>
+        <h1 class="portal-title">HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ</h1>
+    </header>
+
+    <main class="login-layout">
+        <section class="login-panel">
+            <div class="login-card">
+                <h2 class="login-title">ĐĂNG NHẬP</h2>
+                <p class="login-error" id="login-error" role="alert"></p>
+
+                <form class="login-form" id="login-form" novalidate>
+                    <div class="field-wrap">
+                        <label for="username">CMND/CCCD</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Zm0 2c-3.04 0-5.95 1.23-8.1 3.4a1 1 0 0 0 .71 1.7h14.78a1 1 0 0 0 .71-1.7A11.4 11.4 0 0 0 12 14Z"/>
+                                </svg>
+                            </span>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Nhập 12 số CCCD"
+                                maxlength="12"
+                                autocomplete="username"
+                                inputmode="numeric"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="field-wrap">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4Zm2 8.75A1.75 1.75 0 1 1 13.75 14 1.75 1.75 0 0 1 12 15.75Z"/>
+                                </svg>
+                            </span>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Nhập mật khẩu"
+                                autocomplete="current-password"
+                                required>
+                            <button type="button" class="password-toggle" id="password-toggle" aria-label="Hiển thị mật khẩu" aria-pressed="false">
+                                <svg class="eye-open" viewBox="0 0 24 24" focusable="false">
+                                    <path d="M12 5C6.5 5 2.1 8.4.3 12c1.8 3.6 6.2 7 11.7 7s9.9-3.4 11.7-7C21.9 8.4 17.5 5 12 5Zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-6a2 2 0 1 0 2 2 2 2 0 0 0-2-2Z"/>
+                                </svg>
+                                <svg class="eye-closed" viewBox="0 0 24 24" focusable="false">
+                                    <path d="m3.3 2.3-1 1 3 3A13.8 13.8 0 0 0 .3 12c1.8 3.6 6.2 7 11.7 7a12.3 12.3 0 0 0 5.1-1.1l3.6 3.6 1-1Zm8.7 4.7a5 5 0 0 1 5 5 4.9 4.9 0 0 1-.6 2.4l-1.5-1.5a2.9 2.9 0 0 0 0-.9 3 3 0 0 0-3-3 2.9 2.9 0 0 0-.9.1L9.5 7.6A4.9 4.9 0 0 1 12 7Zm-8.8 5a11.8 11.8 0 0 1 3.6-3.7l1.6 1.6a4.9 4.9 0 0 0-.4 2.1 5 5 0 0 0 5 5 4.9 4.9 0 0 0 2.1-.4l1.3 1.3A10.5 10.5 0 0 1 12 17c-4.5 0-8.2-2.6-9.8-5Zm8.1-1.1 2.8 2.8A3 3 0 0 1 11.3 10.9Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="remember-row">
+                        <label class="remember-box" for="remember">
+                            <input type="checkbox" id="remember" name="remember">
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="login-btn">Đăng nhập</button>
+                    <button type="button" class="forgot-btn" id="forgot-link">Quên mật khẩu</button>
+                </form>
+            </div>
+
+            <section class="guide-card">
+                <h3>HƯỚNG DẪN SINH VIÊN ĐĂNG NHẬP VÀO TRANG TRA CỨU THÔNG TIN</h3>
+                <div class="guide-points">
+                    <p><strong>User:</strong> CMND/CCCD</p>
+                    <p><strong>Mật khẩu:</strong> Mặc định đăng nhập lần đầu là số CMND/CCCD</p>
+                </div>
+                <p class="guide-note">
+                    Trường hợp sinh viên đã thay đổi mật khẩu và quên mật khẩu, mà trước khi vào ở KTX có khai báo email trên hệ thống nhưng đến nay email không còn sử dụng, để lấy lại mật khẩu thì sinh viên liên hệ trưởng nhà cập nhật lại email, sau đó thực hiện thao tác Quên mật khẩu và làm theo hướng dẫn trên form. Xin cảm ơn.
+                </p>
+
+                <div class="guide-register-block">
+                    <p class="guide-register-text">
+                        Chưa có tài khoản? Nếu bạn là sinh viên mới và chưa đăng ký nội trú, vui lòng nhấn vào nút bên dưới để làm thủ tục.
+                    </p>
+                    <a href="register.html" class="guide-register-button">Đăng ký ngay</a>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <div class="modal" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn" aria-label="Đóng">&times;</button>
+            <h2 id="forgot-title">Quên mật khẩu?</h2>
+            <p>Liên hệ ban quản lý ký túc xá để được cấp lại mật khẩu. Mật khẩu mặc định ban đầu là số CCCD của bạn.</p>
+            <form class="forgot-form" id="forgot-form">
+                <div class="field-wrap">
+                    <label for="forgot-cccd">Số CCCD của bạn</label>
+                    <input type="text" id="forgot-cccd" placeholder="Nhập 12 chữ số CCCD" maxlength="12" inputmode="numeric">
+                </div>
+                <button type="submit" class="submit-btn">Gửi yêu cầu hỗ trợ</button>
+                <a href="#" class="back-to-login" id="back-to-login-btn">Quay lại đăng nhập</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        var API_BASE = 'http://localhost:5280';
+        var loginForm = document.getElementById('login-form');
+        var loginBtn = document.getElementById('login-btn');
+        var errorEl = document.getElementById('login-error');
+        var rememberEl = document.getElementById('remember');
+        var modal = document.getElementById('forgot-modal');
+        var passwordInput = document.getElementById('password');
+        var passwordToggle = document.getElementById('password-toggle');
+
+        (function checkAuth() {
+            var token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            var role = localStorage.getItem('role') || sessionStorage.getItem('role');
+            if (!token) return;
+            if (role === 'Student') window.location.href = 'student.html';
+            else if (role === 'Admin') window.location.href = 'admin.html';
+        })();
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.classList.add('visible');
+        }
+
+        function clearError() {
+            errorEl.textContent = '';
+            errorEl.classList.remove('visible');
+        }
+
+        function setBusy(busy) {
+            loginBtn.disabled = busy;
+            loginBtn.textContent = busy ? 'Đang đăng nhập...' : 'Đăng nhập';
+        }
+
+        function storeAuth(data) {
+            var remember = rememberEl.checked;
+            var store = remember ? localStorage : sessionStorage;
+            var other = remember ? sessionStorage : localStorage;
+
+            store.setItem('token', data.token);
+            store.setItem('role', data.role || '');
+            store.setItem('fullName', data.fullName || '');
+            store.setItem('mustChangePassword', data.mustChangePassword ? 'true' : 'false');
+
+            ['token', 'role', 'fullName', 'mustChangePassword'].forEach(function (key) {
+                other.removeItem(key);
+            });
+        }
+
+        function syncPasswordToggle() {
+            var isText = passwordInput.type === 'text';
+            passwordToggle.setAttribute('aria-pressed', isText ? 'true' : 'false');
+            passwordToggle.setAttribute('aria-label', isText ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu');
+        }
+
+        async function doLogin(citizenId, password) {
+            var res = await fetch(API_BASE + '/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ citizenId: citizenId, password: password })
+            });
+
+            var payload = {};
+            try { payload = await res.json(); } catch (_) {}
+
+            if (!res.ok) {
+                throw new Error(payload.message || 'Sai CCCD hoặc mật khẩu.');
+            }
+
+            var token = payload.token || payload.Token || '';
+            if (!token) throw new Error('Không nhận được token đăng nhập.');
+
+            return {
+                token: token,
+                role: payload.role || payload.Role || '',
+                fullName: payload.fullName || payload.FullName || '',
+                mustChangePassword: payload.mustChangePassword || false
+            };
+        }
+
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            clearError();
+
+            var citizenId = document.getElementById('username').value.trim();
+            var password = passwordInput.value;
+
+            if (!/^\d{12}$/.test(citizenId)) {
+                showError('CCCD phải gồm đúng 12 chữ số.');
+                return;
+            }
+            if (!password) {
+                showError('Vui lòng nhập mật khẩu.');
+                return;
+            }
+
+            try {
+                setBusy(true);
+                var data = await doLogin(citizenId, password);
+                storeAuth(data);
+
+                if (data.role === 'Student') window.location.href = 'student.html';
+                else if (data.role === 'Admin') window.location.href = 'admin.html';
+                else showError('Vai trò không xác định. Liên hệ quản lý.');
+            } catch (err) {
+                showError(err.message || 'Đăng nhập thất bại.');
+            } finally {
+                setBusy(false);
+            }
+        });
+
+        passwordToggle.addEventListener('click', function () {
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            syncPasswordToggle();
+        });
+
+        document.getElementById('forgot-link').addEventListener('click', function () {
+            modal.classList.add('open');
+        });
+
+        document.getElementById('modal-close-btn').addEventListener('click', function () {
+            modal.classList.remove('open');
+        });
+
+        document.getElementById('back-to-login-btn').addEventListener('click', function (e) {
+            e.preventDefault();
+            modal.classList.remove('open');
+        });
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+
+        document.getElementById('forgot-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var cccd = document.getElementById('forgot-cccd').value.trim();
+            if (!cccd) {
+                alert('Vui lòng nhập số CCCD.');
+                return;
+            }
+            alert('Yêu cầu đã được ghi nhận. Vui lòng liên hệ ban quản lý ký túc xá để được hỗ trợ.');
+            modal.classList.remove('open');
+            document.getElementById('forgot-form').reset();
+        });
+
+        syncPasswordToggle();
+    })();
+    </script>
+</body>
+</html>

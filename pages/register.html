@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký ở trú – Hệ thống Quản lý Ký túc xá</title>
+    <meta name="description" content="Form đăng ký ở trú ký túc xá sinh viên">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* ===== HEADER ===== */
+        .page-header {
+            position: relative;
+            background: #fff;
+            color: #1e293b;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            min-height: 146px;
+            border-bottom: 1px solid #d7dde3;
+        }
+
+        .page-header::before {
+            content: "";
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 474px;
+            max-width: 100%;
+            height: 98px;
+            padding: 12px 14px;
+            background:
+                url("../assets/images/dn-ktx-banner.svg") center / calc(100% - 28px) auto no-repeat,
+                rgba(255, 255, 255, 0.92);
+            border-radius: 22px;
+            box-shadow: 0 10px 26px rgba(85, 123, 154, 0.08);
+        }
+
+        .page-header-icon {
+            display: none;
+        }
+
+        .page-header > div:nth-child(2) {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: min(100%, 760px);
+            padding: 0 24px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #2d98d1;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page-header p {
+            color: #5f7081;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .page-header-right {
+            margin-left: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-back {
+            color: #2f79a8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-back:hover { text-decoration: underline; }
+
+        /* ===== CONTAINER ===== */
+        .page-body {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* ===== STEPS ===== */
+        .steps {
+            display: flex;
+            gap: 0;
+            margin-bottom: 28px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #dce4ef;
+            overflow: hidden;
+        }
+
+        .step {
+            flex: 1;
+            padding: 14px 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+            border-right: 1px solid #dce4ef;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .step:last-child { border-right: 0; }
+
+        .step.active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .step.done {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .step-num {
+            display: inline-flex;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            background: #e2e8f0;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 6px;
+        }
+
+        .step.active .step-num { background: #2563eb; color: #fff; }
+        .step.done .step-num   { background: #16a34a; color: #fff; }
+
+        /* ===== CARD ===== */
+        .card {
+            background: #fff;
+            border: 1px solid #dce4ef;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8eff5;
+        }
+
+        /* ===== FORM GRID ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full { grid-column: 1 / -1; }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .form-group label .req { color: #ef4444; margin-left: 2px; }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 11px 13px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1e293b;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+
+        .form-group input.error,
+        .form-group select.error,
+        .form-group textarea.error {
+            border-color: #ef4444;
+        }
+
+        .field-error {
+            font-size: 12px;
+            color: #ef4444;
+            min-height: 16px;
+        }
+
+        /* ===== PHÒNG LIST ===== */
+        .room-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .room-filter input {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .room-filter input:focus { border-color: #3b82f6; }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .room-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            background: #fff;
+        }
+
+        .room-card:hover   { border-color: #93c5fd; background: #eff6ff; }
+        .room-card.selected { border-color: #2563eb; background: #eff6ff; }
+
+        .room-card-code {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1e3a5f;
+            margin-bottom: 4px;
+        }
+
+        .room-card-info {
+            font-size: 12px;
+            color: #64748b;
+            display: grid;
+            gap: 2px;
+        }
+
+        .room-slots {
+            display: inline-flex;
+            margin-top: 8px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .room-slots.full { background: #fee2e2; color: #dc2626; }
+
+        /* ===== DATE ROW ===== */
+        .date-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* ===== SELECTED ROOM PREVIEW ===== */
+        .selected-room-preview {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .selected-room-preview.show { display: block; }
+
+        /* ===== OCR SECTION ===== */
+        .ocr-section {
+            background: #fffbeb;
+            border: 1px dashed #f59e0b;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .ocr-section h3 { font-size: 15px; color: #92400e; margin-bottom: 8px; }
+        .ocr-section p  { font-size: 13px; color: #78350f; margin-bottom: 12px; }
+
+        .ocr-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label.upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f59e0b;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            font-family: inherit;
+        }
+
+        label.upload-btn:hover { opacity: 0.88; }
+        #ocr-file-input { display: none; }
+
+        .ocr-status {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* ===== ACTIONS ===== */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+
+        .btn-primary:hover   { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        /* ===== SUCCESS SCREEN ===== */
+        .success-screen {
+            text-align: center;
+            padding: 48px 24px;
+            display: none;
+        }
+
+        .success-screen .success-icon { font-size: 64px; margin-bottom: 16px; }
+        .success-screen h2 { font-size: 24px; color: #16a34a; margin-bottom: 8px; }
+        .success-screen p  { color: #6b7280; font-size: 15px; line-height: 1.6; }
+
+        .reg-code-box {
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px auto;
+            max-width: 360px;
+        }
+
+        .reg-code-box span { display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+        .reg-code-box strong { font-size: 22px; color: #16a34a; letter-spacing: 1px; }
+
+        /* ===== GLOBAL ERROR ===== */
+        .form-global-error {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .form-grid, .date-row { grid-template-columns: 1fr; }
+            .page-header {
+                min-height: auto;
+                padding: 16px;
+                flex-direction: column;
+                align-items: center;
+                gap: 14px;
+            }
+            .page-header::before {
+                width: 100%;
+                height: 92px;
+            }
+            .page-header > div:nth-child(2) {
+                position: static;
+                transform: none;
+                width: auto;
+                padding: 0;
+            }
+            .page-header h1 { font-size: 26px; }
+            .page-body   { padding: 20px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="page-header">
+    <div class="page-header-icon">🏛️</div>
+    <div>
+        <h1>Đăng ký ở trú Ký túc xá</h1>
+        <p>Điền đầy đủ thông tin để gửi đơn đăng ký. Admin sẽ xét duyệt sau.</p>
+    </div>
+    <div class="page-header-right">
+        <a href="login.html" class="btn-back">← Quay lại đăng nhập</a>
+    </div>
+</header>
+
+<div class="page-body">
+
+    <!-- STEPS -->
+    <div class="steps">
+        <div class="step active" id="step-indicator-1">
+            <span class="step-num">1</span> Thông tin cá nhân
+        </div>
+        <div class="step" id="step-indicator-2">
+            <span class="step-num">2</span> Thân nhân
+        </div>
+        <div class="step" id="step-indicator-3">
+            <span class="step-num">3</span> Chọn phòng & Thời gian
+        </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="success-screen">
+        <div class="success-icon">✅</div>
+        <h2>Đăng ký thành công!</h2>
+        <p>Đơn đăng ký của bạn đã được gửi. Admin sẽ xét duyệt và tạo tài khoản cho bạn.<br>
+           Mật khẩu mặc định sẽ là số CCCD của bạn.</p>
+        <div class="reg-code-box">
+            <span>Mã đăng ký</span>
+            <strong id="reg-success-code">—</strong>
+        </div>
+        <a href="login.html" class="btn-primary" style="display:inline-flex;margin-top:8px;text-decoration:none">Về trang đăng nhập</a>
+    </div>
+
+    <!-- FORM -->
+    <form id="register-form" novalidate>
+
+        <!-- GLOBAL ERROR -->
+        <div class="form-global-error" id="global-error"></div>
+
+        <!-- BƯỚC 1: THÔNG TIN CÁ NHÂN -->
+        <div class="card" id="step-1">
+            <h2>Bước 1: Thông tin cá nhân</h2>
+
+            <!-- OCR CCCD -->
+            <div class="ocr-section">
+                <h3>📸 Trích xuất từ ảnh CCCD (tùy chọn)</h3>
+                <p>Tải ảnh CCCD để tự động điền thông tin. Bạn vẫn có thể điền tay.</p>
+                <div class="ocr-upload-area">
+                    <label class="upload-btn" for="ocr-file-input">📷 Chọn ảnh CCCD</label>
+                    <input type="file" id="ocr-file-input" accept="image/*">
+                    <span class="ocr-status" id="ocr-status">Chưa chọn ảnh</span>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="reg-fullname">Họ và tên <span class="req">*</span></label>
+                    <input type="text" id="reg-fullname" placeholder="VD: Nguyễn Văn A" maxlength="100">
+                    <span class="field-error" id="err-fullname"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-citizenid">Số CCCD <span class="req">*</span></label>
+                    <input type="text" id="reg-citizenid" placeholder="12 chữ số" maxlength="12">
+                    <span class="field-error" id="err-citizenid"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-gender">Giới tính <span class="req">*</span></label>
+                    <select id="reg-gender">
+                        <option value="">-- Chọn giới tính --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                    <span class="field-error" id="err-gender"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-phone">Số điện thoại <span class="req">*</span></label>
+                    <input type="tel" id="reg-phone" placeholder="03/05/07/08/09xxxxxxxx" maxlength="10">
+                    <span class="field-error" id="err-phone"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-email">Email <span class="req">*</span></label>
+                    <input type="email" id="reg-email" placeholder="example@gmail.com">
+                    <span class="field-error" id="err-email"></span>
+                </div>
+
+                <div class="form-group full">
+                    <label for="reg-address">Địa chỉ thường trú <span class="req">*</span></label>
+                    <input type="text" id="reg-address" placeholder="VD: 123 Đường ABC, Phường XYZ, TP. Đà Nẵng">
+                    <span class="field-error" id="err-address"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- BƯỚC 2: THÂN NHÂN -->
+        <div class="card" id="step-2">
+            <h2>Bước 2: Thông tin thân nhân (tùy chọn)</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="reg-rel-name">Họ tên thân nhân</label>
+                    <input type="text" id="reg-rel-name" placeholder="VD: Nguyễn Thị B">
+                    <span class="field-error" id="err-rel-name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-rel-phone">SĐT thân nhân</label>
+                    <input type="tel" id="reg-rel-phone" placeholder="03/05/07/08/09xxxxxxxx" maxlength="10">
+                    <span class="field-error" id="err-rel-phone"></span>
+                </div>
+
+                <div class="form-group full">
+                    <label for="reg-relationship">Quan hệ</label>
+                    <input type="text" id="reg-relationship" placeholder="VD: Bố, Mẹ, Anh/Chị...">
+                </div>
+            </div>
+        </div>
+
+        <!-- BƯỚC 3: CHỌN PHÒNG & THỜI GIAN -->
+        <div class="card" id="step-3">
+            <h2>Bước 3: Chọn phòng & Thời gian lưu trú</h2>
+
+            <div class="room-filter">
+                <input type="text" id="room-search" placeholder="🔍 Tìm theo mã phòng, tòa nhà...">
+            </div>
+
+            <div class="room-grid" id="room-grid">
+                <div style="text-align:center;color:#64748b;padding:20px;grid-column:1/-1">Đang tải danh sách phòng...</div>
+            </div>
+
+            <div class="selected-room-preview" id="selected-room-preview">
+                ✅ Đã chọn phòng: <strong id="selected-room-display">—</strong>
+                <input type="hidden" id="reg-roomid">
+            </div>
+            <span class="field-error" id="err-room"></span>
+
+            <div class="date-row" style="margin-top:16px">
+                <div class="form-group">
+                    <label for="reg-startdate">Ngày bắt đầu <span class="req">*</span></label>
+                    <input type="date" id="reg-startdate">
+                    <span class="field-error" id="err-startdate"></span>
+                </div>
+                <div class="form-group">
+                    <label for="reg-enddate">Ngày kết thúc <span class="req">*</span></label>
+                    <input type="date" id="reg-enddate">
+                    <span class="field-error" id="err-enddate"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" onclick="window.location.href='login.html'">Hủy</button>
+            <button type="submit" class="btn-primary" id="submit-btn">📤 Gửi đơn đăng ký</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+(function () {
+    const API_URL = 'http://localhost:5280/api';
+    let allRooms    = [];
+    let selectedRoomId = null;
+
+    // ── Set min date = hôm nay
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('reg-startdate').min = today;
+    document.getElementById('reg-enddate').min   = today;
+
+    // ── Tải danh sách phòng trống
+    async function loadRooms() {
+        try {
+            const res  = await fetch(`${API_URL}/room/available`);
+            const data = await res.json();
+            allRooms = Array.isArray(data) ? data : [];
+            renderRooms(allRooms);
+        } catch (e) {
+            document.getElementById('room-grid').innerHTML =
+                '<div style="grid-column:1/-1;color:#ef4444">Không thể tải danh sách phòng. Kiểm tra kết nối BE.</div>';
+        }
+    }
+
+    function renderRooms(rooms) {
+        const grid = document.getElementById('room-grid');
+        if (!rooms.length) {
+            grid.innerHTML = '<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">Không có phòng nào khả dụng.</div>';
+            return;
+        }
+        grid.innerHTML = rooms.map(r => {
+            const slots  = r.availableSlots ?? (r.capacity - r.currentOccupancy);
+            const isFull = slots <= 0;
+            return `
+                <div class="room-card ${isFull ? 'disabled' : ''}" data-id="${r.id}" data-code="${r.roomCode}"
+                     ${isFull ? 'style="opacity:.5;cursor:not-allowed"' : ''}>
+                    <div class="room-card-code">${r.roomCode}</div>
+                    <div class="room-card-info">
+                        <span>${r.buildingName || ''} (${r.buildingCode || ''})</span>
+                        <span>${r.roomType || ''}</span>
+                        <span>Giới tính: ${r.genderAllowed || '—'}</span>
+                        <span>${r.currentOccupancy}/${r.capacity} người</span>
+                    </div>
+                    <span class="room-slots ${isFull ? 'full' : ''}">${isFull ? 'Đầy' : slots + ' chỗ trống'}</span>
+                </div>`;
+        }).join('');
+
+        grid.querySelectorAll('.room-card:not(.disabled)').forEach(card => {
+            card.addEventListener('click', () => {
+                grid.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedRoomId = Number(card.dataset.id);
+                document.getElementById('reg-roomid').value              = selectedRoomId;
+                document.getElementById('selected-room-display').textContent = card.dataset.code;
+                document.getElementById('selected-room-preview').classList.add('show');
+                document.getElementById('err-room').textContent = '';
+            });
+        });
+    }
+
+    // Search phòng
+    document.getElementById('room-search').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        renderRooms(allRooms.filter(r =>
+            (r.roomCode    || '').toLowerCase().includes(q) ||
+            (r.buildingName || '').toLowerCase().includes(q) ||
+            (r.buildingCode || '').toLowerCase().includes(q)
+        ));
+    });
+
+    // ── OCR CCCD
+    document.getElementById('ocr-file-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('ocr-status');
+        statusEl.textContent = '⏳ Đang trích xuất...';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await fetch(`${API_URL}/registrations/extract-cccd`, {
+                method: 'POST',
+                body: formData
+            });
+            const json = await res.json();
+            if (res.ok && json.success && json.data) {
+                const d = json.data;
+                if (d.fullName)    document.getElementById('reg-fullname').value   = d.fullName;
+                if (d.citizenId)   document.getElementById('reg-citizenid').value  = d.citizenId;
+                if (d.gender)      document.getElementById('reg-gender').value      = d.gender;
+                if (d.address)     document.getElementById('reg-address').value    = d.address;
+                statusEl.textContent = '✅ Đã điền từ CCCD';
+            } else {
+                statusEl.textContent = '⚠️ Không đọc được, hãy điền tay.';
+            }
+        } catch {
+            statusEl.textContent = '⚠️ Lỗi kết nối.';
+        }
+    });
+
+    // ── VALIDATION
+    function clearErrors() {
+        document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+        document.querySelectorAll('input.error, select.error, textarea.error').forEach(el => el.classList.remove('error'));
+        document.getElementById('global-error').style.display = 'none';
+    }
+
+    function setErr(fieldId, errId, msg) {
+        const el = document.getElementById(fieldId);
+        const er = document.getElementById(errId);
+        if (el) el.classList.add('error');
+        if (er) er.textContent = msg;
+        return false;
+    }
+
+    function validate() {
+        clearErrors();
+        let ok = true;
+        const fullName = document.getElementById('reg-fullname').value.trim();
+        const citizenId = document.getElementById('reg-citizenid').value.trim();
+        const gender    = document.getElementById('reg-gender').value;
+        const phone     = document.getElementById('reg-phone').value.trim();
+        const email     = document.getElementById('reg-email').value.trim();
+        const address   = document.getElementById('reg-address').value.trim();
+        const relPhone  = document.getElementById('reg-rel-phone').value.trim();
+        const startDate = document.getElementById('reg-startdate').value;
+        const endDate   = document.getElementById('reg-enddate').value;
+
+        if (!fullName)                              { setErr('reg-fullname',   'err-fullname',  'Họ tên không được để trống.');          ok = false; }
+        else if (!/^[\p{L}\s]+$/u.test(fullName))  { setErr('reg-fullname',   'err-fullname',  'Họ tên chỉ được chứa chữ cái và khoảng trắng.'); ok = false; }
+
+        if (!citizenId)                             { setErr('reg-citizenid',  'err-citizenid', 'Số CCCD không được để trống.');          ok = false; }
+        else if (!/^\d{12}$/.test(citizenId))       { setErr('reg-citizenid',  'err-citizenid', 'CCCD phải gồm đúng 12 chữ số.');          ok = false; }
+
+        if (!gender)                                { setErr('reg-gender',     'err-gender',    'Vui lòng chọn giới tính.');              ok = false; }
+
+        if (!phone)                                 { setErr('reg-phone',      'err-phone',     'Số điện thoại không được để trống.');    ok = false; }
+        else if (!/^(03|05|07|08|09)\d{8}$/.test(phone)) { setErr('reg-phone', 'err-phone',    'SĐT phải bắt đầu 03/05/07/08/09 và có 10 số.'); ok = false; }
+
+        if (!email)                                 { setErr('reg-email',      'err-email',     'Email không được để trống.');            ok = false; }
+        else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) { setErr('reg-email', 'err-email', 'Email phải có định dạng @gmail.com.'); ok = false; }
+
+        if (!address || address.length < 10)        { setErr('reg-address',    'err-address',   'Địa chỉ ít nhất 10 ký tự.');             ok = false; }
+
+        if (relPhone && !/^(03|05|07|08|09)\d{8}$/.test(relPhone)) {
+            setErr('reg-rel-phone', 'err-rel-phone', 'SĐT thân nhân không hợp lệ.'); ok = false;
+        }
+
+        if (!selectedRoomId) {
+            document.getElementById('err-room').textContent = 'Vui lòng chọn phòng.'; ok = false;
+        }
+
+        if (!startDate) { setErr('reg-startdate', 'err-startdate', 'Vui lòng chọn ngày bắt đầu.'); ok = false; }
+        if (!endDate)   { setErr('reg-enddate',   'err-enddate',   'Vui lòng chọn ngày kết thúc.'); ok = false; }
+        if (startDate && endDate && endDate <= startDate) {
+            setErr('reg-enddate', 'err-enddate', 'Ngày kết thúc phải sau ngày bắt đầu.'); ok = false;
+        }
+        if (startDate && startDate < today) {
+            setErr('reg-startdate', 'err-startdate', 'Ngày bắt đầu không được ở quá khứ.'); ok = false;
+        }
+
+        return ok;
+    }
+
+    // ── SUBMIT
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!validate()) {
+            document.querySelector('.field-error:not(:empty)')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Đang gửi...';
+
+        const dto = {
+            fullName:         document.getElementById('reg-fullname').value.trim(),
+            citizenId:        document.getElementById('reg-citizenid').value.trim(),
+            gender:           document.getElementById('reg-gender').value,
+            phone:            document.getElementById('reg-phone').value.trim(),
+            email:            document.getElementById('reg-email').value.trim(),
+            permanentAddress: document.getElementById('reg-address').value.trim(),
+            relativeName:     document.getElementById('reg-rel-name').value.trim(),
+            relativePhone:    document.getElementById('reg-rel-phone').value.trim(),
+            relationship:     document.getElementById('reg-relationship').value.trim(),
+            roomId:           selectedRoomId,
+            startDate:        new Date(document.getElementById('reg-startdate').value).toISOString(),
+            endDate:          new Date(document.getElementById('reg-enddate').value).toISOString(),
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/registrations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                document.getElementById('register-form').style.display = 'none';
+                document.getElementById('success-screen').style.display = 'block';
+                document.querySelectorAll('.steps').forEach(s => s.style.display = 'none');
+                document.getElementById('reg-success-code').textContent =
+                    data.data?.registrationCode || data.registrationCode || '—';
+                document.querySelector('.page-body').scrollTop = 0;
+                window.scrollTo(0, 0);
+            } else {
+                const errEl = document.getElementById('global-error');
+                errEl.textContent = data.message || 'Gửi đơn thất bại. Vui lòng kiểm tra lại thông tin.';
+                errEl.style.display = 'block';
+                errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } catch (err) {
+            const errEl = document.getElementById('global-error');
+            errEl.textContent = 'Không thể kết nối tới máy chủ. Kiểm tra BE đã chạy chưa.';
+            errEl.style.display = 'block';
+        } finally {
+            submitBtn.disabled  = false;
+            submitBtn.textContent = '📤 Gửi đơn đăng ký';
+        }
+    });
+
+    // ── INIT
+    loadRooms();
+})();
+</script>
+</body>
+</html>

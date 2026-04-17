@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang quản trị ký túc xá</title>
+    <meta name="description" content="Cổng quản trị hệ thống quản lý ký túc xá">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-page">
+    <div class="top-bar">
+        <div class="welcome-menu" id="welcome-menu">
+            <button type="button" class="welcome-trigger" id="welcome-trigger" aria-expanded="false">
+                <span class="welcome-copy">
+                    <span>Welcome,</span>
+                    <strong id="admin-name">Đang tải...</strong>
+                </span>
+                <span class="welcome-caret">▾</span>
+            </button>
+            <div class="welcome-dropdown" id="welcome-dropdown">
+                <button type="button" class="welcome-dropdown-item" id="logout-btn">Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <header class="portal-header">
+        <div class="portal-logo">
+            <div class="portal-logo-mark">KTX</div>
+            <div class="portal-logo-copy">
+                <strong>TRUNG TÂM QUẢN LÝ</strong>
+                <span>KÝ TÚC XÁ VÀ KHU ĐÔ THỊ</span>
+            </div>
+        </div>
+        <h1 class="portal-title">TRANG QUẢN TRỊ KÝ TÚC XÁ</h1>
+    </header>
+
+    <div class="portal-layout">
+        <aside class="sidebar">
+            <nav>
+                <div class="sidebar-title">Chức năng quản trị</div>
+                <button class="nav-link active" data-target="section-overview" type="button">Tổng quan</button>
+                <button class="nav-link" data-target="section-registrations" type="button">Đơn đăng ký</button>
+                <button class="nav-link" data-target="section-requests" type="button">Yêu cầu sinh viên</button>
+                <button class="nav-link" data-target="section-transfers" type="button">Chuyển phòng</button>
+                <button class="nav-link" data-target="section-renewals" type="button">Gia hạn hợp đồng</button>
+                <button class="nav-link" data-target="section-rooms" type="button">Danh sách phòng</button>
+                <button class="nav-link" data-target="section-notifications" type="button">Thông báo</button>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="panel active" id="section-overview">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Dashboard</p>
+                            <h2 class="page-heading">Tổng quan vận hành</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="refresh-dashboard-btn">Làm mới dữ liệu</button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <article class="stat-card">
+                            <span class="stat-label">Đơn đăng ký chờ duyệt</span>
+                            <strong class="stat-value" id="stat-registrations">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Yêu cầu đang chờ</span>
+                            <strong class="stat-value" id="stat-requests">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Yêu cầu chuyển phòng</span>
+                            <strong class="stat-value" id="stat-transfers">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Gia hạn hợp đồng</span>
+                            <strong class="stat-value" id="stat-renewals">0</strong>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="dual-grid">
+                    <article class="content-card">
+                        <div class="card-head">
+                            <h3>Danh sách chờ xử lý</h3>
+                            <span class="pill">Theo API</span>
+                        </div>
+                        <div id="overview-pending-feed" class="stack-list">
+                            <div class="empty-state">Đang tải dữ liệu...</div>
+                        </div>
+                    </article>
+
+                    <article class="content-card">
+                        <div class="card-head">
+                            <h3>Tình trạng phòng</h3>
+                            <span class="pill neutral">Toàn hệ thống</span>
+                        </div>
+                        <div id="overview-room-feed" class="stack-list">
+                            <div class="empty-state">Đang tải dữ liệu...</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel" id="section-registrations">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Registrations</p>
+                            <h2 class="page-heading">Duyệt đơn đăng ký ở trú</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-registrations-btn">Tải lại</button>
+                    </div>
+                    <div id="registrations-list" class="stack-list">
+                        <div class="empty-state">Đang tải danh sách đăng ký...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-requests">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Student Requests</p>
+                            <h2 class="page-heading">Xử lý yêu cầu sinh viên</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-requests-btn">Tải lại</button>
+                    </div>
+                    <div id="requests-list" class="stack-list">
+                        <div class="empty-state">Đang tải yêu cầu...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-transfers">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Room Transfers</p>
+                            <h2 class="page-heading">Duyệt yêu cầu chuyển phòng</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-transfers-btn">Tải lại</button>
+                    </div>
+                    <div id="transfers-list" class="stack-list">
+                        <div class="empty-state">Đang tải yêu cầu chuyển phòng...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-renewals">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Renewals</p>
+                            <h2 class="page-heading">Duyệt gia hạn hợp đồng</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-renewals-btn">Tải lại</button>
+                    </div>
+                    <div id="renewals-list" class="stack-list">
+                        <div class="empty-state">Đang tải yêu cầu gia hạn...</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-rooms">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Rooms</p>
+                            <h2 class="page-heading">Danh sách phòng hiện có</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-rooms-btn">Tải lại</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Phòng</th>
+                                    <th>Tòa nhà</th>
+                                    <th>Loại</th>
+                                    <th>Giới tính</th>
+                                    <th>Sức chứa</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rooms-table-body">
+                                <tr>
+                                    <td colspan="6" class="table-empty">Đang tải danh sách phòng...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-notifications">
+                <div class="dual-grid">
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Notifications</p>
+                                <h2 class="page-heading">Tạo thông báo</h2>
+                            </div>
+                        </div>
+                        <form id="notification-form" class="form-stack">
+                            <label>
+                                <span>User ID</span>
+                                <input type="number" id="notif-user-id" min="1" placeholder="Nhập ID người dùng">
+                            </label>
+                            <label>
+                                <span>Tiêu đề</span>
+                                <input type="text" id="notif-title" maxlength="150" placeholder="Ví dụ: Nhắc hạn thanh toán">
+                            </label>
+                            <label>
+                                <span>Nội dung</span>
+                                <textarea id="notif-message" rows="5" placeholder="Nội dung thông báo gửi đến người dùng"></textarea>
+                            </label>
+                            <p class="form-error" id="notif-form-error"></p>
+                            <button type="submit" class="primary-btn">Gửi thông báo</button>
+                        </form>
+                    </article>
+
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Notifications</p>
+                                <h2 class="page-heading">Thông báo gần đây</h2>
+                            </div>
+                            <button type="button" class="primary-btn" id="reload-notifications-btn">Tải lại</button>
+                        </div>
+                        <div id="notifications-list" class="stack-list">
+                            <div class="empty-state">Đang tải thông báo...</div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="toast" id="admin-toast"></div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        requireRole('Admin');
+    </script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>
