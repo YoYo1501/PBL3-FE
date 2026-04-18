@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang quản trị ký túc xá</title>
     <meta name="description" content="Cổng quản trị hệ thống quản lý ký túc xá">
+    <!-- Google Fonts: Roboto Vietnamese -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap&subset=vietnamese" rel="stylesheet">
     <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="admin-page">
@@ -43,7 +45,11 @@
                 <button class="nav-link" data-target="section-requests" type="button">Yêu cầu sinh viên</button>
                 <button class="nav-link" data-target="section-transfers" type="button">Chuyển phòng</button>
                 <button class="nav-link" data-target="section-renewals" type="button">Gia hạn hợp đồng</button>
-                <button class="nav-link" data-target="section-rooms" type="button">Danh sách phòng</button>
+                <button class="nav-link" data-target="section-contracts" type="button">Quản lý hợp đồng</button>
+                <button class="nav-link" data-target="section-invoices" type="button">Hóa đơn</button>
+                <button class="nav-link" data-target="section-rooms" type="button">Phòng + thiết bị</button>
+                <button class="nav-link" data-target="section-students" type="button">Sinh viên</button>
+                <button class="nav-link" data-target="section-revenue" type="button">Doanh thu</button>
                 <button class="nav-link" data-target="section-notifications" type="button">Thông báo</button>
             </nav>
         </aside>
@@ -114,6 +120,11 @@
                     <div id="registrations-list" class="stack-list">
                         <div class="empty-state">Đang tải danh sách đăng ký...</div>
                     </div>
+                    <div class="list-pagination" id="registrations-pagination">
+                        <button type="button" class="secondary-btn" id="registrations-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="registrations-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="registrations-next-btn">Trang sau</button>
+                    </div>
                 </div>
             </section>
 
@@ -128,6 +139,11 @@
                     </div>
                     <div id="requests-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu...</div>
+                    </div>
+                    <div class="list-pagination" id="requests-pagination">
+                        <button type="button" class="secondary-btn" id="requests-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="requests-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="requests-next-btn">Trang sau</button>
                     </div>
                 </div>
             </section>
@@ -144,6 +160,11 @@
                     <div id="transfers-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu chuyển phòng...</div>
                     </div>
+                    <div class="list-pagination" id="transfers-pagination">
+                        <button type="button" class="secondary-btn" id="transfers-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="transfers-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="transfers-next-btn">Trang sau</button>
+                    </div>
                 </div>
             </section>
 
@@ -159,6 +180,236 @@
                     <div id="renewals-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu gia hạn...</div>
                     </div>
+                    <div class="list-pagination" id="renewals-pagination">
+                        <button type="button" class="secondary-btn" id="renewals-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="renewals-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="renewals-next-btn">Trang sau</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-contracts">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Contracts</p>
+                            <h2 class="page-heading">Quản lý hợp đồng lưu trú</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-contracts-btn">Tải lại</button>
+                    </div>
+
+                    <div class="contract-filter-grid">
+                        <label>
+                            <span>Tìm theo mã / sinh viên / phòng</span>
+                            <input type="text" id="contract-search" placeholder="Ví dụ: HD, Nguyễn Văn A, A101">
+                        </label>
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="contract-filter-status">
+                                <option value="">Tất cả</option>
+                                <option value="Active">Đang hiệu lực</option>
+                                <option value="Expired">Hết hạn</option>
+                                <option value="Inactive">Vô hiệu</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="contract-layout">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã hợp đồng</th>
+                                        <th>Sinh viên</th>
+                                        <th>Phòng</th>
+                                        <th>Thời hạn</th>
+                                        <th>Giá</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contracts-table-body">
+                                    <tr>
+                                        <td colspan="7" class="table-empty">Đang tải danh sách hợp đồng...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="list-pagination" id="contracts-pagination">
+                                <button type="button" class="secondary-btn" id="contracts-prev-btn">Trang trước</button>
+                                <span class="pagination-summary" id="contracts-page-info">Trang 1 / 1</span>
+                                <button type="button" class="secondary-btn" id="contracts-next-btn">Trang sau</button>
+                            </div>
+                        </div>
+
+                        <aside class="contract-detail-card">
+                            <div class="card-head">
+                                <h3>Chi tiết hợp đồng</h3>
+                                <span class="pill neutral" id="contract-detail-code">Chưa chọn</span>
+                            </div>
+
+                            <div class="contract-detail-grid">
+                                <div class="contract-detail-item">
+                                    <span>Sinh viên</span>
+                                    <strong id="contract-detail-student">—</strong>
+                                </div>
+                                <div class="contract-detail-item">
+                                    <span>Phòng</span>
+                                    <strong id="contract-detail-room">—</strong>
+                                </div>
+                                <div class="contract-detail-item">
+                                    <span>Số ngày còn lại</span>
+                                    <strong id="contract-detail-days">—</strong>
+                                </div>
+                                <div class="contract-detail-item">
+                                    <span>Khả năng gia hạn</span>
+                                    <strong id="contract-detail-renew">—</strong>
+                                </div>
+                            </div>
+
+                            <form id="contract-edit-form" class="form-stack">
+                                <label>
+                                    <span>Ngày bắt đầu</span>
+                                    <input type="date" id="contract-start-date">
+                                </label>
+                                <label>
+                                    <span>Ngày kết thúc</span>
+                                    <input type="date" id="contract-end-date">
+                                </label>
+                                <label>
+                                    <span>Giá hợp đồng</span>
+                                    <input type="number" id="contract-price" min="0" step="1000" placeholder="450000">
+                                </label>
+                                <label>
+                                    <span>Trạng thái</span>
+                                    <select id="contract-status">
+                                        <option value="">Chọn trạng thái</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Expired">Expired</option>
+                                        <option value="Inactive">Inactive</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                </label>
+                                <p class="form-error" id="contract-form-error"></p>
+                                <div class="contract-actions">
+                                    <button type="submit" class="primary-btn" id="save-contract-btn">Lưu cập nhật</button>
+                                    <button type="button" class="danger-btn" id="deactivate-contract-btn">Vô hiệu hóa</button>
+                                </div>
+                            </form>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-invoices">
+                <div class="dual-grid">
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Invoices</p>
+                                <h2 class="page-heading">Import điện nước</h2>
+                            </div>
+                        </div>
+                        <form id="invoice-import-form" class="form-stack">
+                            <label>
+                                <span>Kỳ hóa đơn</span>
+                                <input type="text" id="invoice-import-period" placeholder="Ví dụ: 2026-04">
+                            </label>
+                            <label>
+                                <span>File Excel</span>
+                                <input type="file" id="invoice-import-file" accept=".xlsx">
+                            </label>
+                            <p class="form-error" id="invoice-import-error"></p>
+                            <button type="submit" class="primary-btn">Import dữ liệu</button>
+                        </form>
+                    </article>
+
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Invoices</p>
+                                <h2 class="page-heading">Tạo hóa đơn nháp</h2>
+                            </div>
+                        </div>
+                        <form id="invoice-generate-form" class="form-stack">
+                            <label>
+                                <span>Kỳ hóa đơn</span>
+                                <input type="text" id="invoice-generate-period" placeholder="Ví dụ: 2026-04">
+                            </label>
+                            <label>
+                                <span>Giá điện / kWh</span>
+                                <input type="number" id="invoice-electric-price" min="0" step="100" placeholder="3500">
+                            </label>
+                            <label>
+                                <span>Giá nước / m3</span>
+                                <input type="number" id="invoice-water-price" min="0" step="100" placeholder="15000">
+                            </label>
+                            <p class="form-error" id="invoice-generate-error"></p>
+                            <button type="submit" class="primary-btn">Tạo hóa đơn nháp</button>
+                        </form>
+                    </article>
+                </div>
+
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Invoices</p>
+                            <h2 class="page-heading">Quản lý hóa đơn</h2>
+                        </div>
+                        <div class="toolbar-actions">
+                            <button type="button" class="secondary-btn" id="reload-invoices-btn">Tải lại</button>
+                            <button type="button" class="secondary-btn" id="publish-invoices-btn">Phát hành kỳ đang lọc</button>
+                            <button type="button" class="secondary-btn" id="remind-debt-btn">Nhắc nợ kỳ đang lọc</button>
+                            <button type="button" class="primary-btn" id="export-invoices-btn">Xuất Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="invoice-filter-grid">
+                        <label>
+                            <span>Lọc theo kỳ</span>
+                            <input type="text" id="invoice-filter-period" placeholder="Ví dụ: 2026-04">
+                        </label>
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="invoice-filter-status">
+                                <option value="">Tất cả</option>
+                                <option value="Draft">Nháp</option>
+                                <option value="Unpaid">Chưa thanh toán</option>
+                                <option value="Paid">Đã thanh toán</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <p class="form-error" id="invoice-action-error"></p>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Kỳ</th>
+                                    <th>Phòng</th>
+                                    <th>Sinh viên</th>
+                                    <th>Tiền phòng</th>
+                                    <th>Tiền điện</th>
+                                    <th>Tiền nước</th>
+                                    <th>Tổng cộng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày phát hành</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoices-table-body">
+                                <tr>
+                                    <td colspan="11" class="table-empty">Đang tải danh sách hóa đơn...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="list-pagination" id="invoices-pagination">
+                        <button type="button" class="secondary-btn" id="invoices-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="invoices-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="invoices-next-btn">Trang sau</button>
+                    </div>
                 </div>
             </section>
 
@@ -167,28 +418,340 @@
                     <div class="section-head">
                         <div>
                             <p class="section-kicker">Rooms</p>
-                            <h2 class="page-heading">Danh sách phòng hiện có</h2>
+                            <h2 class="page-heading">Quản lý phòng và thiết bị</h2>
                         </div>
                         <button type="button" class="primary-btn" id="reload-rooms-btn">Tải lại</button>
                     </div>
+                    <div class="contract-filter-grid room-filter-grid">
+                        <label>
+                            <span>Tìm theo mã phòng / tòa / loại</span>
+                            <input type="text" id="room-search" placeholder="Ví dụ: A101, Tòa A, Phòng 4 người">
+                        </label>
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="room-filter-status">
+                                <option value="">Tất cả</option>
+                                <option value="Available">Available</option>
+                                <option value="Full">Full</option>
+                                <option value="Locked">Locked</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="contract-layout room-layout">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Phòng</th>
+                                        <th>Tòa nhà</th>
+                                        <th>Loại</th>
+                                        <th>Giới tính</th>
+                                        <th>Sức chứa</th>
+                                        <th>Giá</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rooms-table-body">
+                                    <tr>
+                                        <td colspan="8" class="table-empty">Đang tải danh sách phòng...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="list-pagination" id="rooms-pagination">
+                                <button type="button" class="secondary-btn" id="rooms-prev-btn">Trang trước</button>
+                                <span class="pagination-summary" id="rooms-page-info">Trang 1 / 1</span>
+                                <button type="button" class="secondary-btn" id="rooms-next-btn">Trang sau</button>
+                            </div>
+                        </div>
+
+                        <aside class="contract-detail-card">
+                            <div class="card-head">
+                                <h3>Phòng đang chọn</h3>
+                                <span class="pill neutral" id="room-detail-code">Chưa chọn</span>
+                            </div>
+
+                            <div class="contract-detail-grid">
+                                <div class="contract-detail-item">
+                                    <span>Tòa nhà</span>
+                                    <strong id="room-detail-building">—</strong>
+                                </div>
+                                <div class="contract-detail-item">
+                                    <span>Giới tính</span>
+                                    <strong id="room-detail-gender">—</strong>
+                                </div>
+                            </div>
+
+                            <form id="room-form" class="form-stack">
+                                <label>
+                                    <span>Tòa nhà</span>
+                                    <select id="room-building-id"></select>
+                                </label>
+                                <label>
+                                    <span>Mã phòng</span>
+                                    <input type="text" id="room-code" placeholder="Ví dụ: A103">
+                                </label>
+                                <label>
+                                    <span>Loại phòng</span>
+                                    <input type="text" id="room-type" placeholder="Ví dụ: Phòng 4 người">
+                                </label>
+                                <label>
+                                    <span>Sức chứa</span>
+                                    <input type="number" id="room-capacity" min="1" max="20">
+                                </label>
+                                <label>
+                                    <span>Số người hiện tại</span>
+                                    <input type="number" id="room-occupancy" min="0" max="20">
+                                </label>
+                                <label>
+                                    <span>Giá phòng</span>
+                                    <input type="number" id="room-price" min="0" step="1000">
+                                </label>
+                                <label>
+                                    <span>Trạng thái</span>
+                                    <select id="room-status">
+                                        <option value="Available">Available</option>
+                                        <option value="Full">Full</option>
+                                        <option value="Locked">Locked</option>
+                                    </select>
+                                </label>
+                                <p class="form-error" id="room-form-error"></p>
+                                <div class="contract-actions">
+                                    <button type="submit" class="primary-btn" id="save-room-btn">Lưu phòng</button>
+                                    <button type="button" class="secondary-btn" id="new-room-btn">Tạo mới</button>
+                                    <button type="button" class="danger-btn" id="delete-room-btn">Xóa phòng</button>
+                                </div>
+                            </form>
+
+                            <hr class="section-divider">
+
+                            <div class="card-head">
+                                <h3>Thiết bị phòng</h3>
+                                <span class="pill neutral" id="facility-room-code">Chưa chọn phòng</span>
+                            </div>
+                            <div id="room-facilities-list" class="stack-list">
+                                <div class="empty-state">Chọn một phòng để xem thiết bị.</div>
+                            </div>
+                            <form id="facility-form" class="form-stack">
+                                <label>
+                                    <span>Tên thiết bị</span>
+                                    <input type="text" id="facility-name" placeholder="Ví dụ: Giường tầng">
+                                </label>
+                                <label>
+                                    <span>Số lượng</span>
+                                    <input type="number" id="facility-quantity" min="1" step="1" value="1">
+                                </label>
+                                <label>
+                                    <span>Tình trạng</span>
+                                    <select id="facility-status">
+                                        <option value="Good">Good</option>
+                                        <option value="Broken">Broken</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                    </select>
+                                </label>
+                                <p class="form-error" id="facility-form-error"></p>
+                                <div class="contract-actions">
+                                    <button type="submit" class="primary-btn" id="save-facility-btn">Lưu thiết bị</button>
+                                    <button type="button" class="secondary-btn" id="new-facility-btn">Thiết bị mới</button>
+                                    <button type="button" class="danger-btn" id="delete-facility-btn">Xóa thiết bị</button>
+                                </div>
+                            </form>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-students">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Students</p>
+                            <h2 class="page-heading">Quản lý sinh viên</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-students-btn">Tải lại</button>
+                    </div>
+
+                    <div class="contract-filter-grid student-filter-grid">
+                        <label>
+                            <span>Tìm theo tên / CCCD / phòng</span>
+                            <input type="text" id="student-search" placeholder="Ví dụ: Nguyễn Văn A, 048..., A101">
+                        </label>
+                        <label>
+                            <span>Trạng thái tài khoản</span>
+                            <select id="student-filter-active">
+                                <option value="">Tất cả</option>
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Ngừng hoạt động</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="contract-layout student-layout">
+                        <div class="table-wrap">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Họ tên</th>
+                                        <th>CCCD</th>
+                                        <th>Giới tính</th>
+                                        <th>Phòng</th>
+                                        <th>Điện thoại</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-body">
+                                    <tr>
+                                        <td colspan="7" class="table-empty">Đang tải danh sách sinh viên...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="list-pagination" id="students-pagination">
+                                <button type="button" class="secondary-btn" id="students-prev-btn">Trang trước</button>
+                                <span class="pagination-summary" id="students-page-info">Trang 1 / 1</span>
+                                <button type="button" class="secondary-btn" id="students-next-btn">Trang sau</button>
+                            </div>
+                        </div>
+
+                        <aside class="contract-detail-card">
+                            <div class="card-head">
+                                <h3>Sinh viên đang chọn</h3>
+                                <span class="pill neutral" id="student-detail-name">Chưa chọn</span>
+                            </div>
+
+                            <div class="contract-detail-grid">
+                                <div class="contract-detail-item">
+                                    <span>Email</span>
+                                    <strong id="student-detail-email">—</strong>
+                                </div>
+                                <div class="contract-detail-item">
+                                    <span>Ngày tạo</span>
+                                    <strong id="student-detail-created">—</strong>
+                                </div>
+                            </div>
+
+                            <form id="student-form" class="form-stack">
+                                <label>
+                                    <span>Điện thoại</span>
+                                    <input type="text" id="student-phone" placeholder="Nhập số điện thoại">
+                                </label>
+                                <label>
+                                    <span>Địa chỉ thường trú</span>
+                                    <textarea id="student-address" rows="4" placeholder="Nhập địa chỉ thường trú"></textarea>
+                                </label>
+                                <label>
+                                    <span>Trạng thái tài khoản</span>
+                                    <select id="student-is-active">
+                                        <option value="true">Đang hoạt động</option>
+                                        <option value="false">Ngừng hoạt động</option>
+                                    </select>
+                                </label>
+                                <p class="form-error" id="student-form-error"></p>
+                                <div class="contract-actions">
+                                    <button type="submit" class="primary-btn" id="save-student-btn">Lưu sinh viên</button>
+                                    <button type="button" class="danger-btn" id="delete-student-btn">Xóa sinh viên</button>
+                                </div>
+                            </form>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel" id="section-revenue">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Revenue</p>
+                            <h2 class="page-heading">Báo cáo doanh thu</h2>
+                        </div>
+                        <div class="toolbar-actions">
+                            <button type="button" class="secondary-btn" id="load-revenue-btn">Xem báo cáo</button>
+                            <button type="button" class="primary-btn" id="export-revenue-btn">Xuất Excel</button>
+                        </div>
+                    </div>
+
+                    <div class="revenue-filter-grid">
+                        <label>
+                            <span>Từ ngày</span>
+                            <input type="date" id="revenue-start-date">
+                        </label>
+                        <label>
+                            <span>Đến ngày</span>
+                            <input type="date" id="revenue-end-date">
+                        </label>
+                        <label>
+                            <span>Kỳ hóa đơn</span>
+                            <input type="text" id="revenue-period" placeholder="Ví dụ: 2026-04">
+                        </label>
+                        <label>
+                            <span>Mã phòng</span>
+                            <input type="text" id="revenue-room-code" placeholder="Ví dụ: A101">
+                        </label>
+                    </div>
+
+                    <p class="form-error" id="revenue-form-error"></p>
+
+                    <div class="stats-grid revenue-stats-grid">
+                        <article class="stat-card">
+                            <span class="stat-label">Tổng tiền phòng</span>
+                            <strong class="stat-value" id="revenue-room-fee">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Tổng tiền điện</span>
+                            <strong class="stat-value" id="revenue-electric-fee">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Tổng tiền nước</span>
+                            <strong class="stat-value" id="revenue-water-fee">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Tổng doanh thu</span>
+                            <strong class="stat-value" id="revenue-grand-total">0</strong>
+                        </article>
+                    </div>
+
+                    <div class="stats-grid revenue-stats-grid secondary-stats-grid">
+                        <article class="stat-card">
+                            <span class="stat-label">Tổng hóa đơn</span>
+                            <strong class="stat-value" id="revenue-total-invoices">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Đã thanh toán</span>
+                            <strong class="stat-value" id="revenue-paid-invoices">0</strong>
+                        </article>
+                        <article class="stat-card">
+                            <span class="stat-label">Chưa thanh toán</span>
+                            <strong class="stat-value" id="revenue-unpaid-invoices">0</strong>
+                        </article>
+                    </div>
+
                     <div class="table-wrap">
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th>Kỳ</th>
                                     <th>Phòng</th>
-                                    <th>Tòa nhà</th>
-                                    <th>Loại</th>
-                                    <th>Giới tính</th>
-                                    <th>Sức chứa</th>
+                                    <th>Sinh viên</th>
+                                    <th>Tiền phòng</th>
+                                    <th>Tiền điện</th>
+                                    <th>Tiền nước</th>
+                                    <th>Tổng cộng</th>
                                     <th>Trạng thái</th>
+                                    <th>Ngày tạo</th>
                                 </tr>
                             </thead>
-                            <tbody id="rooms-table-body">
+                            <tbody id="revenue-table-body">
                                 <tr>
-                                    <td colspan="6" class="table-empty">Đang tải danh sách phòng...</td>
+                                    <td colspan="9" class="table-empty">Chọn bộ lọc rồi bấm Xem báo cáo để tải dữ liệu.</td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                    <div class="list-pagination" id="revenue-pagination">
+                        <button type="button" class="secondary-btn" id="revenue-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="revenue-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="revenue-next-btn">Trang sau</button>
                     </div>
                 </div>
             </section>
@@ -230,6 +793,11 @@
                         </div>
                         <div id="notifications-list" class="stack-list">
                             <div class="empty-state">Đang tải thông báo...</div>
+                        </div>
+                        <div class="list-pagination" id="notifications-pagination">
+                            <button type="button" class="secondary-btn" id="notifications-prev-btn">Trang trước</button>
+                            <span class="pagination-summary" id="notifications-page-info">Trang 1 / 1</span>
+                            <button type="button" class="secondary-btn" id="notifications-next-btn">Trang sau</button>
                         </div>
                     </article>
                 </div>

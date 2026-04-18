@@ -2,6 +2,7 @@
     --portal-blue: #4a92c0;
     --portal-blue-dark: #2f79a8;
     --portal-blue-soft: #e8f2f8;
+    --portal-brand: #1d4667;
     --portal-line: #d9dee3;
     --portal-text: #3f4650;
     --portal-muted: #7c8794;
@@ -49,15 +50,28 @@ select {
 
 .welcome-trigger {
     min-width: 180px;
-    padding: 8px 14px 8px 10px;
+    min-height: 42px;
+    padding: 6px 14px 6px 12px;
     background: rgba(255, 255, 255, 0.14);
     color: #fff;
     border: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 14px;
     cursor: pointer;
+    border-radius: 14px;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.welcome-trigger:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 18px rgba(18, 64, 96, 0.18);
+}
+
+.welcome-trigger:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.72);
+    outline-offset: 2px;
 }
 
 .welcome-trigger::before {
@@ -66,27 +80,60 @@ select {
     height: 36px;
     flex: 0 0 36px;
     border-radius: 50%;
-    background:
-        radial-gradient(circle at center, #ffffff 0 29%, transparent 31%),
-        radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.95) 0 22%, transparent 24%),
-        radial-gradient(ellipse at 50% 78%, rgba(255, 255, 255, 0.95) 0 30%, transparent 32%),
-        rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2.25a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM3.75 20.1a8.25 8.25 0 1 1 16.5 0 .75.75 0 0 1-1.5 0 6.75 6.75 0 0 0-13.5 0 .75.75 0 0 1-1.5 0Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: 22px 22px;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2.25a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM3.75 20.1a8.25 8.25 0 1 1 16.5 0 .75.75 0 0 1-1.5 0 6.75 6.75 0 0 0-13.5 0 .75.75 0 0 1-1.5 0Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: 22px 22px;
 }
 
 .welcome-copy {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     text-align: left;
-    line-height: 1.2;
+    line-height: 1;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 .welcome-copy span,
 .welcome-copy strong {
-    display: block;
+    display: inline;
+}
+
+.welcome-copy span {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.welcome-copy strong {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
 }
 
 .welcome-caret {
-    font-size: 12px;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    font-size: 0;
+    color: rgba(255, 255, 255, 0.92);
+    margin-left: 4px;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    background-color: currentColor;
 }
 
 .welcome-dropdown {
@@ -122,29 +169,21 @@ select {
     position: relative;
     display: flex;
     align-items: center;
-    padding: 18px 28px;
-    background: #fff;
-    border-bottom: 1px solid var(--portal-line);
-    min-height: 146px;
+    justify-content: flex-start;
+    gap: 22px;
+    padding: 16px 28px;
+    background: rgba(255, 255, 255, 0.74);
+    border-bottom: 1px solid rgba(215, 221, 227, 0.9);
+    backdrop-filter: blur(6px);
+    min-height: 116px;
 }
 
 .portal-logo {
+    display: flex;
+    align-items: center;
+    gap: 18px;
     position: relative;
     z-index: 1;
-    min-width: 520px;
-    min-height: 84px;
-    padding: 0;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
-}
-
-.portal-logo::before {
-    content: "";
-    display: block;
-    width: min(100%, 520px);
-    height: 84px;
-    background: url("../assets/images/dn-ktx-banner.svg") left center / contain no-repeat;
 }
 
 .portal-title {
@@ -153,25 +192,56 @@ select {
     top: 50%;
     transform: translate(-50%, -50%);
     margin: 0;
-    color: #2d98d1;
+    color: var(--portal-brand);
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 36px;
+    font-size: 0;
     font-weight: 700;
     line-height: 1.2;
+    letter-spacing: 0;
     text-align: center;
     width: min(100%, 760px);
     padding: 0 24px;
 }
 
+.portal-title::after {
+    content: "TRANG THÔNG TIN SINH VIÊN";
+    font-size: 31px;
+}
+
 .portal-logo-copy strong,
 .portal-logo-copy span {
-    display: none;
-    color: #234d7b;
+    display: block;
+    color: var(--portal-brand);
+    font-size: 0;
     font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0;
+}
+
+.portal-logo-copy strong::after {
+    content: "TRUNG TÂM QUẢN LÝ";
+    font-size: 18px;
+}
+
+.portal-logo-copy span::after {
+    content: "KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG";
+    font-size: 18px;
 }
 
 .portal-logo-mark {
-    display: none;
+    width: 72px;
+    height: 72px;
+    flex: 0 0 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    font-size: 0;
+    color: transparent;
+    background: #fff url("../assets/images/udn-logo.webp") center / contain no-repeat;
+    border: 2px solid #2f6f9f;
+    border-radius: 0;
+    box-shadow: none;
 }
 
 .portal-layout {
@@ -694,8 +764,106 @@ select {
     padding: 10px 14px;
 }
 
+.app-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.42);
+    backdrop-filter: blur(6px);
+    z-index: 150;
+}
+
+.app-confirm-backdrop.open {
+    display: flex;
+}
+
+.app-confirm-card {
+    width: min(100%, 420px);
+    padding: 24px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #ffffff, #f7fbff);
+    border: 1px solid rgba(167, 193, 216, 0.7);
+    box-shadow: 0 24px 50px rgba(31, 74, 109, 0.24);
+    text-align: center;
+}
+
+.app-confirm-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #d9efff, #eef7ff);
+    position: relative;
+}
+
+.app-confirm-icon::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    background: #2f79a8;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75-4.365-9.75-9.75-9.75Zm0 4.5a.75.75 0 0 1 .75.75v4.19l2.28 2.28a.75.75 0 1 1-1.06 1.06l-2.5-2.5A.75.75 0 0 1 11.25 12V7.5a.75.75 0 0 1 .75-.75Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75-4.365-9.75-9.75-9.75Zm0 4.5a.75.75 0 0 1 .75.75v4.19l2.28 2.28a.75.75 0 1 1-1.06 1.06l-2.5-2.5A.75.75 0 0 1 11.25 12V7.5a.75.75 0 0 1 .75-.75Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+}
+
+.app-confirm-title {
+    margin: 0 0 8px;
+    color: #1d4667;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.app-confirm-message {
+    margin: 0 0 20px;
+    color: #5b6978;
+    line-height: 1.5;
+}
+
+.app-confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.app-confirm-btn {
+    min-width: 120px;
+    padding: 11px 18px;
+    border-radius: 14px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.app-confirm-btn:hover {
+    transform: translateY(-1px);
+}
+
+.app-confirm-cancel {
+    background: #eef3f7;
+    color: #405261;
+}
+
+.app-confirm-ok {
+    background: linear-gradient(135deg, #3d8cc1, #2f79a8);
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(47, 121, 168, 0.24);
+}
+
 @media (max-width: 1100px) {
     .portal-title {
+        text-align: left;
+    }
+
+    .portal-title::after {
         font-size: 28px;
     }
 
@@ -714,18 +882,34 @@ select {
     .portal-header {
         min-height: auto;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         gap: 16px;
     }
 
     .portal-logo {
+        width: 100%;
         min-width: 0;
     }
 
     .portal-title {
         position: static;
         transform: none;
-        width: auto;
+        width: 100%;
         padding: 0;
+        text-align: center;
+    }
+
+    .portal-logo-copy strong,
+    .portal-logo-copy span {
+        font-size: 0;
+    }
+
+    .portal-title::after {
+        font-size: 28px;
+    }
+
+    .portal-logo-copy strong::after,
+    .portal-logo-copy span::after {
+        font-size: 18px;
     }
 }

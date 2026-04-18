@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initWelcomeMenu();
     initLogout();
     initForceChangePassword();
+    handlePaymentReturnState();
 
     // Load section đầu tiên
     await loadProfile();
@@ -107,6 +108,39 @@ function initNavigation() {
             onSectionActivated(target, reqType);
         });
     });
+}
+
+function activateStudentSection(targetId) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.menu-item, .submenu-item').forEach(i => i.classList.remove('active'));
+    const panel = document.getElementById(targetId);
+    if (panel) panel.classList.add('active');
+    const menuItem = document.querySelector(`.menu-item[data-target="${targetId}"]`);
+    if (menuItem) menuItem.classList.add('active');
+}
+
+function handlePaymentReturnState() {
+    const params = new URLSearchParams(window.location.search);
+    const paymentStatus = params.get('paymentStatus');
+    if (!paymentStatus) return;
+
+    activateStudentSection('section-invoice');
+    loadMyInvoices();
+
+    if (paymentStatus === 'success') {
+        showToast('Thanh toán thành công! Hóa đơn đã được cập nhật.');
+    } else {
+        showToast('Thanh toán chưa hoàn tất hoặc đã bị hủy.', true);
+    }
+
+    params.delete('paymentStatus');
+    params.delete('paymentInvoiceId');
+    params.delete('paymentTxnId');
+    params.delete('paymentCode');
+
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, document.title, nextUrl);
 }
 
 function onSectionActivated(sectionId, extra) {
@@ -157,9 +191,18 @@ function initRequestMenu() {
 // =====================================================================
 function initLogout() {
     document.getElementById('logout-btn')?.addEventListener('click', () => {
-        if (confirm('Bạn có chắc muốn đăng xuất?')) {
-            logout();
-        }
+        const confirmLogout = typeof showAppConfirm === 'function'
+            ? showAppConfirm({
+                title: 'Đăng xuất',
+                message: 'Bạn có chắc muốn đăng xuất khỏi hệ thống không?',
+                confirmText: 'Đăng xuất',
+                cancelText: 'Ở lại'
+            })
+            : Promise.resolve(confirm('Bạn có chắc muốn đăng xuất?'));
+
+        confirmLogout.then(confirmed => {
+            if (confirmed) logout();
+        });
     });
 }
 
@@ -530,7 +573,8 @@ async function loadMyInvoices() {
 
 async function payInvoice(invoiceId) {
     if (!confirm('Bạn muốn thanh toán hóa đơn này qua VNPAY?')) return;
-    const res = await callApi(`/payments/create-payment-url/${invoiceId}`, { method: 'POST' });
+    const returnPage = window.location.href.split('#')[0];
+    const res = await callApi(`/payments/create-payment-url/${invoiceId}?returnPage=${encodeURIComponent(returnPage)}`, { method: 'POST' });
     if (res?.ok && res.data?.url) {
         window.location.href = res.data.url;
     } else {

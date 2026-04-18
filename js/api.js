@@ -94,6 +94,48 @@ async function callApiUpload(endpoint, formData) {
     }
 }
 
+/**
+ * Goi API tra ve file/blob co Bearer token.
+ */
+async function callApiBlob(endpoint, options = {}) {
+    const token = getToken();
+    if (!token) {
+        window.location.href = 'login.html';
+        return null;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}${endpoint}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                ...(options.headers || {})
+            }
+        });
+
+        if (res.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('role');
+            alert('Phiên đăng nhập hết hạn! Vui lòng đăng nhập lại.');
+            window.location.href = 'login.html';
+            return null;
+        }
+
+        const blob = await res.blob();
+        return {
+            ok: res.ok,
+            status: res.status,
+            blob,
+            fileName: res.headers.get('content-disposition') || ''
+        };
+    } catch (e) {
+        console.error('callApiBlob error:', e);
+        return null;
+    }
+}
+
 /** Format ngày thành dd/MM/yyyy */
 function formatDate(dateStr) {
     if (!dateStr) return '—';

@@ -620,6 +620,53 @@
     let allRooms    = [];
     let selectedRoomId = null;
 
+    function getSelectedGender() {
+        return (document.getElementById('reg-gender')?.value || '').trim().toLowerCase();
+    }
+
+    function roomMatchesGender(room, gender) {
+        if (!gender) return true;
+        return (room.genderAllowed || '').trim().toLowerCase() === gender;
+    }
+
+    function getFilteredRooms() {
+        const gender = getSelectedGender();
+        const q = (document.getElementById('room-search')?.value || '').trim().toLowerCase();
+        return allRooms.filter(r =>
+            roomMatchesGender(r, gender) && (
+                !q ||
+                (r.roomCode || '').toLowerCase().includes(q) ||
+                (r.buildingName || '').toLowerCase().includes(q) ||
+                (r.buildingCode || '').toLowerCase().includes(q)
+            )
+        );
+    }
+
+    function clearSelectedRoom(message = '') {
+        selectedRoomId = null;
+        document.getElementById('reg-roomid').value = '';
+        document.getElementById('selected-room-display').textContent = '—';
+        document.getElementById('selected-room-preview').classList.remove('show');
+        document.getElementById('err-room').textContent = message;
+    }
+
+    function refreshRoomList() {
+        const gender = getSelectedGender();
+        if (selectedRoomId) {
+            const selectedRoom = allRooms.find(r => r.id === selectedRoomId);
+            if (!selectedRoom || !roomMatchesGender(selectedRoom, gender)) {
+                clearSelectedRoom(gender ? 'Phong da chon khong phu hop voi gioi tinh hien tai.' : '');
+            }
+        }
+        if (selectedRoomId) {
+            const selectedRoom = allRooms.find(r => r.id === selectedRoomId);
+            if (!selectedRoom || !roomMatchesGender(selectedRoom, gender)) {
+                clearSelectedRoom(gender ? 'Phòng đã chọn không phù hợp với giới tính hiện tại.' : '');
+            }
+        }
+        renderRooms(getFilteredRooms(), gender);
+    }
+
     // ── Set min date = hôm nay
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('reg-startdate').min = today;
@@ -631,15 +678,29 @@
             const res  = await fetch(`${API_URL}/room/available`);
             const data = await res.json();
             allRooms = Array.isArray(data) ? data : [];
-            renderRooms(allRooms);
+            refreshRoomList();
         } catch (e) {
             document.getElementById('room-grid').innerHTML =
                 '<div style="grid-column:1/-1;color:#ef4444">Không thể tải danh sách phòng. Kiểm tra kết nối BE.</div>';
         }
     }
 
-    function renderRooms(rooms) {
+    function renderRooms(rooms, gender = '') {
         const grid = document.getElementById('room-grid');
+        if (!rooms.length) {
+            const emptyMessageAscii = gender
+                ? 'Khong co phong nao phu hop voi gioi tinh da chon.'
+                : 'Khong co phong nao kha dung.';
+            grid.innerHTML = `<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">${emptyMessageAscii}</div>`;
+            return;
+        }
+        if (!rooms.length) {
+            const emptyMessage = gender
+                ? 'KhÃ´ng cÃ³ phÃ²ng nÃ o phÃ¹ há»£p vá»›i giá»›i tÃ­nh Ä‘Ã£ chá»n.'
+                : 'KhÃ´ng cÃ³ phÃ²ng nÃ o kháº£ dá»¥ng.';
+            grid.innerHTML = `<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">${emptyMessage}</div>`;
+            return;
+        }
         if (!rooms.length) {
             grid.innerHTML = '<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">Không có phòng nào khả dụng.</div>';
             return;
@@ -675,13 +736,10 @@
     }
 
     // Search phòng
-    document.getElementById('room-search').addEventListener('input', e => {
-        const q = e.target.value.toLowerCase();
-        renderRooms(allRooms.filter(r =>
-            (r.roomCode    || '').toLowerCase().includes(q) ||
-            (r.buildingName || '').toLowerCase().includes(q) ||
-            (r.buildingCode || '').toLowerCase().includes(q)
-        ));
+    document.getElementById('room-search').addEventListener('input', refreshRoomList);
+    document.getElementById('reg-gender').addEventListener('change', () => {
+        document.getElementById('err-gender').textContent = '';
+        refreshRoomList();
     });
 
     // ── OCR CCCD
@@ -705,6 +763,7 @@
                 if (d.citizenId)   document.getElementById('reg-citizenid').value  = d.citizenId;
                 if (d.gender)      document.getElementById('reg-gender').value      = d.gender;
                 if (d.address)     document.getElementById('reg-address').value    = d.address;
+                refreshRoomList();
                 statusEl.textContent = '✅ Đã điền từ CCCD';
             } else {
                 statusEl.textContent = '⚠️ Không đọc được, hãy điền tay.';
