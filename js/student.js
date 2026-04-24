@@ -36,6 +36,15 @@ function setEmpty(id, msg = 'Không có dữ liệu.') {
     if (el) el.innerHTML = `<div class="empty-state">${msg}</div>`;
 }
 
+function escapeText(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // =====================================================================
 // 1. KHỞI TẠO
 // =====================================================================
@@ -396,6 +405,7 @@ async function loadMyRoom() {
     const el = document.getElementById('room-content');
     if (!res || !res.ok || !res.data) {
         el.innerHTML = `<div class="empty-state">🏠 Bạn hiện không có phòng đang hoạt động.<br><small>Điều này có nghĩa chưa có hợp đồng Active.</small></div>`;
+        setEmpty('my-room-facilities', 'Chưa có phòng đang hoạt động để xem cơ sở vật chất.');
         return;
     }
 
@@ -428,6 +438,47 @@ async function loadMyRoom() {
                     <strong class="chip-value">${statusBadge(r.status)}</strong>
                 </div>
             </div>
+        </div>`;
+    loadMyRoomFacilities(r.id);
+}
+
+async function loadMyRoomFacilities(roomId) {
+    const el = document.getElementById('my-room-facilities');
+    if (!el) return;
+    if (!roomId) {
+        setEmpty('my-room-facilities', 'Chưa có thông tin phòng.');
+        return;
+    }
+
+    setLoading('my-room-facilities', 'Đang tải danh sách thiết bị...');
+    const res = await callApi(`/facilities/room/${roomId}`);
+    const facilities = Array.isArray(res?.data) ? res.data : [];
+    if (!res?.ok || !facilities.length) {
+        setEmpty('my-room-facilities', 'Phòng hiện chưa có thiết bị nào được ghi nhận.');
+        return;
+    }
+
+    const rows = facilities.map(item => `
+        <tr>
+            <td>${escapeText(item.name || '—')}</td>
+            <td>${escapeText(item.quantity ?? '—')}</td>
+            <td>${statusBadge(item.status)}</td>
+            <td>${formatDate(item.createdAt)}</td>
+        </tr>`).join('');
+
+    el.innerHTML = `
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tên thiết bị</th>
+                        <th>Số lượng</th>
+                        <th>Tình trạng</th>
+                        <th>Ngày ghi nhận</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
         </div>`;
 }
 
@@ -934,7 +985,6 @@ async function loadNotifications() {
         });
     });
 }
-
 
 
 

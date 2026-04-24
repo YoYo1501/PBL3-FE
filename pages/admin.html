@@ -41,6 +41,7 @@
             <nav>
                 <div class="sidebar-title">Chức năng quản trị</div>
                 <button class="nav-link active" data-target="section-overview" type="button">Tổng quan</button>
+                <button class="nav-link" data-target="section-admin-profile" type="button">Tài khoản admin</button>
                 <button class="nav-link" data-target="section-registrations" type="button">Đơn đăng ký</button>
                 <button class="nav-link" data-target="section-requests" type="button">Yêu cầu sinh viên</button>
                 <button class="nav-link" data-target="section-transfers" type="button">Chuyển phòng</button>
@@ -50,7 +51,10 @@
                 <button class="nav-link" data-target="section-rooms" type="button">Phòng + thiết bị</button>
                 <button class="nav-link" data-target="section-students" type="button">Sinh viên</button>
                 <button class="nav-link" data-target="section-revenue" type="button">Doanh thu</button>
-                <button class="nav-link" data-target="section-notifications" type="button">Thông báo</button>
+                <button class="nav-link" data-target="section-notifications" type="button">
+                    <span>Thông báo</span>
+                    <span class="nav-badge" id="admin-notif-badge" hidden>0</span>
+                </button>
             </nav>
         </aside>
 
@@ -108,6 +112,61 @@
                 </div>
             </section>
 
+            <section class="panel" id="section-admin-profile">
+                <div class="dual-grid">
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Account</p>
+                                <h2 class="page-heading">Thông tin tài khoản</h2>
+                            </div>
+                            <button type="button" class="primary-btn" id="reload-admin-profile-btn">Tải lại</button>
+                        </div>
+                        <form id="admin-profile-form" class="form-stack">
+                            <label>
+                                <span>Họ tên</span>
+                                <input type="text" id="admin-profile-name" readonly>
+                            </label>
+                            <label>
+                                <span>Email</span>
+                                <input type="email" id="admin-profile-email" readonly>
+                            </label>
+                            <label>
+                                <span>Số điện thoại</span>
+                                <input type="text" id="admin-profile-phone" placeholder="Ví dụ: 0912345678">
+                            </label>
+                            <p class="form-error" id="admin-profile-error"></p>
+                            <button type="submit" class="primary-btn">Lưu số điện thoại</button>
+                        </form>
+                    </article>
+
+                    <article class="content-card">
+                        <div class="section-head">
+                            <div>
+                                <p class="section-kicker">Security</p>
+                                <h2 class="page-heading">Đổi mật khẩu</h2>
+                            </div>
+                        </div>
+                        <form id="admin-password-form" class="form-stack">
+                            <label>
+                                <span>Mật khẩu hiện tại</span>
+                                <input type="password" id="admin-current-password">
+                            </label>
+                            <label>
+                                <span>Mật khẩu mới</span>
+                                <input type="password" id="admin-new-password">
+                            </label>
+                            <label>
+                                <span>Xác nhận mật khẩu mới</span>
+                                <input type="password" id="admin-confirm-password">
+                            </label>
+                            <p class="form-error" id="admin-password-error"></p>
+                            <button type="submit" class="primary-btn">Đổi mật khẩu</button>
+                        </form>
+                    </article>
+                </div>
+            </section>
+
             <section class="panel" id="section-registrations">
                 <div class="content-card">
                     <div class="section-head">
@@ -116,6 +175,17 @@
                             <h2 class="page-heading">Duyệt đơn đăng ký ở trú</h2>
                         </div>
                         <button type="button" class="primary-btn" id="reload-registrations-btn">Tải lại</button>
+                    </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="registration-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
                     </div>
                     <div id="registrations-list" class="stack-list">
                         <div class="empty-state">Đang tải danh sách đăng ký...</div>
@@ -209,6 +279,7 @@
                                 <option value="">Tất cả</option>
                                 <option value="Active">Đang hiệu lực</option>
                                 <option value="Expired">Hết hạn</option>
+                                <option value="Terminated">Đã thanh lý</option>
                                 <option value="Inactive">Vô hiệu</option>
                             </select>
                         </label>
@@ -285,6 +356,7 @@
                                         <option value="">Chọn trạng thái</option>
                                         <option value="Active">Active</option>
                                         <option value="Expired">Expired</option>
+                                        <option value="Terminated">Terminated</option>
                                         <option value="Inactive">Inactive</option>
                                         <option value="Cancelled">Cancelled</option>
                                     </select>
@@ -546,8 +618,8 @@
                                     <span>Tình trạng</span>
                                     <select id="facility-status">
                                         <option value="Good">Good</option>
-                                        <option value="Broken">Broken</option>
-                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Damaged">Damaged</option>
+                                        <option value="UnderMaintenance">UnderMaintenance</option>
                                     </select>
                                 </label>
                                 <p class="form-error" id="facility-form-error"></p>
@@ -558,6 +630,57 @@
                                 </div>
                             </form>
                         </aside>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Facilities</p>
+                            <h2 class="page-heading">Danh sách toàn bộ thiết bị</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-facilities-btn">Tải lại</button>
+                    </div>
+
+                    <div class="facility-filter-grid">
+                        <label>
+                            <span>Tìm theo thiết bị / phòng</span>
+                            <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
+                        </label>
+                        <label>
+                            <span>Tình trạng</span>
+                            <select id="facility-inventory-status">
+                                <option value="">Tất cả</option>
+                                <option value="Good">Good</option>
+                                <option value="Damaged">Damaged</option>
+                                <option value="UnderMaintenance">UnderMaintenance</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Phòng</th>
+                                    <th>Thiết bị</th>
+                                    <th>Số lượng</th>
+                                    <th>Tình trạng</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="facilities-table-body">
+                                <tr>
+                                    <td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="list-pagination" id="facilities-pagination">
+                        <button type="button" class="secondary-btn" id="facilities-prev-btn">Trang trước</button>
+                        <span class="pagination-summary" id="facilities-page-info">Trang 1 / 1</span>
+                        <button type="button" class="secondary-btn" id="facilities-next-btn">Trang sau</button>
                     </div>
                 </div>
             </section>
@@ -819,6 +942,22 @@
     <script>
         requireRole('Admin');
     </script>
-    <script src="../js/admin.js"></script>
+    <script src="../js/admin/admin-core.js"></script>
+    <script src="../js/admin/admin-state.js"></script>
+    <script src="../js/admin/admin-pagination.js"></script>
+    <script src="../js/admin/admin-layout.js"></script>
+    <script src="../js/admin/admin-profile.js"></script>
+    <script src="../js/admin/admin-overview.js"></script>
+    <script src="../js/admin/admin-registrations.js"></script>
+    <script src="../js/admin/admin-requests.js"></script>
+    <script src="../js/admin/admin-transfers.js"></script>
+    <script src="../js/admin/admin-renewals.js"></script>
+    <script src="../js/admin/admin-contracts.js"></script>
+    <script src="../js/admin/admin-invoices.js"></script>
+    <script src="../js/admin/admin-rooms.js"></script>
+    <script src="../js/admin/admin-students.js"></script>
+    <script src="../js/admin/admin-revenue.js"></script>
+    <script src="../js/admin/admin-notifications.js"></script>
+    <script src="../js/admin/admin-main.js"></script>
 </body>
 </html>
