@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindInvoiceControls();
   bindContractControls();
   bindRoomControls();
+  bindFacilityControls();
   bindStudentControls();
   bindRevenueControls();
 
@@ -22,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadContracts();
   loadInvoices();
   loadRooms();
+  loadFacilityRooms();
   loadFacilitiesInventory();
   loadStudents();
   loadNotifications();
