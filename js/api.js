@@ -157,12 +157,17 @@ function statusBadge(status) {
         'Approved':  { label: 'Đã duyệt',     cls: 'badge-success' },
         'Rejected':  { label: 'Từ chối',       cls: 'badge-danger'  },
         'Active':    { label: 'Đang hiệu lực', cls: 'badge-success' },
+        'Inactive':  { label: 'Vô hiệu',       cls: 'badge-muted'   },
         'Expired':   { label: 'Hết hạn',       cls: 'badge-muted'   },
         'Cancelled': { label: 'Đã hủy',          cls: 'badge-muted'   },
+        'Terminated': { label: 'Đã thanh lý',    cls: 'badge-danger'  },
         'Paid':      { label: 'Đã thanh toán',    cls: 'badge-success' },
         'Unpaid':    { label: 'Chưa thanh toán',  cls: 'badge-pending' },
         'Draft':     { label: 'Nháp',             cls: 'badge-muted'   },
-        'Completed': { label: 'Hoàn thành',       cls: 'badge-success' },
+        'Completed': { label: 'Đã duyệt',         cls: 'badge-success' },
+        'Good':      { label: 'Tốt',              cls: 'badge-success' },
+        'Damaged':   { label: 'Hư hỏng',          cls: 'badge-danger'  },
+        'UnderMaintenance': { label: 'Đang bảo trì', cls: 'badge-muted' },
     };
     const m = map[status] || { label: status, cls: 'badge-muted' };
     return `<span class="badge ${m.cls}">${m.label}</span>`;
