@@ -1,4 +1,4 @@
-﻿/**
+/**
  * student.js – Logic chính cho trang sinh viên
  * Kết nối với BE qua api.js (callApi / callApiPublic)
  */
@@ -673,7 +673,7 @@ function loadRequestSection(reqType) {
         }
 
         // Ẩn danh sách yêu cầu thông thường, hiện lịch sử chuyển phòng
-        document.getElementById('my-requests-list')?.closest('.card')?.style.setProperty('display', 'none');
+        document.getElementById('my-requests-list')?.closest('.content-card')?.style.setProperty('display', 'none');
         loadTransferHistory();
         loadTransferRooms();
     } else {
@@ -683,7 +683,7 @@ function loadRequestSection(reqType) {
         const injected = document.getElementById('transfer-form-injected');
         if (injected) injected.style.display = 'none';
         // Hiện lại danh sách yêu cầu
-        const listCard = document.getElementById('my-requests-list')?.closest('.card');
+        const listCard = document.getElementById('my-requests-list')?.closest('.content-card');
         if (listCard) listCard.style.removeProperty('display');
 
         // Bind nút submit (chỉ 1 lần)
@@ -928,13 +928,63 @@ async function loadTransferHistory() {
                 <span>Ngày gửi: ${formatDate(t.requestedAt || t.createdAt)}</span>
                 ${t.resolvedAt ? `<span>Ngày duyệt: ${formatDate(t.resolvedAt)}</span>` : ''}
                 ${t.rejectionReason ? `<span class="resolution-note">💬 ${t.rejectionReason}</span>` : ''}
+                ${t.status === 'Pending'
+                    ? `<button type="button" class="btn-danger btn-sm" data-cancel-transfer-id="${t.id}">❌ Hủy yêu cầu</button>`
+                    : ''}
             </div>
         </div>`).join('');
+
+    // Xử lý nút hủy yêu cầu chuyển phòng
+    histEl.querySelectorAll('[data-cancel-transfer-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Xác nhận hủy yêu cầu chuyển phòng này?')) return;
+            const res2 = await callApi(`/roomtransfers/${btn.dataset.cancelTransferId}/cancel`, { method: 'DELETE' });
+            if (res2?.ok) {
+                showToast('Đã hủy yêu cầu chuyển phòng.');
+                loadTransferHistory();
+            } else {
+                showToast(res2?.data?.message || 'Không thể hủy yêu cầu.', true);
+            }
+        });
+    });
 }
 
 // ======================================================================
 // 13. THÔNG BÁO – GET /api/notifications/my & PUT /api/notifications/{id}/read
 // ======================================================================
+
+/** Cắt ngắn văn bản preview */
+function truncateText(text, maxLen = 120) {
+    if (!text) return '';
+    text = String(text);
+    if (text.length <= maxLen) return text;
+    return text.slice(0, maxLen).trimEnd() + '...';
+}
+
+/** Hiện modal chi tiết thông báo */
+function showNotifModal({ title, date, message }) {
+    const overlay = document.getElementById('notif-detail-modal');
+    if (!overlay) return;
+    document.getElementById('notif-modal-title').textContent = title || '';
+    document.getElementById('notif-modal-date').textContent  = date  || '';
+    document.getElementById('notif-modal-body').textContent  = message || '';
+    overlay.style.display = 'flex';
+
+    // Đóng khi click nút ✕
+    document.getElementById('notif-modal-close-btn').onclick = () => {
+        overlay.style.display = 'none';
+    };
+    // Đóng khi click ra ngoài card
+    overlay.onclick = (e) => {
+        if (e.target === overlay) overlay.style.display = 'none';
+    };
+    // Đóng bằng Esc
+    const onKey = (e) => {
+        if (e.key === 'Escape') { overlay.style.display = 'none'; document.removeEventListener('keydown', onKey); }
+    };
+    document.addEventListener('keydown', onKey);
+}
+
 async function loadNotificationCount() {
     const res = await callApi('/notifications/my');
     if (!res?.ok || !Array.isArray(res.data)) return;
@@ -963,28 +1013,38 @@ async function loadNotifications() {
 
     el.innerHTML = `<div class="notification-list">
         ${res.data.map(n => `
-            <div class="notification-item ${n.isRead ? 'read' : 'unread'}" data-notif-id="${n.id}">
+            <div class="notification-item ${n.isRead ? 'read' : 'unread'}" data-notif-id="${n.id}" data-title="${escapeText(n.title)}" data-msg="${escapeText(n.message)}" data-date="${formatDate(n.createdAt)}" style="cursor:pointer;">
                 <div class="notif-head">
-                    <strong>${n.title}</strong>
+                    <strong>${escapeText(n.title)}</strong>
                     ${!n.isRead ? '<span class="unread-dot"></span>' : ''}
                     <span class="notif-date">${formatDate(n.createdAt)}</span>
                 </div>
-                <p class="notif-body">${n.message}</p>
+                <p class="notif-preview">${escapeText(truncateText(n.message, 120))}</p>
+                ${n.message.length > 120 ? '<span class="notif-expand-hint">▼ Xem chi tiết</span>' : ''}
             </div>`).join('')}
     </div>`;
 
-    // Đánh dấu đã đọc khi click
-    el.querySelectorAll('.notification-item.unread').forEach(item => {
+    // Click vào thông báo → mở modal + đánh dấu đã đọc
+    el.querySelectorAll('.notification-item').forEach(item => {
         item.addEventListener('click', async () => {
-            const id = item.dataset.notifId;
-            await callApi(`/notifications/${id}/read`, { method: 'PUT' });
-            item.classList.remove('unread');
-            item.classList.add('read');
-            item.querySelector('.unread-dot')?.remove();
-            loadNotificationCount();
+            showNotifModal({
+                title:   item.dataset.title,
+                date:    item.dataset.date,
+                message: item.dataset.msg,
+            });
+            if (item.classList.contains('unread')) {
+                const id = item.dataset.notifId;
+                await callApi(`/notifications/${id}/read`, { method: 'PUT' });
+                item.classList.remove('unread');
+                item.classList.add('read');
+                item.querySelector('.unread-dot')?.remove();
+                loadNotificationCount();
+            }
         });
     });
 }
+
+
 
 
 

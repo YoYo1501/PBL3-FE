@@ -278,6 +278,19 @@
 
     <div class="toast-message" id="toast" style="display:none"></div>
 
+    <!-- Modal chi tiết thông báo -->
+    <div class="notif-modal-overlay" id="notif-detail-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card">
+            <div class="notif-modal-header">
+                <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
+                <button type="button" class="notif-modal-close" id="notif-modal-close-btn" aria-label="Đóng">✕</button>
+            </div>
+            <p class="notif-modal-meta" id="notif-modal-date"></p>
+            <hr class="notif-modal-divider">
+            <div class="notif-modal-body" id="notif-modal-body"></div>
+        </div>
+    </div>
+
     <script src="../js/auth.js"></script>
     <script src="../js/api.js"></script>
     <script>

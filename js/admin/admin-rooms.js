@@ -1,4 +1,3 @@
-
 function getRoomFilters() {
   return {
     keyword:
@@ -7,24 +6,8 @@ function getRoomFilters() {
   };
 }
 
-function getFacilityInventoryFilters() {
-  return {
-    keyword:
-      document
-        .getElementById("facility-inventory-search")
-        ?.value.trim()
-        .toLowerCase() || "",
-    status: document.getElementById("facility-inventory-status")?.value || "",
-  };
-}
-
 function setRoomError(message = "") {
   const el = document.getElementById("room-form-error");
-  if (el) el.textContent = message;
-}
-
-function setFacilityError(message = "") {
-  const el = document.getElementById("facility-form-error");
   if (el) el.textContent = message;
 }
 
@@ -40,24 +23,8 @@ function bindRoomControls() {
     .getElementById("room-filter-status")
     ?.addEventListener("change", rerenderRooms);
 
-  const rerenderFacilities = () => {
-    resetPage("facilities");
-    loadFacilitiesInventory();
-  };
-  document
-    .getElementById("facility-inventory-search")
-    ?.addEventListener("input", rerenderFacilities);
-  document
-    .getElementById("facility-inventory-status")
-    ?.addEventListener("change", rerenderFacilities);
-  document
-    .getElementById("reload-facilities-btn")
-    ?.addEventListener("click", loadFacilitiesInventory);
-
   document.getElementById("new-room-btn")?.addEventListener("click", () => {
     selectedRoomId = null;
-    selectedFacilityId = null;
-    selectedRoomFacilities = [];
     clearRoomDetail();
     renderRoomsTable();
   });
@@ -113,6 +80,7 @@ function bindRoomControls() {
         await loadRooms();
         const savedRoomId = res.data?.data?.id || selectedRoomId;
         if (savedRoomId) await selectRoom(savedRoomId);
+        window.dispatchEvent(new Event("admin:rooms-changed"));
       } else {
         setRoomError(res?.data?.message || "Không thể lưu phòng.");
       }
@@ -144,94 +112,9 @@ function bindRoomControls() {
         selectedRoomId = null;
         clearRoomDetail();
         loadRooms();
+        window.dispatchEvent(new Event("admin:rooms-changed"));
       } else {
         setRoomError(res?.data?.message || "Không thể xóa phòng.");
-      }
-    });
-
-  document.getElementById("new-facility-btn")?.addEventListener("click", () => {
-    selectedFacilityId = null;
-    clearFacilityForm();
-    renderRoomFacilities();
-  });
-
-  document
-    .getElementById("facility-form")
-    ?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!selectedRoomId) {
-        setFacilityError("Vui lòng chọn phòng trước khi lưu thiết bị.");
-        return;
-      }
-
-      const name = document.getElementById("facility-name").value.trim();
-      const quantity = Number(
-        document.getElementById("facility-quantity").value,
-      );
-      const status = document.getElementById("facility-status").value;
-
-      if (!name || !(quantity > 0)) {
-        setFacilityError("Vui lòng nhập tên và số lượng thiết bị hợp lệ.");
-        return;
-      }
-
-      const payload = { name, quantity, status };
-      const res = selectedFacilityId
-        ? await callApi(`/facilities/${selectedFacilityId}`, {
-            method: "PUT",
-            body: JSON.stringify(payload),
-          })
-        : await callApi("/facilities", {
-            method: "POST",
-            body: JSON.stringify({ roomId: selectedRoomId, ...payload }),
-          });
-
-      if (res?.ok) {
-        adminToast(
-          res.data?.message ||
-            (selectedFacilityId
-              ? "Đã cập nhật thiết bị."
-              : "Đã thêm thiết bị."),
-        );
-        setFacilityError("");
-        await loadRoomFacilities(selectedRoomId);
-        if (res.data?.data?.id) selectedFacilityId = res.data.data.id;
-        renderRoomFacilities();
-        loadFacilitiesInventory();
-      } else {
-        setFacilityError(res?.data?.message || "Không thể lưu thiết bị.");
-      }
-    });
-
-  document
-    .getElementById("delete-facility-btn")
-    ?.addEventListener("click", async () => {
-      if (!selectedFacilityId) {
-        setFacilityError("Vui lòng chọn một thiết bị trước khi xóa.");
-        return;
-      }
-      const confirmed =
-        typeof showAppConfirm === "function"
-          ? await showAppConfirm({
-              title: "Xóa thiết bị",
-              message: "Bạn có chắc muốn xóa thiết bị này không?",
-              confirmText: "Xóa",
-              cancelText: "Hủy",
-            })
-          : confirm("Bạn có chắc muốn xóa thiết bị này không?");
-      if (!confirmed) return;
-
-      const res = await callApi(`/facilities/${selectedFacilityId}`, {
-        method: "DELETE",
-      });
-      if (res?.ok) {
-        adminToast(res.data?.message || "Đã xóa thiết bị.");
-        selectedFacilityId = null;
-        clearFacilityForm();
-        await loadRoomFacilities(selectedRoomId);
-        loadFacilitiesInventory();
-      } else {
-        setFacilityError(res?.data?.message || "Không thể xóa thiết bị.");
       }
     });
 }
@@ -301,85 +184,6 @@ async function loadRooms() {
   }
 }
 
-async function loadFacilitiesInventory() {
-  const tbody = document.getElementById("facilities-table-body");
-  if (!tbody) return;
-  tbody.innerHTML =
-    '<tr><td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td></tr>';
-
-  const res = await callApi("/facilities");
-  const filters = getFacilityInventoryFilters();
-  let items = Array.isArray(res?.data) ? res.data : [];
-
-  if (filters.keyword) {
-    items = items.filter((item) => {
-      const haystack = `${item.name || ""} ${item.roomCode || ""}`.toLowerCase();
-      return haystack.includes(filters.keyword);
-    });
-  }
-  if (filters.status) {
-    items = items.filter((item) => item.status === filters.status);
-  }
-
-  items.sort((a, b) => {
-    const roomCompare = String(a.roomCode || "").localeCompare(
-      String(b.roomCode || ""),
-    );
-    if (roomCompare !== 0) return roomCompare;
-    return String(a.name || "").localeCompare(String(b.name || ""));
-  });
-
-  const state = paginationState.facilities;
-  state.totalItems = items.length;
-  const totalPages = Math.max(1, Math.ceil(items.length / state.size));
-  if (state.page > totalPages) state.page = totalPages;
-  const start = (state.page - 1) * state.size;
-  adminFacilities = items.slice(start, start + state.size);
-  renderFacilitiesInventory();
-}
-
-function renderFacilitiesInventory() {
-  const tbody = document.getElementById("facilities-table-body");
-  if (!tbody) return;
-  updatePaginationUi(
-    "facilities",
-    paginationState.facilities.totalItems || adminFacilities.length,
-  );
-
-  if (!adminFacilities.length) {
-    tbody.innerHTML =
-      '<tr><td colspan="6" class="table-empty">Không có thiết bị phù hợp bộ lọc hiện tại.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = adminFacilities
-    .map(
-      (item) => `
-        <tr>
-            <td>${escapeHtml(item.roomCode || "-")}</td>
-            <td>${escapeHtml(item.name || "-")}</td>
-            <td>${escapeHtml(item.quantity ?? "-")}</td>
-            <td>${adminBadge(item.status)}</td>
-            <td>${formatDate(item.createdAt)}</td>
-            <td>
-                <button type="button" class="secondary-btn" data-inventory-facility="${item.id}" data-inventory-room="${item.roomId}">Chọn</button>
-            </td>
-        </tr>
-    `,
-    )
-    .join("");
-
-  tbody.querySelectorAll("[data-inventory-facility]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const roomId = Number(button.dataset.inventoryRoom);
-      const facilityId = Number(button.dataset.inventoryFacility);
-      if (!roomId || !facilityId) return;
-      await selectRoom(roomId);
-      selectFacility(facilityId);
-    });
-  });
-}
-
 function renderRoomsTable() {
   const tbody = document.getElementById("rooms-table-body");
   if (!tbody) return;
@@ -443,12 +247,8 @@ async function selectRoom(roomId) {
   document.getElementById("room-occupancy").value = room.currentOccupancy ?? 0;
   document.getElementById("room-price").value = room.price ?? "";
   document.getElementById("room-status").value = room.status || "Available";
-  document.getElementById("facility-room-code").textContent =
-    room.roomCode || "Đã chọn phòng";
   setRoomError("");
-  clearFacilityForm();
   renderRoomsTable();
-  await loadRoomFacilities(room.id);
 }
 
 function clearRoomDetail() {
@@ -463,82 +263,5 @@ function clearRoomDetail() {
   document.getElementById("room-occupancy").value = "";
   document.getElementById("room-price").value = "";
   document.getElementById("room-status").value = "Available";
-  document.getElementById("facility-room-code").textContent = "Chưa chọn phòng";
   setRoomError("");
-  selectedRoomFacilities = [];
-  selectedFacilityId = null;
-  clearFacilityForm();
-  renderRoomFacilities();
-}
-
-async function loadRoomFacilities(roomId) {
-  const container = document.getElementById("room-facilities-list");
-  if (container)
-    container.innerHTML =
-      '<div class="empty-state">Đang tải thiết bị phòng...</div>';
-  const res = await callApi(`/facilities/room/${roomId}`);
-  selectedRoomFacilities = Array.isArray(res?.data) ? res.data : [];
-  selectedFacilityId = null;
-  renderRoomFacilities();
-}
-
-function renderRoomFacilities() {
-  const container = document.getElementById("room-facilities-list");
-  if (!container) return;
-
-  if (!selectedRoomId) {
-    container.innerHTML =
-      '<div class="empty-state">Chọn một phòng để xem thiết bị.</div>';
-    return;
-  }
-
-  if (!selectedRoomFacilities.length) {
-    container.innerHTML =
-      '<div class="empty-state">Phòng này chưa có thiết bị nào.</div>';
-    return;
-  }
-
-  container.innerHTML = selectedRoomFacilities
-    .map(
-      (item) => `
-        <article class="queue-item ${selectedFacilityId === item.id ? "selected-facility" : ""}">
-            <div class="queue-head">
-                <strong>${escapeHtml(item.name)}</strong>
-                <span class="pill neutral">${escapeHtml(item.status)}</span>
-            </div>
-            <div class="queue-meta">
-                <span>Số lượng: ${escapeHtml(item.quantity)}</span>
-                <span>${formatDate(item.createdAt)}</span>
-            </div>
-            <div class="queue-actions">
-                <button type="button" class="secondary-btn" data-facility-view="${item.id}">Chọn</button>
-            </div>
-        </article>
-    `,
-    )
-    .join("");
-
-  container.querySelectorAll("[data-facility-view]").forEach((button) => {
-    button.addEventListener("click", () =>
-      selectFacility(Number(button.dataset.facilityView)),
-    );
-  });
-}
-
-function selectFacility(facilityId) {
-  const facility = selectedRoomFacilities.find((item) => item.id === facilityId);
-  if (!facility) return;
-  selectedFacilityId = facility.id;
-  document.getElementById("facility-name").value = facility.name || "";
-  document.getElementById("facility-quantity").value = facility.quantity ?? 1;
-  document.getElementById("facility-status").value = facility.status || "Good";
-  setFacilityError("");
-  renderRoomFacilities();
-}
-
-function clearFacilityForm() {
-  document.getElementById("facility-name").value = "";
-  document.getElementById("facility-quantity").value = 1;
-  document.getElementById("facility-status").value = "Good";
-  setFacilityError("");
 }

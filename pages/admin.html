@@ -48,7 +48,8 @@
                 <button class="nav-link" data-target="section-renewals" type="button">Gia hạn hợp đồng</button>
                 <button class="nav-link" data-target="section-contracts" type="button">Quản lý hợp đồng</button>
                 <button class="nav-link" data-target="section-invoices" type="button">Hóa đơn</button>
-                <button class="nav-link" data-target="section-rooms" type="button">Phòng + thiết bị</button>
+                <button class="nav-link" data-target="section-rooms" type="button">Phòng</button>
+                <button class="nav-link" data-target="section-facilities" type="button">Thiết bị</button>
                 <button class="nav-link" data-target="section-students" type="button">Sinh viên</button>
                 <button class="nav-link" data-target="section-revenue" type="button">Doanh thu</button>
                 <button class="nav-link" data-target="section-notifications" type="button">
@@ -490,7 +491,7 @@
                     <div class="section-head">
                         <div>
                             <p class="section-kicker">Rooms</p>
-                            <h2 class="page-heading">Quản lý phòng và thiết bị</h2>
+                            <h2 class="page-heading">Quản lý phòng</h2>
                         </div>
                         <button type="button" class="primary-btn" id="reload-rooms-btn">Tải lại</button>
                     </div>
@@ -596,16 +597,75 @@
                                 </div>
                             </form>
 
-                            <hr class="section-divider">
+                        </aside>
+                    </div>
+                </div>
+            </section>
 
-                            <div class="card-head">
-                                <h3>Thiết bị phòng</h3>
-                                <span class="pill neutral" id="facility-room-code">Chưa chọn phòng</span>
+            <section class="panel" id="section-facilities">
+                <div class="content-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Facilities</p>
+                            <h2 class="page-heading">Quản lý thiết bị</h2>
+                        </div>
+                        <button type="button" class="primary-btn" id="reload-facilities-btn">Tải lại</button>
+                    </div>
+
+                    <div class="facility-filter-grid">
+                        <label>
+                            <span>Tìm theo thiết bị / phòng</span>
+                            <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
+                        </label>
+                        <label>
+                            <span>Tình trạng</span>
+                            <select id="facility-inventory-status">
+                                <option value="">Tất cả</option>
+                                <option value="Good">Good</option>
+                                <option value="Damaged">Damaged</option>
+                                <option value="UnderMaintenance">UnderMaintenance</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="contract-layout facility-layout">
+                        <div>
+                            <div class="table-wrap">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Phòng</th>
+                                            <th>Thiết bị</th>
+                                            <th>Số lượng</th>
+                                            <th>Tình trạng</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="facilities-table-body">
+                                        <tr>
+                                            <td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div id="room-facilities-list" class="stack-list">
-                                <div class="empty-state">Chọn một phòng để xem thiết bị.</div>
+                            <div class="list-pagination" id="facilities-pagination">
+                                <button type="button" class="secondary-btn" id="facilities-prev-btn">Trang trước</button>
+                                <span class="pagination-summary" id="facilities-page-info">Trang 1 / 1</span>
+                                <button type="button" class="secondary-btn" id="facilities-next-btn">Trang sau</button>
+                            </div>
+                        </div>
+
+                        <aside class="contract-detail-card">
+                            <div class="card-head">
+                                <h3>Thiết bị đang chọn</h3>
+                                <span class="pill neutral" id="facility-detail-name">Chưa chọn</span>
                             </div>
                             <form id="facility-form" class="form-stack">
+                                <label>
+                                    <span>Phòng</span>
+                                    <select id="facility-room-id"></select>
+                                </label>
                                 <label>
                                     <span>Tên thiết bị</span>
                                     <input type="text" id="facility-name" placeholder="Ví dụ: Giường tầng">
@@ -630,57 +690,6 @@
                                 </div>
                             </form>
                         </aside>
-                    </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="section-kicker">Facilities</p>
-                            <h2 class="page-heading">Danh sách toàn bộ thiết bị</h2>
-                        </div>
-                        <button type="button" class="primary-btn" id="reload-facilities-btn">Tải lại</button>
-                    </div>
-
-                    <div class="facility-filter-grid">
-                        <label>
-                            <span>Tìm theo thiết bị / phòng</span>
-                            <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
-                        </label>
-                        <label>
-                            <span>Tình trạng</span>
-                            <select id="facility-inventory-status">
-                                <option value="">Tất cả</option>
-                                <option value="Good">Good</option>
-                                <option value="Damaged">Damaged</option>
-                                <option value="UnderMaintenance">UnderMaintenance</option>
-                            </select>
-                        </label>
-                    </div>
-
-                    <div class="table-wrap">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Phòng</th>
-                                    <th>Thiết bị</th>
-                                    <th>Số lượng</th>
-                                    <th>Tình trạng</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="facilities-table-body">
-                                <tr>
-                                    <td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="list-pagination" id="facilities-pagination">
-                        <button type="button" class="secondary-btn" id="facilities-prev-btn">Trang trước</button>
-                        <span class="pagination-summary" id="facilities-page-info">Trang 1 / 1</span>
-                        <button type="button" class="secondary-btn" id="facilities-next-btn">Trang sau</button>
                     </div>
                 </div>
             </section>
@@ -880,13 +889,16 @@
             </section>
 
             <section class="panel" id="section-notifications">
+                <!-- Hàng 1: Form gửi + Thông báo đến -->
                 <div class="dual-grid">
+                    <!-- Card 1: Form tạo/gửi thông báo -->
                     <article class="content-card">
                         <div class="section-head">
                             <div>
                                 <p class="section-kicker">Notifications</p>
-                                <h2 class="page-heading">Tạo thông báo</h2>
+                                <h2 class="page-heading">Tạo / sửa thông báo</h2>
                             </div>
+                            <span class="pill neutral" id="notif-form-mode">Tạo mới</span>
                         </div>
                         <form id="notification-form" class="form-stack">
                             <label>
@@ -909,29 +921,75 @@
                                 <textarea id="notif-message" rows="5" placeholder="Nội dung thông báo gửi đến người dùng"></textarea>
                             </label>
                             <p class="form-error" id="notif-form-error"></p>
-                            <button type="submit" class="primary-btn">Gửi thông báo</button>
+                            <div class="contract-actions">
+                                <button type="submit" class="primary-btn" id="save-notification-btn">Gửi thông báo</button>
+                                <button type="button" class="secondary-btn" id="reset-notification-form-btn">Tạo mới</button>
+                            </div>
                         </form>
                     </article>
 
+                    <!-- Card 2: Thông báo đến cho admin (từ hệ thống) -->
                     <article class="content-card">
                         <div class="section-head">
                             <div>
-                                <p class="section-kicker">Notifications</p>
-                                <h2 class="page-heading">Thông báo gần đây</h2>
+                                <p class="section-kicker">Inbox</p>
+                                <h2 class="page-heading">Thông báo đến</h2>
                             </div>
-                            <button type="button" class="primary-btn" id="reload-notifications-btn">Tải lại</button>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="nav-badge" id="admin-notif-badge" hidden>0</span>
+                                <button type="button" class="secondary-btn" id="reload-admin-inbox-btn">🔄 Tải lại</button>
+                            </div>
+                        </div>
+                        <p class="section-subtitle" style="margin-bottom:12px;color:var(--text-muted,#6b7280);font-size:.85rem;">Thông báo hệ thống gửi khi sinh viên thực hiện các yêu cầu.</p>
+                        <div id="admin-inbox-list" class="stack-list">
+                            <div class="empty-state">Đang tải thông báo đến...</div>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Hàng 2: Lịch sử đã gửi -->
+                <div class="content-card" style="margin-top:20px;">
+                    <div class="section-head">
+                        <div>
+                            <p class="section-kicker">Sent History</p>
+                            <h2 class="page-heading">Lịch sử đã gửi</h2>
+                        </div>
+                        <button type="button" class="secondary-btn" id="toggle-sent-history-btn" aria-expanded="false">📋 Xem lịch sử đã gửi</button>
+                    </div>
+                    <p class="section-subtitle" style="margin-bottom:12px;color:var(--text-muted,#6b7280);font-size:.85rem;">Danh sách các thông báo admin đã tạo và gửi cho sinh viên.</p>
+
+                    <!-- Panel ẩn mặc định -->
+                    <div id="sent-history-panel" hidden>
+                        <div class="toolbar-actions" style="margin-bottom:10px;">
+                            <button type="button" class="secondary-btn" id="reload-notifications-btn">🔄 Tải lại</button>
+                        </div>
+                        <div class="notification-filter-grid">
+                            <label>
+                                <span>Tìm theo tiêu đề / nội dung</span>
+                                <input type="text" id="notif-search" placeholder="Ví dụ: thanh toán">
+                            </label>
+                            <label>
+                                <span>Từ ngày</span>
+                                <input type="date" id="notif-from-date">
+                            </label>
+                            <label>
+                                <span>Đến ngày</span>
+                                <input type="date" id="notif-to-date">
+                            </label>
                         </div>
                         <div id="notifications-list" class="stack-list">
-                            <div class="empty-state">Đang tải thông báo...</div>
+                            <div class="empty-state">Nhấn "Xem lịch sử đã gửi" để tải dữ liệu.</div>
                         </div>
                         <div class="list-pagination" id="notifications-pagination">
                             <button type="button" class="secondary-btn" id="notifications-prev-btn">Trang trước</button>
                             <span class="pagination-summary" id="notifications-page-info">Trang 1 / 1</span>
                             <button type="button" class="secondary-btn" id="notifications-next-btn">Trang sau</button>
                         </div>
-                    </article>
+                    </div>
                 </div>
             </section>
+
+
         </main>
     </div>
 
@@ -955,9 +1013,23 @@
     <script src="../js/admin/admin-contracts.js"></script>
     <script src="../js/admin/admin-invoices.js"></script>
     <script src="../js/admin/admin-rooms.js"></script>
+    <script src="../js/admin/admin-facilities.js"></script>
     <script src="../js/admin/admin-students.js"></script>
     <script src="../js/admin/admin-revenue.js"></script>
     <script src="../js/admin/admin-notifications.js"></script>
     <script src="../js/admin/admin-main.js"></script>
+
+    <!-- Modal chi tiết thông báo -->
+    <div class="notif-modal-overlay" id="notif-detail-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card">
+            <div class="notif-modal-header">
+                <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
+                <button type="button" class="notif-modal-close" id="notif-modal-close-btn" aria-label="Đóng">✕</button>
+            </div>
+            <p class="notif-modal-meta" id="notif-modal-date"></p>
+            <hr class="notif-modal-divider">
+            <div class="notif-modal-body" id="notif-modal-body"></div>
+        </div>
+    </div>
 </body>
 </html>
