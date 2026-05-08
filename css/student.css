@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+
 :root {
     --portal-blue: #4a92c0;
     --portal-blue-dark: #2f79a8;
@@ -22,7 +24,7 @@ body {
 
 body.student-app {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Be Vietnam Pro", "Segoe UI", Arial, Helvetica, sans-serif;
     color: var(--portal-text);
     background: var(--portal-bg);
 }
@@ -98,7 +100,7 @@ select {
     gap: 6px;
     text-align: left;
     line-height: 1;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
 }
 
 .welcome-copy span,
@@ -193,7 +195,7 @@ select {
     transform: translate(-50%, -50%);
     margin: 0;
     color: var(--portal-brand);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
     font-size: 0;
     font-weight: 700;
     line-height: 1.2;
@@ -1032,7 +1034,7 @@ body.student-app {
         radial-gradient(circle at 72% 24%, rgba(37, 109, 222, 0.1), transparent 34%),
         #f3f7fb;
     color: var(--student-ink);
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-family: "Be Vietnam Pro", "Segoe UI", Arial, Helvetica, sans-serif;
 }
 
 .portal-header {
@@ -5409,4 +5411,150 @@ body.student-app {
     .invoice-detail-card {
         order: -1;
     }
+}
+
+.receipt-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.receipt-date-range {
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid #dce6f2;
+    border-radius: 8px;
+    background: #fff;
+    color: #476585;
+}
+
+.receipt-date-range input {
+    border: 0;
+    color: #214a77;
+    font-size: 13px;
+    font-weight: 700;
+    background: transparent;
+    outline: none;
+}
+
+.receipt-date-range span {
+    color: #7a90ab;
+    font-weight: 700;
+}
+
+.receipt-period-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.receipt-doc-icon {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    border-radius: 8px;
+    background: #e7f9ec;
+    color: #1f9d4b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.receipt-doc-icon::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h9l5 5v15H6V2Zm8 1.5V8h4.5L14 3.5ZM8 12h8v2H8v-2Zm0 4h8v2H8v-2Z'/%3E%3C/svg%3E");
+    mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+}
+
+.receipt-period-cell strong {
+    display: block;
+    color: #153968;
+    font-size: 14px;
+}
+
+.receipt-period-cell small {
+    display: block;
+    margin-top: 2px;
+    color: #70839b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.receipt-method-badge {
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
+}
+
+.receipt-method-badge.momo {
+    background: #fff0f8;
+    color: #b11371;
+    border-color: #ffd0eb;
+}
+
+.receipt-method-badge.vnpay {
+    background: #eef5ff;
+    color: #114ea8;
+    border-color: #d3e3ff;
+}
+
+.receipt-method-badge.vietcombank {
+    background: #ecfdf3;
+    color: #177447;
+    border-color: #c8f3da;
+}
+
+.receipt-method-badge.other {
+    background: #f5f8fc;
+    color: #4d647d;
+    border-color: #dce6f2;
+}
+
+.receipt-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 168px;
+}
+
+.receipt-actions .invoice-icon-btn,
+.receipt-actions .invoice-dl-btn {
+    width: auto;
+    min-width: 72px;
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.receipt-actions .invoice-icon-btn {
+    background: #f4f8fd;
+    border: 1px solid #dce6f2;
+    color: #214a77;
+}
+
+.receipt-actions .invoice-icon-btn::before {
+    display: none;
+}
+
+.receipt-actions .invoice-dl-btn {
+    box-shadow: none;
 }

@@ -1,30 +1,22 @@
 /**
- * student.js – Logic chính cho trang sinh viên
- * Kết nối với BE qua api.js (callApi / callApiPublic)
+ * student.js â€“ Logic chÃ­nh cho trang sinh viÃªn
+ * Káº¿t ná»‘i vá»›i BE qua api.js (callApi / callApiPublic)
  */
 
 // =====================================================================
 // GLOBAL STATE
 // =====================================================================
-let currentReqType = 'Other'; // loại yêu cầu đang hiển thị
-let transferRooms  = [];       // danh sách phòng có thể chuyển
-let currentFacilities = [];     // danh sách thiết bị trong phòng hiện tại
-let currentFacilityRoom = null;  // thông tin phòng dùng cho trang cơ sở vật chất
-let currentFacilityRepairHistory = []; // lịch sử báo hỏng/sửa chữa
+let currentReqType = 'Other'; // loáº¡i yÃªu cáº§u Ä‘ang hiá»ƒn thá»‹
+let transferRooms  = [];       // danh sÃ¡ch phÃ²ng cÃ³ thá»ƒ chuyá»ƒn
+let currentFacilities = [];     // danh sÃ¡ch thiáº¿t bá»‹ trong phÃ²ng hiá»‡n táº¡i
+let currentFacilityRoom = null;  // thÃ´ng tin phÃ²ng dÃ¹ng cho trang cÆ¡ sá»Ÿ váº­t cháº¥t
+let currentFacilityRepairHistory = []; // lá»‹ch sá»­ bÃ¡o há»ng/sá»­a chá»¯a
 let currentInvoices = [];
 let currentReceipts = [];
 let selectedInvoiceId = null;
 let invoiceActiveTab = 'invoice';
 let invoiceStatusFilter = '';
 let invoiceSearchTerm = '';
-let receiptMethodFilter = '';
-let receiptDateFrom = '';
-let receiptDateTo = '';
-let requestStatusFilter = '';
-let currentNotifications = [];
-let notificationFilter = 'all';
-let notificationPage = 1;
-const NOTIFICATION_PAGE_SIZE = 5;
 
 // =====================================================================
 // HELPERS
@@ -38,17 +30,17 @@ function showToast(msg, isError = false) {
     setTimeout(() => { t.style.display = 'none'; }, 3200);
 }
 
-function setLoading(id, msg = 'Đang tải...') {
+function setLoading(id, msg = 'Äang táº£i...') {
     const el = document.getElementById(id);
     if (el) el.innerHTML = `<div class="loading-state">${msg}</div>`;
 }
 
 function setError(id, msg) {
     const el = document.getElementById(id);
-    if (el) el.innerHTML = `<div class="empty-state error-state">⚠️ ${msg}</div>`;
+    if (el) el.innerHTML = `<div class="empty-state error-state">âš ï¸ ${msg}</div>`;
 }
 
-function setEmpty(id, msg = 'Không có dữ liệu.') {
+function setEmpty(id, msg = 'KhÃ´ng cÃ³ dá»¯ liá»‡u.') {
     const el = document.getElementById(id);
     if (el) el.innerHTML = `<div class="empty-state">${msg}</div>`;
 }
@@ -63,17 +55,17 @@ function escapeText(value) {
 }
 
 // =====================================================================
-// 1. KHỞI TẠO
+// 1. KHá»žI Táº O
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Cập nhật tên trên header
-    const fullName = localStorage.getItem('fullName') || sessionStorage.getItem('fullName') || 'Sinh viên';
+    // Cáº­p nháº­t tÃªn trÃªn header
+    const fullName = localStorage.getItem('fullName') || sessionStorage.getItem('fullName') || 'Sinh viÃªn';
     const headerName = document.getElementById('header-name');
     if (headerName) headerName.textContent = fullName;
     const avatar = document.getElementById('header-avatar');
     if (avatar) avatar.textContent = fullName.charAt(0).toUpperCase();
 
-    // KIểm tra mustChangePassword (từ BE LoginResponse)
+    // KIá»ƒm tra mustChangePassword (tá»« BE LoginResponse)
     const mustChangePw = localStorage.getItem('mustChangePassword') || sessionStorage.getItem('mustChangePassword');
     if (mustChangePw === 'true') {
         const modal = document.getElementById('force-change-pw-modal');
@@ -85,14 +77,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     initRequestMenu();
     initWelcomeMenu();
     initTopActions();
-    initNotificationPanel();
     initFacilityTabs();
     initPasswordPanel();
     initLogout();
     initForceChangePassword();
     handlePaymentReturnState();
 
-    // Load section đầu tiên
+    // Load section Ä‘áº§u tiÃªn
     await loadProfile();
     await loadNotificationCount();
 });
@@ -190,7 +181,7 @@ function onSectionActivated(sectionId, extra) {
 }
 
 // =====================================================================
-// 3. SUB-TABS (Trong section Thông tin sinh viên)
+// 3. SUB-TABS (Trong section ThÃ´ng tin sinh viÃªn)
 // =====================================================================
 function initSubTabs() {
     document.querySelectorAll('.s-tab').forEach(btn => {
@@ -228,12 +219,12 @@ function initLogout() {
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         const confirmLogout = typeof showAppConfirm === 'function'
             ? showAppConfirm({
-                title: 'Đăng xuất',
-                message: 'Bạn có chắc muốn đăng xuất khỏi hệ thống không?',
-                confirmText: 'Đăng xuất',
-                cancelText: 'Ở lại'
+                title: 'ÄÄƒng xuáº¥t',
+                message: 'Báº¡n cÃ³ cháº¯c muá»‘n Ä‘Äƒng xuáº¥t khá»i há»‡ thá»‘ng khÃ´ng?',
+                confirmText: 'ÄÄƒng xuáº¥t',
+                cancelText: 'á»ž láº¡i'
             })
-            : Promise.resolve(confirm('Bạn có chắc muốn đăng xuất?'));
+            : Promise.resolve(confirm('Báº¡n cÃ³ cháº¯c muá»‘n Ä‘Äƒng xuáº¥t?'));
 
         confirmLogout.then(confirmed => {
             if (confirmed) logout();
@@ -278,42 +269,6 @@ function initTopActions() {
     });
 }
 
-function initNotificationPanel() {
-    document.querySelectorAll('.notify-tab[data-notify-filter]').forEach(btn => {
-        if (btn._bound) return;
-        btn._bound = true;
-        btn.addEventListener('click', () => {
-            notificationFilter = btn.dataset.notifyFilter || 'all';
-            notificationPage = 1;
-            renderNotificationsPanel();
-        });
-    });
-
-    const invoiceBtn = document.getElementById('notify-go-invoice');
-    if (invoiceBtn && !invoiceBtn._bound) {
-        invoiceBtn._bound = true;
-        invoiceBtn.addEventListener('click', () => {
-            activateStudentSection('section-invoice');
-            loadMyInvoices();
-        });
-    }
-
-    const requestBtn = document.getElementById('notify-go-request');
-    if (requestBtn && !requestBtn._bound) {
-        requestBtn._bound = true;
-        requestBtn.addEventListener('click', () => {
-            const otherRequestItem = document.querySelector('.submenu-item[data-req-type="Other"]');
-            if (otherRequestItem) {
-                otherRequestItem.click();
-                return;
-            }
-
-            activateStudentSection('section-request');
-            loadRequestSection('Other');
-        });
-    }
-}
-
 function initFacilityTabs() {
     document.querySelectorAll('.facility-tab-btn[data-facility-panel]').forEach(btn => {
         if (btn._bound) return;
@@ -353,13 +308,13 @@ function updatePasswordStrength(password = '') {
     const score = getPasswordStrength(password);
     if (score >= 4) {
         row.classList.add('strong');
-        label.textContent = 'Mạnh';
+        label.textContent = 'Máº¡nh';
     } else if (score >= 2) {
         row.classList.add('medium');
-        label.textContent = 'Trung bình';
+        label.textContent = 'Trung bÃ¬nh';
     } else {
         row.classList.add('weak');
-        label.textContent = 'Yếu';
+        label.textContent = 'Yáº¿u';
     }
 }
 
@@ -373,7 +328,7 @@ function initPasswordPanel() {
             const shouldShow = input.type === 'password';
             input.type = shouldShow ? 'text' : 'password';
             btn.classList.toggle('visible', shouldShow);
-            btn.setAttribute('aria-label', shouldShow ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+            btn.setAttribute('aria-label', shouldShow ? 'áº¨n máº­t kháº©u' : 'Hiá»‡n máº­t kháº©u');
         });
     });
 
@@ -388,7 +343,7 @@ function initPasswordPanel() {
 // ======================================================================
 // 6. FORCE CHANGE PASSWORD
 // BE field names: oldPassword, newPassword, confirmPassword
-// Validation: ít nhất 1 chữ hoa, 1 chữ thường, 1 số
+// Validation: Ã­t nháº¥t 1 chá»¯ hoa, 1 chá»¯ thÆ°á»ng, 1 sá»‘
 // ======================================================================
 function initForceChangePassword() {
     const btn = document.getElementById('fcp-submit-btn');
@@ -400,13 +355,13 @@ function initForceChangePassword() {
         const errEl     = document.getElementById('fcp-error');
 
         errEl.textContent = '';
-        if (!oldPw)                { errEl.textContent = 'Nhập mật khẩu cũ.'; return; }
-        if (!newPw)                { errEl.textContent = 'Nhập mật khẩu mới.'; return; }
-        if (newPw.length < 8)     { errEl.textContent = 'Mật khẩu mới phải ít nhất 8 ký tự.'; return; }
+        if (!oldPw)                { errEl.textContent = 'Nháº­p máº­t kháº©u cÅ©.'; return; }
+        if (!newPw)                { errEl.textContent = 'Nháº­p máº­t kháº©u má»›i.'; return; }
+        if (newPw.length < 8)     { errEl.textContent = 'Máº­t kháº©u má»›i pháº£i Ã­t nháº¥t 8 kÃ½ tá»±.'; return; }
         if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPw)) {
-            errEl.textContent = 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường và 1 số.'; return;
+            errEl.textContent = 'Máº­t kháº©u pháº£i cÃ³ Ã­t nháº¥t 1 chá»¯ hoa, 1 chá»¯ thÆ°á»ng vÃ  1 sá»‘.'; return;
         }
-        if (newPw !== confirmPw)   { errEl.textContent = 'Mật khẩu xác nhận không khớp.'; return; }
+        if (newPw !== confirmPw)   { errEl.textContent = 'Máº­t kháº©u xÃ¡c nháº­n khÃ´ng khá»›p.'; return; }
 
         btn.disabled = true;
         const res = await callApi('/profile/change-password', {
@@ -423,33 +378,33 @@ function initForceChangePassword() {
             localStorage.setItem('mustChangePassword', 'false');
             sessionStorage.setItem('mustChangePassword', 'false');
             document.getElementById('force-change-pw-modal').classList.remove('open');
-            showToast('🎉 Đổi mật khẩu thành công! Chào mừng bạn.');
+            showToast('ðŸŽ‰ Äá»•i máº­t kháº©u thÃ nh cÃ´ng! ChÃ o má»«ng báº¡n.');
         } else {
-            errEl.textContent = res?.data?.message || 'Đổi mật khẩu thất bại. Kiểm tra lại mật khẩu cũ.';
+            errEl.textContent = res?.data?.message || 'Äá»•i máº­t kháº©u tháº¥t báº¡i. Kiá»ƒm tra láº¡i máº­t kháº©u cÅ©.';
         }
     });
 }
 
 // ======================================================================
-// 7. PROFILE – GET /api/profile & PUT /api/profile & PUT /api/profile/change-password
+// 7. PROFILE â€“ GET /api/profile & PUT /api/profile & PUT /api/profile/change-password
 // ======================================================================
 async function loadProfile() {
     const res = await callApi('/profile');
     if (!res?.ok || !res.data?.data) {
-        // Hiển thị thông tin từ localStorage nếu API lỗi
-        document.getElementById('sv-fullname').textContent = localStorage.getItem('fullName') || '—';
+        // Hiá»ƒn thá»‹ thÃ´ng tin tá»« localStorage náº¿u API lá»—i
+        document.getElementById('sv-fullname').textContent = localStorage.getItem('fullName') || 'â€”';
         return;
     }
 
     const p = res.data.data; // UserProfileResponse
 
-    // Thông tin chung
-    document.getElementById('sv-fullname').textContent   = p.fullName         || '—';
-    document.getElementById('sv-citizenid').textContent  = p.citizenId        || '—';
-    document.getElementById('sv-gender').textContent     = p.gender           || '—';
-    document.getElementById('sv-email').textContent      = p.email            || '—';
+    // ThÃ´ng tin chung
+    document.getElementById('sv-fullname').textContent   = p.fullName         || 'â€”';
+    document.getElementById('sv-citizenid').textContent  = p.citizenId        || 'â€”';
+    document.getElementById('sv-gender').textContent     = p.gender           || 'â€”';
+    document.getElementById('sv-email').textContent      = p.email            || 'â€”';
 
-    // Thông tin liên hệ (form)
+    // ThÃ´ng tin liÃªn há»‡ (form)
     const phoneEl   = document.getElementById('edit-phone');
     const addrEl    = document.getElementById('edit-address');
     const relNEl    = document.getElementById('edit-relative-name');
@@ -462,16 +417,16 @@ async function loadProfile() {
     if (relPhEl)  relPhEl.value  = p.relativePhone    || '';
     if (relRelEl) relRelEl.value = p.relationship     || '';
 
-    // Cập nhật header name
+    // Cáº­p nháº­t header name
     localStorage.setItem('fullName', p.fullName || '');
     const headerName = document.getElementById('header-name');
-    if (headerName) headerName.textContent = p.fullName || '—';
+    if (headerName) headerName.textContent = p.fullName || 'â€”';
     const avatar = document.getElementById('header-avatar');
     if (avatar) avatar.textContent = (p.fullName || 'S').charAt(0).toUpperCase();
 
-    // Bind nút lưu thông tin liên hệ (chỉ bind 1 lần)
+    // Bind nÃºt lÆ°u thÃ´ng tin liÃªn há»‡ (chá»‰ bind 1 láº§n)
     bindSaveContact();
-    // Bind đổi mật khẩu
+    // Bind Ä‘á»•i máº­t kháº©u
     bindChangePassword();
 }
 
@@ -489,16 +444,16 @@ function bindSaveContact() {
             relativePhone:    document.getElementById('edit-relative-phone').value.trim(),
             relationship:     document.getElementById('edit-relationship').value.trim(),
         };
-        if (!dto.phone) { errEl.textContent = 'Số điện thoại không được để trống.'; return; }
+        if (!dto.phone) { errEl.textContent = 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng.'; return; }
 
         btn.disabled = true;
         const res = await callApi('/profile', { method: 'PUT', body: JSON.stringify(dto) });
         btn.disabled = false;
 
         if (res?.ok) {
-            showToast('Cập nhật thông tin thành công!');
+            showToast('Cáº­p nháº­t thÃ´ng tin thÃ nh cÃ´ng!');
         } else {
-            let msg = 'Cập nhật thất bại.';
+            let msg = 'Cáº­p nháº­t tháº¥t báº¡i.';
             if (res?.data?.message) {
                 msg = res.data.message;
             } else if (res?.data?.errors) {
@@ -519,9 +474,9 @@ function bindChangePassword() {
         const current  = document.getElementById('pw-current').value;
         const newPw    = document.getElementById('pw-new').value;
         const confirm  = document.getElementById('pw-confirm').value;
-        if (!current || !newPw || !confirm) { errEl.textContent = 'Vui lòng điền đầy đủ.'; return; }
-        if (newPw !== confirm)              { errEl.textContent = 'Mật khẩu mới không khớp.'; return; }
-        if (newPw.length < 8)              { errEl.textContent = 'Mật khẩu mới phải có ít nhất 8 ký tự.'; return; }
+        if (!current || !newPw || !confirm) { errEl.textContent = 'Vui lÃ²ng Ä‘iá»n Ä‘áº§y Ä‘á»§.'; return; }
+        if (newPw !== confirm)              { errEl.textContent = 'Máº­t kháº©u má»›i khÃ´ng khá»›p.'; return; }
+        if (newPw.length < 8)              { errEl.textContent = 'Máº­t kháº©u má»›i pháº£i cÃ³ Ã­t nháº¥t 8 kÃ½ tá»±.'; return; }
 
         btn.disabled = true;
         const res = await callApi('/profile/change-password', {
@@ -531,13 +486,13 @@ function bindChangePassword() {
         btn.disabled = false;
 
         if (res?.ok) {
-            showToast('Đổi mật khẩu thành công!');
+            showToast('Äá»•i máº­t kháº©u thÃ nh cÃ´ng!');
             document.getElementById('pw-current').value = '';
             document.getElementById('pw-new').value     = '';
             document.getElementById('pw-confirm').value = '';
             updatePasswordStrength('');
         } else {
-            let msg = 'Đổi mật khẩu thất bại.';
+            let msg = 'Äá»•i máº­t kháº©u tháº¥t báº¡i.';
             if (res?.data?.message) {
                 msg = res.data.message;
             } else if (res?.data?.errors) {
@@ -549,20 +504,20 @@ function bindChangePassword() {
 }
 
 // ======================================================================
-// 8. PHÒNG Ở – GET /api/room/my-room
+// 8. PHÃ’NG á»ž â€“ GET /api/room/my-room
 // ======================================================================
 function getRoomStatusMeta(status) {
     const normalized = String(status || '').trim();
     const map = {
-        Available: { label: 'Available', cls: 'is-available', contractLabel: 'Đang hiệu lực' },
-        Full: { label: 'Full', cls: 'is-full', contractLabel: 'Đã đủ chỗ' },
-        Locked: { label: 'Locked', cls: 'is-locked', contractLabel: 'Tạm khóa' },
-        Active: { label: 'Đang hiệu lực', cls: 'is-available', contractLabel: 'Đang hiệu lực' },
-        Inactive: { label: 'Vô hiệu', cls: 'is-locked', contractLabel: 'Vô hiệu' },
-        Expired: { label: 'Hết hạn', cls: 'is-locked', contractLabel: 'Hết hạn' },
-        Terminated: { label: 'Đã thanh lý', cls: 'is-locked', contractLabel: 'Đã thanh lý' }
+        Available: { label: 'Available', cls: 'is-available', contractLabel: 'Äang hiá»‡u lá»±c' },
+        Full: { label: 'Full', cls: 'is-full', contractLabel: 'ÄÃ£ Ä‘á»§ chá»—' },
+        Locked: { label: 'Locked', cls: 'is-locked', contractLabel: 'Táº¡m khÃ³a' },
+        Active: { label: 'Äang hiá»‡u lá»±c', cls: 'is-available', contractLabel: 'Äang hiá»‡u lá»±c' },
+        Inactive: { label: 'VÃ´ hiá»‡u', cls: 'is-locked', contractLabel: 'VÃ´ hiá»‡u' },
+        Expired: { label: 'Háº¿t háº¡n', cls: 'is-locked', contractLabel: 'Háº¿t háº¡n' },
+        Terminated: { label: 'ÄÃ£ thanh lÃ½', cls: 'is-locked', contractLabel: 'ÄÃ£ thanh lÃ½' }
     };
-    return map[normalized] || { label: normalized || '—', cls: 'is-muted', contractLabel: normalized || '—' };
+    return map[normalized] || { label: normalized || 'â€”', cls: 'is-muted', contractLabel: normalized || 'â€”' };
 }
 
 function roomSummaryCard(icon, tone, label, value, valueHtml = null) {
@@ -570,7 +525,7 @@ function roomSummaryCard(icon, tone, label, value, valueHtml = null) {
         <article class="residence-summary-card">
             <span class="residence-summary-icon ${icon} ${tone}"></span>
             <span class="residence-summary-label">${escapeText(label)}</span>
-            <strong class="residence-summary-value">${valueHtml ?? escapeText(value || '—')}</strong>
+            <strong class="residence-summary-value">${valueHtml ?? escapeText(value || 'â€”')}</strong>
         </article>`;
 }
 
@@ -586,16 +541,16 @@ function contractDetailRow(icon, label, valueHtml) {
 function getDaysRemainingLabel(contract) {
     const rawDays = Number(contract?.daysRemaining);
     if (Number.isFinite(rawDays)) {
-        return `${Math.max(0, rawDays)} ngày`;
+        return `${Math.max(0, rawDays)} ngÃ y`;
     }
 
     const end = new Date(contract?.endDate);
-    if (isNaN(end)) return '—';
+    if (isNaN(end)) return 'â€”';
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     end.setHours(0, 0, 0, 0);
     const days = Math.ceil((end - today) / 86400000);
-    return `${Math.max(0, days)} ngày`;
+    return `${Math.max(0, days)} ngÃ y`;
 }
 
 function renderResidenceHistory(contract) {
@@ -605,28 +560,28 @@ function renderResidenceHistory(contract) {
             <div class="residence-panel-head">
                 <div class="residence-panel-title">
                     <span class="residence-panel-icon icon-calendar"></span>
-                    <h3>Lịch sử lưu trú</h3>
+                    <h3>Lá»‹ch sá»­ lÆ°u trÃº</h3>
                 </div>
                 <button type="button" class="residence-download-btn" id="download-stay-record-btn">
                     <span></span>
-                    Tải biên bản
+                    Táº£i biÃªn báº£n
                 </button>
             </div>
             <div class="residence-history-body">
                 <div class="residence-timeline">
                     <div class="timeline-item">
                         <span class="timeline-check"></span>
-                        <strong>Nhận phòng</strong>
+                        <strong>Nháº­n phÃ²ng</strong>
                         <time>${formatDate(contract.startDate)}</time>
                     </div>
                     <div class="timeline-item">
                         <span class="timeline-check"></span>
-                        <strong>Gia hạn gần nhất</strong>
-                        <time>${latestRenewal ? formatDate(latestRenewal) : '—'}</time>
+                        <strong>Gia háº¡n gáº§n nháº¥t</strong>
+                        <time>${latestRenewal ? formatDate(latestRenewal) : 'â€”'}</time>
                     </div>
                     <div class="timeline-item">
                         <span class="timeline-check"></span>
-                        <strong>Dự kiến kết thúc</strong>
+                        <strong>Dá»± kiáº¿n káº¿t thÃºc</strong>
                         <time>${formatDate(contract.endDate)}</time>
                     </div>
                 </div>
@@ -652,16 +607,16 @@ function bindResidenceRecordDownload(contract) {
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '');
         const content = [
-            'BIÊN BẢN THÔNG TIN LƯU TRÚ',
+            'BIÃŠN Báº¢N THÃ”NG TIN LÆ¯U TRÃš',
             '',
-            `Mã hợp đồng: ${contract.contractCode || '—'}`,
-            `Phòng: ${contract.roomCode || '—'}`,
-            `Loại phòng: ${contract.roomType || '—'}`,
-            `Ngày bắt đầu: ${formatDate(contract.startDate)}`,
-            `Ngày kết thúc: ${formatDate(contract.endDate)}`,
-            `Giá thuê: ${formatCurrency(contract.price)} / tháng`,
-            `Trạng thái: ${getRoomStatusMeta(contract.status).contractLabel}`,
-            `Còn lại: ${getDaysRemainingLabel(contract)}`
+            `MÃ£ há»£p Ä‘á»“ng: ${contract.contractCode || 'â€”'}`,
+            `PhÃ²ng: ${contract.roomCode || 'â€”'}`,
+            `Loáº¡i phÃ²ng: ${contract.roomType || 'â€”'}`,
+            `NgÃ y báº¯t Ä‘áº§u: ${formatDate(contract.startDate)}`,
+            `NgÃ y káº¿t thÃºc: ${formatDate(contract.endDate)}`,
+            `GiÃ¡ thuÃª: ${formatCurrency(contract.price)} / thÃ¡ng`,
+            `Tráº¡ng thÃ¡i: ${getRoomStatusMeta(contract.status).contractLabel}`,
+            `CÃ²n láº¡i: ${getDaysRemainingLabel(contract)}`
         ].join('\n');
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -672,7 +627,7 @@ function bindResidenceRecordDownload(contract) {
         link.click();
         link.remove();
         URL.revokeObjectURL(url);
-        showToast('Đã tải biên bản lưu trú.');
+        showToast('ÄÃ£ táº£i biÃªn báº£n lÆ°u trÃº.');
     });
 }
 
@@ -681,7 +636,7 @@ async function loadMyRoom() {
     const res = await callApi('/room/my-room');
     const el = document.getElementById('room-content');
     if (!res || !res.ok || !res.data) {
-        el.innerHTML = `<div class="empty-state residence-empty">Bạn hiện không có phòng đang hoạt động.<br><small>Điều này có nghĩa chưa có hợp đồng Active.</small></div>`;
+        el.innerHTML = `<div class="empty-state residence-empty">Báº¡n hiá»‡n khÃ´ng cÃ³ phÃ²ng Ä‘ang hoáº¡t Ä‘á»™ng.<br><small>Äiá»u nÃ y cÃ³ nghÄ©a chÆ°a cÃ³ há»£p Ä‘á»“ng Active.</small></div>`;
         return;
     }
 
@@ -693,8 +648,8 @@ async function loadMyRoom() {
                 <div class="residence-title-block">
                     <span class="residence-title-icon icon-building"></span>
                     <div>
-                        <h2>Thông tin lưu trú hiện tại</h2>
-                        <p>Quản lý thông tin phòng ở và tình trạng lưu trú</p>
+                        <h2>ThÃ´ng tin lÆ°u trÃº hiá»‡n táº¡i</h2>
+                        <p>Quáº£n lÃ½ thÃ´ng tin phÃ²ng á»Ÿ vÃ  tÃ¬nh tráº¡ng lÆ°u trÃº</p>
                     </div>
                 </div>
                 <span class="residence-valid-pill ${roomStatus.cls}">
@@ -703,46 +658,46 @@ async function loadMyRoom() {
                 </span>
             </div>
             <div class="residence-summary-grid">
-                ${roomSummaryCard('icon-door', 'tone-blue', 'Mã phòng', r.roomCode)}
-                ${roomSummaryCard('icon-people', 'tone-purple', 'Loại phòng', r.roomType)}
-                ${roomSummaryCard('icon-home', 'tone-green', 'Tòa nhà', `${r.buildingName || '—'} (${r.buildingCode || '—'})`)}
-                ${roomSummaryCard('icon-user', 'tone-orange', 'Sức chứa', `${r.currentOccupancy ?? '—'}/${r.capacity ?? '—'} người`)}
-                ${roomSummaryCard('icon-gender', 'tone-pink', 'Giới tính', r.genderAllowed)}
-                ${roomSummaryCard('icon-status', 'tone-cyan', 'Trạng thái', '', `<span class="residence-status-pill ${roomStatus.cls}">${escapeText(roomStatus.label)}</span>`)}
+                ${roomSummaryCard('icon-door', 'tone-blue', 'MÃ£ phÃ²ng', r.roomCode)}
+                ${roomSummaryCard('icon-people', 'tone-purple', 'Loáº¡i phÃ²ng', r.roomType)}
+                ${roomSummaryCard('icon-home', 'tone-green', 'TÃ²a nhÃ ', `${r.buildingName || 'â€”'} (${r.buildingCode || 'â€”'})`)}
+                ${roomSummaryCard('icon-user', 'tone-orange', 'Sá»©c chá»©a', `${r.currentOccupancy ?? 'â€”'}/${r.capacity ?? 'â€”'} ngÆ°á»i`)}
+                ${roomSummaryCard('icon-gender', 'tone-pink', 'Giá»›i tÃ­nh', r.genderAllowed)}
+                ${roomSummaryCard('icon-status', 'tone-cyan', 'Tráº¡ng thÃ¡i', '', `<span class="residence-status-pill ${roomStatus.cls}">${escapeText(roomStatus.label)}</span>`)}
             </div>
         </div>`;
 }
 
 function getFacilityCategory(name = '') {
     const normalized = name.toLowerCase();
-    if (normalized.includes('máy lạnh') || normalized.includes('điều hòa')) return 'Điện lạnh';
-    if (normalized.includes('quạt')) return 'Điện gia dụng';
-    if (normalized.includes('đèn')) return 'Điện chiếu sáng';
-    if (normalized.includes('ổ cắm') || normalized.includes('điện')) return 'Điện';
-    if (normalized.includes('bàn') || normalized.includes('tủ') || normalized.includes('giường') || normalized.includes('ghế')) return 'Nội thất';
-    return 'Thiết bị';
+    if (normalized.includes('mÃ¡y láº¡nh') || normalized.includes('Ä‘iá»u hÃ²a')) return 'Äiá»‡n láº¡nh';
+    if (normalized.includes('quáº¡t')) return 'Äiá»‡n gia dá»¥ng';
+    if (normalized.includes('Ä‘Ã¨n')) return 'Äiá»‡n chiáº¿u sÃ¡ng';
+    if (normalized.includes('á»• cáº¯m') || normalized.includes('Ä‘iá»‡n')) return 'Äiá»‡n';
+    if (normalized.includes('bÃ n') || normalized.includes('tá»§') || normalized.includes('giÆ°á»ng') || normalized.includes('gháº¿')) return 'Ná»™i tháº¥t';
+    return 'Thiáº¿t bá»‹';
 }
 
 function getFacilityIconClass(name = '') {
     const normalized = name.toLowerCase();
-    if (normalized.includes('máy lạnh') || normalized.includes('điều hòa')) return 'item-air';
-    if (normalized.includes('quạt')) return 'item-fan';
-    if (normalized.includes('đèn')) return 'item-light';
-    if (normalized.includes('ổ cắm') || normalized.includes('điện')) return 'item-plug';
-    if (normalized.includes('bàn')) return 'item-desk';
-    if (normalized.includes('tủ')) return 'item-wardrobe';
-    if (normalized.includes('giường')) return 'item-bed';
+    if (normalized.includes('mÃ¡y láº¡nh') || normalized.includes('Ä‘iá»u hÃ²a')) return 'item-air';
+    if (normalized.includes('quáº¡t')) return 'item-fan';
+    if (normalized.includes('Ä‘Ã¨n')) return 'item-light';
+    if (normalized.includes('á»• cáº¯m') || normalized.includes('Ä‘iá»‡n')) return 'item-plug';
+    if (normalized.includes('bÃ n')) return 'item-desk';
+    if (normalized.includes('tá»§')) return 'item-wardrobe';
+    if (normalized.includes('giÆ°á»ng')) return 'item-bed';
     return 'item-box';
 }
 
 function getFacilityStatusMeta(status) {
     const normalized = String(status || '').trim();
     const map = {
-        Good: { label: 'Hoạt động tốt', cls: 'is-good', note: 'Bình thường' },
-        Damaged: { label: 'Cần sửa chữa', cls: 'is-repair', note: 'Cần kiểm tra' },
-        UnderMaintenance: { label: 'Đang bảo trì', cls: 'is-maintenance', note: 'Đang xử lý' }
+        Good: { label: 'Hoáº¡t Ä‘á»™ng tá»‘t', cls: 'is-good', note: 'BÃ¬nh thÆ°á»ng' },
+        Damaged: { label: 'Cáº§n sá»­a chá»¯a', cls: 'is-repair', note: 'Cáº§n kiá»ƒm tra' },
+        UnderMaintenance: { label: 'Äang báº£o trÃ¬', cls: 'is-maintenance', note: 'Äang xá»­ lÃ½' }
     };
-    return map[normalized] || { label: normalized || 'Chưa rõ', cls: 'is-muted', note: 'Chưa cập nhật' };
+    return map[normalized] || { label: normalized || 'ChÆ°a rÃµ', cls: 'is-muted', note: 'ChÆ°a cáº­p nháº­t' };
 }
 
 function setFacilityStats(facilities = [], repairHistory = []) {
@@ -765,8 +720,8 @@ function renderFacilityDeviceOptions(facilities = []) {
     const select = document.getElementById('facility-report-device');
     if (!select) return;
     select.innerHTML = `
-        <option value="">Chọn thiết bị cần báo hỏng</option>
-        ${facilities.map(item => `<option value="${item.id}">${escapeText(item.name || 'Thiết bị')} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</option>`).join('')}`;
+        <option value="">Chá»n thiáº¿t bá»‹ cáº§n bÃ¡o há»ng</option>
+        ${facilities.map(item => `<option value="${item.id}">${escapeText(item.name || 'Thiáº¿t bá»‹')} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</option>`).join('')}`;
 }
 
 function renderFacilitiesTable(facilities = currentFacilities) {
@@ -774,7 +729,7 @@ function renderFacilitiesTable(facilities = currentFacilities) {
     if (!el) return;
 
     if (!facilities.length) {
-        el.innerHTML = '<div class="empty-state facilities-empty">Phòng hiện chưa có thiết bị nào được ghi nhận.</div>';
+        el.innerHTML = '<div class="empty-state facilities-empty">PhÃ²ng hiá»‡n chÆ°a cÃ³ thiáº¿t bá»‹ nÃ o Ä‘Æ°á»£c ghi nháº­n.</div>';
         return;
     }
 
@@ -788,7 +743,7 @@ function renderFacilitiesTable(facilities = currentFacilities) {
     });
 
     if (!filtered.length) {
-        el.innerHTML = '<div class="empty-state facilities-empty">Không tìm thấy thiết bị phù hợp.</div>';
+        el.innerHTML = '<div class="empty-state facilities-empty">KhÃ´ng tÃ¬m tháº¥y thiáº¿t bá»‹ phÃ¹ há»£p.</div>';
         return;
     }
 
@@ -800,7 +755,7 @@ function renderFacilitiesTable(facilities = currentFacilities) {
                 <td>
                     <div class="facility-name-cell">
                         <span class="facility-item-icon ${getFacilityIconClass(item.name)}"></span>
-                        <strong>${escapeText(item.name || '—')}</strong>
+                        <strong>${escapeText(item.name || 'â€”')}</strong>
                         ${quantity}
                     </div>
                 </td>
@@ -816,11 +771,11 @@ function renderFacilitiesTable(facilities = currentFacilities) {
             <table class="data-table facilities-table">
                 <thead>
                     <tr>
-                        <th>Tên thiết bị</th>
-                        <th>Loại thiết bị</th>
-                        <th>Tình trạng</th>
-                        <th>Ngày kiểm tra</th>
-                        <th>Ghi chú</th>
+                        <th>TÃªn thiáº¿t bá»‹</th>
+                        <th>Loáº¡i thiáº¿t bá»‹</th>
+                        <th>TÃ¬nh tráº¡ng</th>
+                        <th>NgÃ y kiá»ƒm tra</th>
+                        <th>Ghi chÃº</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -828,18 +783,18 @@ function renderFacilitiesTable(facilities = currentFacilities) {
         </div>
         <div class="facility-pagination">
             <div>
-                <button type="button" disabled>‹</button>
+                <button type="button" disabled>â€¹</button>
                 <button type="button" class="active">1</button>
-                <button type="button" disabled>›</button>
+                <button type="button" disabled>â€º</button>
             </div>
-            <span>Hiển thị ${filtered.length} trên ${facilities.length} thiết bị</span>
+            <span>Hiá»ƒn thá»‹ ${filtered.length} trÃªn ${facilities.length} thiáº¿t bá»‹</span>
         </div>`;
 }
 
 function formatTime(dateStr) {
-    if (!dateStr) return '—';
+    if (!dateStr) return 'â€”';
     const d = new Date(dateStr);
-    if (isNaN(d)) return '—';
+    if (isNaN(d)) return 'â€”';
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -854,26 +809,26 @@ function getRepairRequestCode(request) {
 function getRepairRequestStatusMeta(status) {
     const normalized = String(status || '').trim();
     const map = {
-        Pending: { label: 'Đã gửi', cls: 'is-pending' },
-        Approved: { label: 'Đã duyệt', cls: 'is-approved' },
-        Completed: { label: 'Đã hoàn thành', cls: 'is-completed' },
-        Rejected: { label: 'Đã từ chối', cls: 'is-rejected' },
-        Cancelled: { label: 'Đã hủy', cls: 'is-cancelled' }
+        Pending: { label: 'ÄÃ£ gá»­i', cls: 'is-pending' },
+        Approved: { label: 'ÄÃ£ duyá»‡t', cls: 'is-approved' },
+        Completed: { label: 'ÄÃ£ hoÃ n thÃ nh', cls: 'is-completed' },
+        Rejected: { label: 'ÄÃ£ tá»« chá»‘i', cls: 'is-rejected' },
+        Cancelled: { label: 'ÄÃ£ há»§y', cls: 'is-cancelled' }
     };
-    return map[normalized] || { label: normalized || 'Chưa rõ', cls: 'is-muted' };
+    return map[normalized] || { label: normalized || 'ChÆ°a rÃµ', cls: 'is-muted' };
 }
 
 function renderRepairProgress(status) {
     const normalized = String(status || '').trim();
     const terminalMeta = {
-        Rejected: { label: 'Đã từ chối', state: 'rejected' },
-        Cancelled: { label: 'Đã hủy', state: 'cancelled' }
+        Rejected: { label: 'ÄÃ£ tá»« chá»‘i', state: 'rejected' },
+        Cancelled: { label: 'ÄÃ£ há»§y', state: 'cancelled' }
     };
     const steps = [
-        { key: 'sent', label: 'Đã gửi' },
-        { key: 'approved', label: terminalMeta[normalized]?.label || 'Đã duyệt' },
-        { key: 'repairing', label: 'Đang sửa' },
-        { key: 'done', label: 'Hoàn thành' }
+        { key: 'sent', label: 'ÄÃ£ gá»­i' },
+        { key: 'approved', label: terminalMeta[normalized]?.label || 'ÄÃ£ duyá»‡t' },
+        { key: 'repairing', label: 'Äang sá»­a' },
+        { key: 'done', label: 'HoÃ n thÃ nh' }
     ];
     const doneMap = {
         Pending: ['sent'],
@@ -933,7 +888,7 @@ function renderFacilityRepairHistory(requests = currentFacilityRepairHistory) {
     });
 
     if (!maintenanceRequests.length) {
-        el.innerHTML = '<div class="empty-state facilities-empty">Chưa có lịch sử báo hỏng hoặc sửa chữa.</div>';
+        el.innerHTML = '<div class="empty-state facilities-empty">ChÆ°a cÃ³ lá»‹ch sá»­ bÃ¡o há»ng hoáº·c sá»­a chá»¯a.</div>';
         return;
     }
 
@@ -943,7 +898,7 @@ function renderFacilityRepairHistory(requests = currentFacilityRepairHistory) {
             ${renderRepairThumb(item)}
             <div class="repair-content">
                 <div class="repair-main">
-                    <strong>${escapeText(item.title || 'Yêu cầu sửa chữa')}</strong>
+                    <strong>${escapeText(item.title || 'YÃªu cáº§u sá»­a chá»¯a')}</strong>
                     <p>${escapeText(item.description || '')}</p>
                     <div class="repair-meta-line">
                         <span>${formatDate(item.createdAt)}</span>
@@ -956,7 +911,7 @@ function renderFacilityRepairHistory(requests = currentFacilityRepairHistory) {
                     <span class="repair-status ${getRepairRequestStatusMeta(item.status).cls}">${escapeText(getRepairRequestStatusMeta(item.status).label)}</span>
                     ${renderRepairProgress(item.status)}
                     ${item.status === 'Pending'
-                        ? `<button type="button" class="repair-cancel-btn" data-cancel-repair-id="${item.id}">Hủy báo cáo</button>`
+                        ? `<button type="button" class="repair-cancel-btn" data-cancel-repair-id="${item.id}">Há»§y bÃ¡o cÃ¡o</button>`
                         : ''}
                 </div>
             </div>
@@ -966,23 +921,23 @@ function renderFacilityRepairHistory(requests = currentFacilityRepairHistory) {
         btn.addEventListener('click', async () => {
             const confirmed = typeof showAppConfirm === 'function'
                 ? await showAppConfirm({
-                    title: 'Hủy báo cáo hỏng',
-                    message: 'Báo cáo này sẽ chuyển sang trạng thái Đã hủy. Bạn chỉ nên hủy khi đã báo nhầm.',
-                    confirmText: 'Hủy báo cáo',
-                    cancelText: 'Giữ lại'
+                    title: 'Há»§y bÃ¡o cÃ¡o há»ng',
+                    message: 'BÃ¡o cÃ¡o nÃ y sáº½ chuyá»ƒn sang tráº¡ng thÃ¡i ÄÃ£ há»§y. Báº¡n chá»‰ nÃªn há»§y khi Ä‘Ã£ bÃ¡o nháº§m.',
+                    confirmText: 'Há»§y bÃ¡o cÃ¡o',
+                    cancelText: 'Giá»¯ láº¡i'
                 })
-                : confirm('Hủy báo cáo hỏng này?');
+                : confirm('Há»§y bÃ¡o cÃ¡o há»ng nÃ y?');
 
             if (!confirmed) return;
 
             btn.disabled = true;
             const res = await callApi(`/studentrequests/${btn.dataset.cancelRepairId}/cancel`, { method: 'PUT' });
             if (res?.ok) {
-                showToast('Đã hủy báo cáo hỏng.');
+                showToast('ÄÃ£ há»§y bÃ¡o cÃ¡o há»ng.');
                 loadFacilitiesSection();
             } else {
                 btn.disabled = false;
-                showToast(res?.data?.message || 'Không thể hủy báo cáo.', true);
+                showToast(res?.data?.message || 'KhÃ´ng thá»ƒ há»§y bÃ¡o cÃ¡o.', true);
             }
         });
     });
@@ -1011,7 +966,7 @@ function bindFacilityUploadInput() {
         const file = input.files?.[0];
         if (!hint) return;
         if (!file) {
-            hint.textContent = 'Hỗ trợ: JPG, PNG (tối đa 5MB)';
+            hint.textContent = 'Há»— trá»£: JPG, PNG (tá»‘i Ä‘a 5MB)';
             hint.classList.remove('is-error');
             return;
         }
@@ -1035,11 +990,11 @@ function bindFacilityReportSubmit() {
         const image = document.getElementById('facility-report-image')?.files?.[0];
         const device = currentFacilities.find(item => String(item.id) === String(deviceId));
 
-        if (!deviceId) { if (errEl) errEl.textContent = 'Vui lòng chọn thiết bị cần báo hỏng.'; return; }
-        if (!title) { if (errEl) errEl.textContent = 'Vui lòng nhập tiêu đề báo hỏng.'; return; }
-        if (!desc) { if (errEl) errEl.textContent = 'Vui lòng mô tả tình trạng thiết bị.'; return; }
+        if (!deviceId) { if (errEl) errEl.textContent = 'Vui lÃ²ng chá»n thiáº¿t bá»‹ cáº§n bÃ¡o há»ng.'; return; }
+        if (!title) { if (errEl) errEl.textContent = 'Vui lÃ²ng nháº­p tiÃªu Ä‘á» bÃ¡o há»ng.'; return; }
+        if (!desc) { if (errEl) errEl.textContent = 'Vui lÃ²ng mÃ´ táº£ tÃ¬nh tráº¡ng thiáº¿t bá»‹.'; return; }
         if (image && image.size > 5 * 1024 * 1024) {
-            if (errEl) errEl.textContent = 'Ảnh minh họa không được vượt quá 5MB.';
+            if (errEl) errEl.textContent = 'áº¢nh minh há»a khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 5MB.';
             return;
         }
 
@@ -1055,27 +1010,27 @@ function bindFacilityReportSubmit() {
         btn.disabled = false;
 
         if (res?.ok) {
-            showToast('Đã gửi báo hỏng thiết bị.');
+            showToast('ÄÃ£ gá»­i bÃ¡o há»ng thiáº¿t bá»‹.');
             document.getElementById('facility-report-title').value = '';
             document.getElementById('facility-report-desc').value = '';
             const imageInput = document.getElementById('facility-report-image');
             if (imageInput) imageInput.value = '';
             const hint = document.getElementById('facility-upload-hint');
             if (hint) {
-                hint.textContent = 'Hỗ trợ: JPG, PNG (tối đa 5MB)';
+                hint.textContent = 'Há»— trá»£: JPG, PNG (tá»‘i Ä‘a 5MB)';
                 hint.classList.remove('is-error');
             }
             document.querySelector('.facility-tab-btn[data-facility-panel="facility-history-panel"]')?.click();
             loadFacilitiesSection();
         } else if (errEl) {
-            errEl.textContent = res?.data?.message || 'Gửi báo hỏng thất bại.';
+            errEl.textContent = res?.data?.message || 'Gá»­i bÃ¡o há»ng tháº¥t báº¡i.';
         }
     });
 }
 
 async function loadFacilitiesSection() {
-    setLoading('my-room-facilities', 'Đang tải danh sách thiết bị...');
-    setLoading('facilities-repair-history', 'Đang tải lịch sử sửa chữa...');
+    setLoading('my-room-facilities', 'Äang táº£i danh sÃ¡ch thiáº¿t bá»‹...');
+    setLoading('facilities-repair-history', 'Äang táº£i lá»‹ch sá»­ sá»­a chá»¯a...');
     setFacilityStats([], []);
 
     const roomRes = await callApi('/room/my-room');
@@ -1085,14 +1040,14 @@ async function loadFacilitiesSection() {
     if (!currentFacilityRoom?.id) {
         currentFacilities = [];
         currentFacilityRepairHistory = [];
-        if (subtitle) subtitle.textContent = 'Bạn hiện chưa có phòng đang hoạt động.';
-        setEmpty('my-room-facilities', 'Chưa có phòng đang hoạt động để xem cơ sở vật chất.');
-        setEmpty('facilities-repair-history', 'Chưa có dữ liệu lịch sử sửa chữa.');
+        if (subtitle) subtitle.textContent = 'Báº¡n hiá»‡n chÆ°a cÃ³ phÃ²ng Ä‘ang hoáº¡t Ä‘á»™ng.';
+        setEmpty('my-room-facilities', 'ChÆ°a cÃ³ phÃ²ng Ä‘ang hoáº¡t Ä‘á»™ng Ä‘á»ƒ xem cÆ¡ sá»Ÿ váº­t cháº¥t.');
+        setEmpty('facilities-repair-history', 'ChÆ°a cÃ³ dá»¯ liá»‡u lá»‹ch sá»­ sá»­a chá»¯a.');
         renderFacilityDeviceOptions([]);
         return;
     }
 
-    if (subtitle) subtitle.textContent = `Phòng ${currentFacilityRoom.roomCode || '—'} - ${currentFacilityRoom.buildingName || '—'}`;
+    if (subtitle) subtitle.textContent = `PhÃ²ng ${currentFacilityRoom.roomCode || 'â€”'} - ${currentFacilityRoom.buildingName || 'â€”'}`;
 
     const [facilityRes, requestRes] = await Promise.all([
         callApi(`/facilities/room/${currentFacilityRoom.id}`),
@@ -1115,19 +1070,19 @@ async function loadFacilitiesSection() {
 }
 
 // ======================================================================
-// 9. HỢP ĐỒNG – GET /api/contracts/my
+// 9. Há»¢P Äá»’NG â€“ GET /api/contracts/my
 // ======================================================================
 async function loadMyContract() {
     setLoading('contract-content');
-    setLoading('residence-history-content', 'Đang tải lịch sử lưu trú...');
+    setLoading('residence-history-content', 'Äang táº£i lá»‹ch sá»­ lÆ°u trÃº...');
     const res = await callApi('/contracts/my');
     const el = document.getElementById('contract-content');
     const historyEl = document.getElementById('residence-history-content');
     const renewSec = document.getElementById('renewal-section');
 
     if (!res?.ok || !res.data?.data) {
-        el.innerHTML = `<div class="empty-state residence-empty">Không tìm thấy hợp đồng lưu trú đang hoạt động.</div>`;
-        if (historyEl) historyEl.innerHTML = `<div class="empty-state residence-empty">Chưa có dữ liệu lịch sử lưu trú.</div>`;
+        el.innerHTML = `<div class="empty-state residence-empty">KhÃ´ng tÃ¬m tháº¥y há»£p Ä‘á»“ng lÆ°u trÃº Ä‘ang hoáº¡t Ä‘á»™ng.</div>`;
+        if (historyEl) historyEl.innerHTML = `<div class="empty-state residence-empty">ChÆ°a cÃ³ dá»¯ liá»‡u lá»‹ch sá»­ lÆ°u trÃº.</div>`;
         if (renewSec) renewSec.style.display = 'none';
         return;
     }
@@ -1141,18 +1096,18 @@ async function loadMyContract() {
             <div class="residence-panel-head">
                 <div class="residence-panel-title">
                     <span class="residence-panel-icon icon-contract"></span>
-                    <h3>Chi tiết hợp đồng</h3>
+                    <h3>Chi tiáº¿t há»£p Ä‘á»“ng</h3>
                 </div>
                 <span class="residence-status-pill ${contractStatus.cls}">${escapeText(contractStatus.contractLabel)}</span>
             </div>
             <div class="contract-detail-list">
-                ${contractDetailRow('icon-doc', 'Mã hợp đồng', escapeText(c.contractCode || '—'))}
-                ${contractDetailRow('icon-calendar', 'Ngày bắt đầu', escapeText(formatDate(c.startDate)))}
-                ${contractDetailRow('icon-calendar-check', 'Ngày kết thúc', escapeText(formatDate(c.endDate)))}
-                ${contractDetailRow('icon-money', 'Giá thuê', `${escapeText(formatCurrency(c.price))} / tháng`)}
-                ${contractDetailRow('icon-clock', 'Còn lại', `<span class="days-pill">${escapeText(daysRemaining)}</span>`)}
+                ${contractDetailRow('icon-doc', 'MÃ£ há»£p Ä‘á»“ng', escapeText(c.contractCode || 'â€”'))}
+                ${contractDetailRow('icon-calendar', 'NgÃ y báº¯t Ä‘áº§u', escapeText(formatDate(c.startDate)))}
+                ${contractDetailRow('icon-calendar-check', 'NgÃ y káº¿t thÃºc', escapeText(formatDate(c.endDate)))}
+                ${contractDetailRow('icon-money', 'GiÃ¡ thuÃª', `${escapeText(formatCurrency(c.price))} / thÃ¡ng`)}
+                ${contractDetailRow('icon-clock', 'CÃ²n láº¡i', `<span class="days-pill">${escapeText(daysRemaining)}</span>`)}
             </div>
-            ${c.canRenew ? `<div class="residence-actions"><button type="button" class="btn-primary" id="show-renewal-btn">Gia hạn hợp đồng</button></div>` : ''}
+            ${c.canRenew ? `<div class="residence-actions"><button type="button" class="btn-primary" id="show-renewal-btn">Gia háº¡n há»£p Ä‘á»“ng</button></div>` : ''}
         </article>`;
 
     if (historyEl) {
@@ -1173,21 +1128,21 @@ async function loadMyContract() {
 async function loadRenewalPackages() {
     const listEl = document.getElementById('renewal-packages-list');
     if (!listEl) return;
-    listEl.innerHTML = '<div class="loading-state">Đang tải gói gia hạn...</div>';
+    listEl.innerHTML = '<div class="loading-state">Äang táº£i gÃ³i gia háº¡n...</div>';
 
     const res = await callApi('/contracts/renewal-packages');
     if (!res?.ok || !res.data?.packages?.length) {
-        listEl.innerHTML = '<div class="empty-state">Không có gói gia hạn khả dụng.</div>';
+        listEl.innerHTML = '<div class="empty-state">KhÃ´ng cÃ³ gÃ³i gia háº¡n kháº£ dá»¥ng.</div>';
         return;
     }
 
     listEl.innerHTML = res.data.packages.map(pkg => `
         <div class="card renewal-card">
             <h4>${pkg.name}</h4>
-            <p>${pkg.durationMonths} tháng</p>
-            <p>Đến: <strong>${formatDate(pkg.newEndDate)}</strong></p>
-            <p>Ước tính: <strong>${formatCurrency(pkg.estimatedPrice)}</strong></p>
-            <button type="button" class="btn-primary btn-sm" data-pkg-id="${pkg.id}">Chọn gói này</button>
+            <p>${pkg.durationMonths} thÃ¡ng</p>
+            <p>Äáº¿n: <strong>${formatDate(pkg.newEndDate)}</strong></p>
+            <p>Æ¯á»›c tÃ­nh: <strong>${formatCurrency(pkg.estimatedPrice)}</strong></p>
+            <button type="button" class="btn-primary btn-sm" data-pkg-id="${pkg.id}">Chá»n gÃ³i nÃ y</button>
         </div>`).join('');
 
     listEl.querySelectorAll('[data-pkg-id]').forEach(btn => {
@@ -1196,7 +1151,7 @@ async function loadRenewalPackages() {
 }
 
 async function submitRenewal(renewalPackageId) {
-    if (!confirm('Xác nhận gửi yêu cầu gia hạn hợp đồng?')) return;
+    if (!confirm('XÃ¡c nháº­n gá»­i yÃªu cáº§u gia háº¡n há»£p Ä‘á»“ng?')) return;
     const errEl = document.getElementById('renewal-error');
     if (errEl) errEl.textContent = '';
 
@@ -1206,15 +1161,15 @@ async function submitRenewal(renewalPackageId) {
     });
 
     if (res?.ok) {
-        showToast('Gửi yêu cầu gia hạn thành công! Chờ Admin duyệt.');
+        showToast('Gá»­i yÃªu cáº§u gia háº¡n thÃ nh cÃ´ng! Chá» Admin duyá»‡t.');
         document.getElementById('renewal-section').style.display = 'none';
     } else {
-        if (errEl) errEl.textContent = res?.data?.message || 'Gửi yêu cầu thất bại.';
+        if (errEl) errEl.textContent = res?.data?.message || 'Gá»­i yÃªu cáº§u tháº¥t báº¡i.';
     }
 }
 
 // ======================================================================
-// 10. HÓA ĐƠN – GET /api/invoices/my
+// 10. HÃ“A ÄÆ N â€“ GET /api/invoices/my
 // ======================================================================
 function normalizeInvoiceStatus(status) {
     return String(status || '').trim();
@@ -1304,30 +1259,6 @@ function getInvoiceSearchText(inv) {
     ].join(' ').toLowerCase();
 }
 
-function normalizePaymentMethod(value) {
-    const raw = String(value || '').trim();
-    const uppercase = raw.toUpperCase();
-    if (!raw) return 'Khác';
-    if (uppercase.includes('MOMO')) return 'MoMo';
-    if (uppercase.includes('VNPAY')) return 'VNPAY';
-    if (uppercase.includes('VIETCOMBANK') || uppercase === 'VCB') return 'Vietcombank';
-    return raw;
-}
-
-function getReceiptMethodKey(value) {
-    const method = normalizePaymentMethod(value).toLowerCase();
-    if (method === 'momo') return 'momo';
-    if (method === 'vnpay') return 'vnpay';
-    if (method === 'vietcombank') return 'vietcombank';
-    return 'other';
-}
-
-function getReceiptMethodBadge(receipt) {
-    const method = normalizePaymentMethod(receipt?.paymentMethod);
-    const cls = getReceiptMethodKey(method);
-    return `<span class="receipt-method-badge ${cls}">${escapeText(method)}</span>`;
-}
-
 function getActiveInvoiceItems() {
     return invoiceActiveTab === 'receipt' ? currentReceipts : currentInvoices;
 }
@@ -1337,21 +1268,6 @@ function getFilteredInvoices() {
     const status = invoiceStatusFilter;
     return getActiveInvoiceItems().filter(inv => {
         if (invoiceActiveTab === 'invoice' && status && normalizeInvoiceStatus(inv.status) !== status) return false;
-        if (invoiceActiveTab === 'receipt') {
-            const method = receiptMethodFilter.trim().toLowerCase();
-            const normalizedMethod = normalizePaymentMethod(inv.paymentMethod).toLowerCase();
-            if (method && normalizedMethod !== method) return false;
-
-            const paidAt = new Date(inv.paidAt || inv.issuedAt);
-            const fromDate = receiptDateFrom ? new Date(receiptDateFrom) : null;
-            const toDate = receiptDateTo ? new Date(receiptDateTo) : null;
-            if (fromDate && !isNaN(fromDate) && !isNaN(paidAt) && paidAt < fromDate) return false;
-            if (toDate && !isNaN(toDate) && !isNaN(paidAt)) {
-                const inclusiveTo = new Date(toDate);
-                inclusiveTo.setHours(23, 59, 59, 999);
-                if (paidAt > inclusiveTo) return false;
-            }
-        }
         return !q || getInvoiceSearchText(inv).includes(q);
     });
 }
@@ -1388,8 +1304,8 @@ function invoiceActionButtons(inv) {
     }
 
     return `
-        <button type="button" class="invoice-pay-btn" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán ngay</button>
-        <button type="button" class="invoice-dl-btn" data-invoice-download="${id}" title="Tải hóa đơn"><span class="inv-dl-icon"></span>Tải hóa đơn</button>`;
+        <button type="button" class="invoice-pay-btn" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán</button>
+        <button type="button" class="invoice-dl-btn" data-invoice-download="${id}" title="Tải hóa đơn"><span class="inv-dl-icon"></span>Tải</button>`;
 }
 
 function downloadInvoice(inv) {
@@ -1446,10 +1362,9 @@ function renderInvoiceDetail(inv) {
     const id = getInvoiceRecordId(inv);
     const title = isReceiptTab ? 'CHI TIẾT BIÊN LAI' : 'CHI TIẾT HÓA ĐƠN';
     const amount = inv.paidAmount ?? inv.totalAmount;
-    const receiptStatusPill = '<span class="invoice-status is-paid">Thành công</span>';
 
     const receiptMeta = `
-        <div class="inv-detail-row"><span>Mã biên lai</span><strong>${escapeText(inv.receiptCode || `BR-${id}`)}</strong></div>
+        <div class="inv-detail-row"><span>Mã biên lai</span><strong>${escapeText(inv.receiptCode || `BL-${id}`)}</strong></div>
         <div class="inv-detail-row"><span>Ngày thanh toán</span><strong>${escapeText(formatDate(inv.paidAt))}</strong></div>
         <div class="inv-detail-row"><span>Phương thức</span><strong>${escapeText(inv.paymentMethod || '—')}</strong></div>
         <div class="inv-detail-row"><span>Mã giao dịch</span><strong>${escapeText(inv.transactionCode || '—')}</strong></div>`;
@@ -1463,7 +1378,7 @@ function renderInvoiceDetail(inv) {
         <aside class="invoice-detail-card">
             <div class="invoice-detail-head">
                 <h3>${title}</h3>
-                ${isReceiptTab ? receiptStatusPill : invoiceStatusPill(inv.status)}
+                ${invoiceStatusPill(inv.status)}
             </div>
             <div class="invoice-detail-period">
                 <span>Kỳ thanh toán</span>
@@ -1499,26 +1414,13 @@ function renderInvoiceRows(filtered) {
             const selected = id === Number(selectedInvoiceId);
             return `
                 <tr class="${selected ? 'is-selected' : ''}" data-invoice-row="${id}">
-                    <td>
-                        <div class="receipt-period-cell">
-                            <span class="receipt-doc-icon"></span>
-                            <div>
-                                <strong>${escapeText(receipt.period || '—')}</strong>
-                                <small>Biên lai điện tử</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td><strong>${escapeText(receipt.receiptCode || `BR-${id}`)}</strong></td>
+                    <td>${escapeText(receipt.period || '—')}</td>
+                    <td>${escapeText(receipt.roomCode || '—')}</td>
                     <td>${escapeText(formatDate(receipt.paidAt))}</td>
-                    <td>${getReceiptMethodBadge(receipt)}</td>
+                    <td>${escapeText(receipt.receiptCode || `BL-${id}`)}</td>
                     <td><strong>${escapeText(formatCurrency(receipt.paidAmount ?? receipt.totalAmount))}</strong></td>
-                    <td>${escapeText(receipt.transactionCode || '—')}</td>
-                    <td>
-                        <div class="receipt-actions">
-                            <button type="button" class="invoice-icon-btn" data-invoice-select="${id}" title="Xem chi tiết">Xem</button>
-                            <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải PDF"><span class="inv-dl-icon"></span>Tải PDF</button>
-                        </div>
-                    </td>
+                    <td>${escapeText(receipt.paymentMethod || '—')}</td>
+                    <td><div class="invoice-row-actions">${invoiceActionButtons(receipt)}<button type="button" class="invoice-more-btn" data-invoice-select="${id}">⋮</button></div></td>
                 </tr>`;
         }).join('');
     }
@@ -1544,19 +1446,19 @@ function renderInvoiceTableHead() {
     if (invoiceActiveTab === 'receipt') {
         return `
             <tr>
-                <th>Kỳ thanh toán</th>
-                <th>Mã biên lai</th>
+                <th>Kỳ</th>
+                <th>Phòng</th>
                 <th>Ngày thanh toán</th>
-                <th>Phương thức</th>
+                <th>Mã biên lai</th>
                 <th>Số tiền</th>
-                <th>Mã giao dịch</th>
+                <th>Phương thức</th>
                 <th>Thao tác</th>
             </tr>`;
     }
 
     return `
         <tr>
-            <th>Kỳ thanh toán</th>
+            <th>Kỳ</th>
             <th>Phòng</th>
             <th>Ngày phát hành</th>
             <th>Hạn thanh toán</th>
@@ -1613,21 +1515,9 @@ function renderInvoiceDashboard() {
                                 <option value="">Tất cả trạng thái</option>
                                 <option value="Unpaid">Chưa thanh toán</option>
                             </select>`
-                            : `<div class="receipt-toolbar-group">
-                                <div class="receipt-date-range">
-                                    <input id="receipt-date-from" type="date" value="${escapeText(receiptDateFrom)}" aria-label="Từ ngày">
-                                    <span> - </span>
-                                    <input id="receipt-date-to" type="date" value="${escapeText(receiptDateTo)}" aria-label="Đến ngày">
-                                </div>
-                                <select id="receipt-method-filter" aria-label="Lọc phương thức thanh toán">
-                                    <option value="">Tất cả phương thức</option>
-                                    <option value="momo">MoMo</option>
-                                    <option value="vnpay">VNPAY</option>
-                                    <option value="vietcombank">Vietcombank</option>
-                                </select>
-                            </div>`}
+                            : `<span class="receipt-filter-note">Đã thanh toán</span>`}
                         <label class="invoice-search">
-                            <input id="invoice-search" type="search" placeholder="${invoiceActiveTab === 'receipt' ? 'Tìm kiếm biên lai, mã giao dịch...' : 'Tìm kiếm hóa đơn...'}" value="${escapeText(invoiceSearchTerm)}">
+                            <input id="invoice-search" type="search" placeholder="${invoiceActiveTab === 'receipt' ? 'Tìm kiếm biên lai...' : 'Tìm kiếm hóa đơn...'}" value="${escapeText(invoiceSearchTerm)}">
                             <span></span>
                         </label>
                     </div>
@@ -1648,8 +1538,6 @@ function renderInvoiceDashboard() {
 
     const statusFilter = document.getElementById('invoice-status-filter');
     if (statusFilter) statusFilter.value = invoiceStatusFilter;
-    const methodFilter = document.getElementById('receipt-method-filter');
-    if (methodFilter) methodFilter.value = receiptMethodFilter;
     document.getElementById('invoice-search')?.addEventListener('input', event => {
         invoiceSearchTerm = event.target.value || '';
         renderInvoiceDashboard();
@@ -1658,28 +1546,11 @@ function renderInvoiceDashboard() {
         invoiceStatusFilter = event.target.value || '';
         renderInvoiceDashboard();
     });
-    methodFilter?.addEventListener('change', event => {
-        receiptMethodFilter = event.target.value || '';
-        renderInvoiceDashboard();
-    });
-    document.getElementById('receipt-date-from')?.addEventListener('change', event => {
-        receiptDateFrom = event.target.value || '';
-        renderInvoiceDashboard();
-    });
-    document.getElementById('receipt-date-to')?.addEventListener('change', event => {
-        receiptDateTo = event.target.value || '';
-        renderInvoiceDashboard();
-    });
     el.querySelectorAll('[data-invoice-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
             invoiceActiveTab = btn.dataset.invoiceTab || 'invoice';
             invoiceStatusFilter = '';
             invoiceSearchTerm = '';
-            if (invoiceActiveTab === 'invoice') {
-                receiptMethodFilter = '';
-                receiptDateFrom = '';
-                receiptDateTo = '';
-            }
             selectedInvoiceId = getActiveInvoiceItems()[0] ? getInvoiceRecordId(getActiveInvoiceItems()[0]) : null;
             renderInvoiceDashboard();
         });
@@ -1755,9 +1626,6 @@ async function loadMyInvoices(options = {}) {
     invoiceActiveTab = options.initialTab || 'invoice';
     invoiceStatusFilter = '';
     invoiceSearchTerm = '';
-    receiptMethodFilter = '';
-    receiptDateFrom = '';
-    receiptDateTo = '';
 
     const selectedId = Number(options.selectedId);
     if (selectedId) {
@@ -1781,36 +1649,32 @@ async function payInvoice(invoiceId) {
     }
 }
 // ======================================================================
-// 11. YÊU CẦU – POST /api/studentrequests & GET /api/studentrequests/my
+// 11. YÃŠU Cáº¦U â€“ POST /api/studentrequests & GET /api/studentrequests/my
 // ======================================================================
 const reqTitleMap = {
-    'Checkout':     { title: 'Yêu cầu trả phòng',    desc: 'Gửi yêu cầu trả phòng khi muốn chấm dứt hợp đồng sớm.' },
-    'RoomTransfer': { title: 'Yêu cầu chuyển phòng', desc: 'Chọn phòng muốn chuyển đến và gửi yêu cầu. Admin sẽ xét duyệt.' },
-    'Other':        { title: 'Yêu cầu khác',          desc: 'Gửi các yêu cầu khác tới ban quản lý ký túc xá.' },
+    'Checkout':     { title: 'YÃªu cáº§u tráº£ phÃ²ng',    desc: 'Gá»­i yÃªu cáº§u tráº£ phÃ²ng khi muá»‘n cháº¥m dá»©t há»£p Ä‘á»“ng sá»›m.' },
+    'RoomTransfer': { title: 'YÃªu cáº§u chuyá»ƒn phÃ²ng', desc: 'Chá»n phÃ²ng muá»‘n chuyá»ƒn Ä‘áº¿n vÃ  gá»­i yÃªu cáº§u. Admin sáº½ xÃ©t duyá»‡t.' },
+    'Other':        { title: 'YÃªu cáº§u khÃ¡c',          desc: 'Gá»­i cÃ¡c yÃªu cáº§u khÃ¡c tá»›i ban quáº£n lÃ½ kÃ½ tÃºc xÃ¡.' },
 };
 
 function loadRequestSection(reqType) {
     currentReqType = reqType || 'Other';
-    requestStatusFilter = '';
     const info = reqTitleMap[currentReqType] || reqTitleMap['Other'];
 
     const titleEl       = document.getElementById('request-section-title');
     const descEl        = document.getElementById('request-section-desc');
     const formCard      = document.getElementById('request-form-card');
-    const requestWorkspace = document.getElementById('request-workspace');
     const transferTmpl  = document.getElementById('transfer-form-template');
     const sectionEl     = document.getElementById('section-request');
-    if (sectionEl) sectionEl.classList.toggle('is-transfer-mode', currentReqType === 'RoomTransfer');
 
     if (titleEl) titleEl.textContent = info.title;
     if (descEl)  descEl.textContent  = info.desc;
 
     if (currentReqType === 'RoomTransfer') {
-        // Ẩn form yêu cầu thông thường
+        // áº¨n form yÃªu cáº§u thÃ´ng thÆ°á»ng
         if (formCard) formCard.style.display = 'none';
-        if (requestWorkspace) requestWorkspace.style.display = 'none';
 
-        // Nhúng form chuyển phòng vào section (nếu chưa có)
+        // NhÃºng form chuyá»ƒn phÃ²ng vÃ o section (náº¿u chÆ°a cÃ³)
         if (!document.getElementById('transfer-form-injected')) {
             const clone = transferTmpl?.cloneNode(true);
             if (clone) {
@@ -1822,65 +1686,25 @@ function loadRequestSection(reqType) {
             document.getElementById('transfer-form-injected').style.display = 'block';
         }
 
-        // Ẩn danh sách yêu cầu thông thường, hiện lịch sử chuyển phòng
+        // áº¨n danh sÃ¡ch yÃªu cáº§u thÃ´ng thÆ°á»ng, hiá»‡n lá»‹ch sá»­ chuyá»ƒn phÃ²ng
         document.getElementById('my-requests-list')?.closest('.content-card')?.style.setProperty('display', 'none');
-        bindTransferReasonCounter();
         loadTransferHistory();
         loadTransferRooms();
     } else {
-        // Hiện form yêu cầu thông thường
+        // Hiá»‡n form yÃªu cáº§u thÃ´ng thÆ°á»ng
         if (formCard) formCard.style.display = '';
-        if (requestWorkspace) requestWorkspace.style.display = '';
-        // Ẩn form chuyển phòng nếu đang hiện
+        // áº¨n form chuyá»ƒn phÃ²ng náº¿u Ä‘ang hiá»‡n
         const injected = document.getElementById('transfer-form-injected');
         if (injected) injected.style.display = 'none';
-        // Hiện lại danh sách yêu cầu
+        // Hiá»‡n láº¡i danh sÃ¡ch yÃªu cáº§u
         const listCard = document.getElementById('my-requests-list')?.closest('.content-card');
         if (listCard) listCard.style.removeProperty('display');
-        const statusFilter = document.getElementById('request-status-filter');
-        if (statusFilter) statusFilter.value = '';
-        document.getElementById('request-status-filter')?.closest('.request-history-head')?.style.removeProperty('display');
-        bindRequestCounters();
-        bindRequestFilters();
 
-        // Bind nút submit (chỉ 1 lần)
+        // Bind nÃºt submit (chá»‰ 1 láº§n)
         bindRequestSubmit();
-        // Load danh sách yêu cầu
+        // Load danh sÃ¡ch yÃªu cáº§u
         loadMyRequests();
     }
-}
-
-function bindRequestCounters() {
-    const titleInput = document.getElementById('req-title');
-    const descInput = document.getElementById('req-desc');
-    const titleCounter = document.getElementById('req-title-counter');
-    const descCounter = document.getElementById('req-desc-counter');
-
-    if (titleInput && !titleInput._counterBound) {
-        titleInput._counterBound = true;
-        titleInput.addEventListener('input', () => {
-            if (titleCounter) titleCounter.textContent = `${titleInput.value.length}/100`;
-        });
-    }
-    if (descInput && !descInput._counterBound) {
-        descInput._counterBound = true;
-        descInput.addEventListener('input', () => {
-            if (descCounter) descCounter.textContent = `${descInput.value.length}/1000`;
-        });
-    }
-
-    if (titleCounter && titleInput) titleCounter.textContent = `${titleInput.value.length}/100`;
-    if (descCounter && descInput) descCounter.textContent = `${descInput.value.length}/1000`;
-}
-
-function bindRequestFilters() {
-    const statusFilter = document.getElementById('request-status-filter');
-    if (!statusFilter || statusFilter._bound) return;
-    statusFilter._bound = true;
-    statusFilter.addEventListener('change', () => {
-        requestStatusFilter = statusFilter.value || '';
-        loadMyRequests();
-    });
 }
 
 function bindRequestSubmit() {
@@ -1893,8 +1717,8 @@ function bindRequestSubmit() {
         const title = document.getElementById('req-title').value.trim();
         const desc  = document.getElementById('req-desc').value.trim();
 
-        if (!title) { errEl.textContent = 'Vui lòng nhập tiêu đề yêu cầu.'; return; }
-        if (!desc)  { errEl.textContent = 'Vui lòng nhập nội dung yêu cầu.'; return; }
+        if (!title) { errEl.textContent = 'Vui lÃ²ng nháº­p tiÃªu Ä‘á» yÃªu cáº§u.'; return; }
+        if (!desc)  { errEl.textContent = 'Vui lÃ²ng nháº­p ná»™i dung yÃªu cáº§u.'; return; }
 
         btn.disabled = true;
         const res = await callApi('/studentrequests', {
@@ -1904,12 +1728,12 @@ function bindRequestSubmit() {
         btn.disabled = false;
 
         if (res?.ok) {
-            showToast('Gửi yêu cầu thành công!');
+            showToast('Gá»­i yÃªu cáº§u thÃ nh cÃ´ng!');
             document.getElementById('req-title').value = '';
             document.getElementById('req-desc').value  = '';
             loadMyRequests();
         } else {
-            errEl.textContent = res?.data?.message || 'Gửi yêu cầu thất bại.';
+            errEl.textContent = res?.data?.message || 'Gá»­i yÃªu cáº§u tháº¥t báº¡i.';
         }
     });
 }
@@ -1917,21 +1741,18 @@ function bindRequestSubmit() {
 async function loadMyRequests() {
     const listEl = document.getElementById('my-requests-list');
     if (!listEl) return;
-    listEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
+    listEl.innerHTML = '<div class="loading-state">Äang táº£i...</div>';
 
     const res = await callApi('/studentrequests/my');
     if (!res?.ok || !Array.isArray(res.data) || res.data.length === 0) {
-        listEl.innerHTML = '<div class="empty-state">Chưa có yêu cầu nào.</div>';
+        listEl.innerHTML = '<div class="empty-state">ChÆ°a cÃ³ yÃªu cáº§u nÃ o.</div>';
         return;
     }
 
-    // Lọc theo loại đang xem
-    let filtered = res.data.filter(r => r.requestType === currentReqType);
-    if (requestStatusFilter) {
-        filtered = filtered.filter(r => String(r.status || '') === requestStatusFilter);
-    }
+    // Lá»c theo loáº¡i Ä‘ang xem
+    const filtered = res.data.filter(r => r.requestType === currentReqType);
     if (!filtered.length) {
-        listEl.innerHTML = `<div class="empty-state">Chưa có yêu cầu "${reqTitleMap[currentReqType]?.title}" nào.</div>`;
+        listEl.innerHTML = `<div class="empty-state">ChÆ°a cÃ³ yÃªu cáº§u "${reqTitleMap[currentReqType]?.title}" nÃ o.</div>`;
         return;
     }
 
@@ -1943,42 +1764,40 @@ async function loadMyRequests() {
             </div>
             <p class="request-item-desc">${r.description}</p>
             <div class="request-item-meta">
-                <span>Gửi ngày: ${formatDate(r.createdAt)}</span>
-                ${r.resolutionNote ? `<span class="resolution-note">💬 ${r.resolutionNote}</span>` : ''}
+                <span>${formatDate(r.createdAt)}</span>
+                ${r.resolutionNote ? `<span class="resolution-note">ðŸ’¬ ${r.resolutionNote}</span>` : ''}
                 ${r.status === 'Pending'
-                    ? `<button type="button" class="btn-danger btn-sm" data-req-id="${r.id}">Hủy</button>`
+                    ? `<button type="button" class="btn-danger btn-sm" data-req-id="${r.id}">âŒ Há»§y</button>`
                     : ''}
             </div>
         </div>`).join('');
 
     listEl.querySelectorAll('[data-req-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Xác nhận hủy yêu cầu này?')) return;
+            if (!confirm('XÃ¡c nháº­n há»§y yÃªu cáº§u nÃ y?')) return;
             const res2 = await callApi(`/studentrequests/${btn.dataset.reqId}/cancel`, { method: 'PUT' });
-            if (res2?.ok) { showToast('Đã hủy yêu cầu.'); loadMyRequests(); }
-            else showToast(res2?.data?.message || 'Không thể hủy.', true);
+            if (res2?.ok) { showToast('ÄÃ£ há»§y yÃªu cáº§u.'); loadMyRequests(); }
+            else showToast(res2?.data?.message || 'KhÃ´ng thá»ƒ há»§y.', true);
         });
     });
 }
 
 // ======================================================================
-// 12. CHUYỂN PHÒNG – GET /api/roomtransfers/available & POST
+// 12. CHUYá»‚N PHÃ’NG â€“ GET /api/roomtransfers/available & POST
 // ======================================================================
 async function loadTransferRooms() {
     const listEl = document.getElementById('transfer-room-list');
     if (!listEl) return;
-    listEl.innerHTML = '<div class="loading-state">Đang tải danh sách phòng khả dụng...</div>';
+    listEl.innerHTML = '<div class="loading-state">Äang táº£i danh sÃ¡ch phÃ²ng kháº£ dá»¥ng...</div>';
 
     const res = await callApi('/roomtransfers/available');
     if (!res?.ok || !res.data?.rooms?.length) {
-        listEl.innerHTML = `<div class="empty-state">Không có phòng nào khả dụng để chuyển.</div>`;
-        bindTransferReasonCounter();
+        listEl.innerHTML = `<div class="empty-state">KhÃ´ng cÃ³ phÃ²ng nÃ o kháº£ dá»¥ng Ä‘á»ƒ chuyá»ƒn.</div>`;
         return;
     }
 
     transferRooms = res.data.rooms;
     renderTransferRooms(transferRooms);
-    bindTransferReasonCounter();
 
     // Search
     document.getElementById('transfer-search')?.addEventListener('input', e => {
@@ -1995,25 +1814,12 @@ async function loadTransferRooms() {
     bindTransferSubmit();
 }
 
-function bindTransferReasonCounter() {
-    const reasonEl = document.getElementById('transfer-reason');
-    const counterEl = document.getElementById('transfer-reason-counter');
-    if (!reasonEl || !counterEl) return;
-    if (!reasonEl._counterBound) {
-        reasonEl._counterBound = true;
-        reasonEl.addEventListener('input', () => {
-            counterEl.textContent = `${reasonEl.value.length}/500`;
-        });
-    }
-    counterEl.textContent = `${reasonEl.value.length}/500`;
-}
-
 function renderTransferRooms(rooms) {
     const listEl = document.getElementById('transfer-room-list');
     if (!listEl) return;
 
     if (!rooms.length) {
-        listEl.innerHTML = '<div class="empty-state">Không tìm thấy phòng phù hợp.</div>';
+        listEl.innerHTML = '<div class="empty-state">KhÃ´ng tÃ¬m tháº¥y phÃ²ng phÃ¹ há»£p.</div>';
         return;
     }
 
@@ -2021,13 +1827,13 @@ function renderTransferRooms(rooms) {
         <div class="room-item" data-room-id="${r.id}" data-room-code="${r.roomCode}">
             <div class="room-item-head">
                 <strong>${r.roomCode}</strong>
-                <span class="room-badge">${r.availableSlots} chỗ trống</span>
+                <span class="room-badge">${r.availableSlots} chá»— trá»‘ng</span>
             </div>
             <div class="room-item-meta">
                 <span>${r.buildingName} (${r.buildingCode})</span>
                 <span>${r.roomType}</span>
                 <span>${r.genderAllowed}</span>
-                <span>${r.currentOccupancy}/${r.capacity} người</span>
+                <span>${r.currentOccupancy}/${r.capacity} ngÆ°á»i</span>
             </div>
         </div>`).join('');
 
@@ -2062,8 +1868,8 @@ function bindTransferSubmit() {
         const toRoomId = Number(document.getElementById('transfer-selected-id')?.value);
         const reason   = document.getElementById('transfer-reason')?.value.trim();
 
-        if (!toRoomId)  { errEl.textContent = 'Vui lòng chọn phòng muốn chuyển đến.'; return; }
-        if (!reason)    { errEl.textContent = 'Vui lòng nhập lý do chuyển phòng.'; return; }
+        if (!toRoomId)  { errEl.textContent = 'Vui lÃ²ng chá»n phÃ²ng muá»‘n chuyá»ƒn Ä‘áº¿n.'; return; }
+        if (!reason)    { errEl.textContent = 'Vui lÃ²ng nháº­p lÃ½ do chuyá»ƒn phÃ²ng.'; return; }
         if (reason.length < 15) { errEl.textContent = 'Ly do can it nhat 15 ky tu.'; return; }
 
         btn.disabled = true;
@@ -2086,71 +1892,82 @@ function bindTransferSubmit() {
         btn.disabled = false;
 
         if (res?.ok) {
-            showToast('Gửi yêu cầu chuyển phòng thành công! Chờ Admin duyệt.');
+            showToast('Gá»­i yÃªu cáº§u chuyá»ƒn phÃ²ng thÃ nh cÃ´ng! Chá» Admin duyá»‡t.');
             document.getElementById('transfer-reason').value = '';
-            bindTransferReasonCounter();
             document.getElementById('transfer-selected-info').style.display = 'none';
             document.getElementById('transfer-selected-id').value = '';
             document.getElementById('transfer-selected-display').value = '';
             document.querySelectorAll('.room-item').forEach(i => i.classList.remove('selected'));
             loadTransferHistory();
         } else {
-            errEl.textContent = res?.data?.message || 'Gửi yêu cầu thất bại.';
+            errEl.textContent = res?.data?.message || 'Gá»­i yÃªu cáº§u tháº¥t báº¡i.';
         }
     });
 }
 
 // ======================================================================
-// 12b. LỊCH SỬ YÊu CẦU CHUYỂN PHÒNG
+// 12b. Lá»ŠCH Sá»¬ YÃŠu Cáº¦U CHUYá»‚N PHÃ’NG
 // ======================================================================
 async function loadTransferHistory() {
-    const histEl = document.getElementById('transfer-history-list');
+    // TÃ¬m container trong form Ä‘Æ°á»£c nhÃºng vÃ o
+    let histEl = document.getElementById('transfer-history-list');
+    if (!histEl) {
+        // Táº¡o card lá»‹ch sá»­ náº¿u chÆ°a cÃ³
+        const injected = document.getElementById('transfer-form-injected');
+        if (!injected) return;
+        const histCard = document.createElement('div');
+        histCard.className = 'card';
+        histCard.style.marginTop = '16px';
+        histCard.innerHTML = `<h3>Lá»‹ch sá»­ yÃªu cáº§u chuyá»ƒn phÃ²ng</h3><div id="transfer-history-list"><div class="loading-state">Äang táº£i...</div></div>`;
+        injected.appendChild(histCard);
+        histEl = document.getElementById('transfer-history-list');
+    }
     if (!histEl) return;
-    histEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
+    histEl.innerHTML = '<div class="loading-state">Äang táº£i...</div>';
 
     const res = await callApi('/roomtransfers/my');
     if (!res?.ok || !Array.isArray(res.data) || !res.data.length) {
-        histEl.innerHTML = '<div class="empty-state">Chưa có yêu cầu chuyển phòng nào.</div>';
+        histEl.innerHTML = '<div class="empty-state">ChÆ°a cÃ³ yÃªu cáº§u chuyá»ƒn phÃ²ng nÃ o.</div>';
         return;
     }
 
     histEl.innerHTML = res.data.map(t => `
         <div class="request-item card">
             <div class="request-item-head">
-                <strong>⇒ ${t.toRoomCode || t.toRoomId}</strong>
+                <strong>â‡’ ${t.toRoomCode || t.toRoomId}</strong>
                 ${statusBadge(t.status)}
             </div>
-            <p class="request-item-desc">${t.reason || '—'}</p>
+            <p class="request-item-desc">${t.reason || 'â€”'}</p>
             <div class="request-item-meta">
-                <span>Ngày gửi: ${formatDate(t.requestedAt || t.createdAt)}</span>
-                ${t.resolvedAt ? `<span>Ngày duyệt: ${formatDate(t.resolvedAt)}</span>` : ''}
-                ${t.rejectionReason ? `<span class="resolution-note">💬 ${t.rejectionReason}</span>` : ''}
+                <span>NgÃ y gá»­i: ${formatDate(t.requestedAt || t.createdAt)}</span>
+                ${t.resolvedAt ? `<span>NgÃ y duyá»‡t: ${formatDate(t.resolvedAt)}</span>` : ''}
+                ${t.rejectionReason ? `<span class="resolution-note">ðŸ’¬ ${t.rejectionReason}</span>` : ''}
                 ${t.status === 'Pending'
-                    ? `<button type="button" class="btn-danger btn-sm" data-cancel-transfer-id="${t.id}">Hủy yêu cầu</button>`
+                    ? `<button type="button" class="btn-danger btn-sm" data-cancel-transfer-id="${t.id}">âŒ Há»§y yÃªu cáº§u</button>`
                     : ''}
             </div>
         </div>`).join('');
 
-    // Xử lý nút hủy yêu cầu chuyển phòng
+    // Xá»­ lÃ½ nÃºt há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng
     histEl.querySelectorAll('[data-cancel-transfer-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Xác nhận hủy yêu cầu chuyển phòng này?')) return;
+            if (!confirm('XÃ¡c nháº­n há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng nÃ y?')) return;
             const res2 = await callApi(`/roomtransfers/${btn.dataset.cancelTransferId}/cancel`, { method: 'DELETE' });
             if (res2?.ok) {
-                showToast('Đã hủy yêu cầu chuyển phòng.');
+                showToast('ÄÃ£ há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng.');
                 loadTransferHistory();
             } else {
-                showToast(res2?.data?.message || 'Không thể hủy yêu cầu.', true);
+                showToast(res2?.data?.message || 'KhÃ´ng thá»ƒ há»§y yÃªu cáº§u.', true);
             }
         });
     });
 }
 
 // ======================================================================
-// 13. THÔNG BÁO – GET /api/notifications/my & PUT /api/notifications/{id}/read
+// 13. THÃ”NG BÃO â€“ GET /api/notifications/my & PUT /api/notifications/{id}/read
 // ======================================================================
 
-/** Cắt ngắn văn bản preview */
+/** Cáº¯t ngáº¯n vÄƒn báº£n preview */
 function truncateText(text, maxLen = 120) {
     if (!text) return '';
     text = String(text);
@@ -2158,7 +1975,7 @@ function truncateText(text, maxLen = 120) {
     return text.slice(0, maxLen).trimEnd() + '...';
 }
 
-/** Hiện modal chi tiết thông báo */
+/** Hiá»‡n modal chi tiáº¿t thÃ´ng bÃ¡o */
 function showNotifModal({ title, date, message }) {
     const overlay = document.getElementById('notif-detail-modal');
     if (!overlay) return;
@@ -2167,15 +1984,15 @@ function showNotifModal({ title, date, message }) {
     document.getElementById('notif-modal-body').textContent  = message || '';
     overlay.style.display = 'flex';
 
-    // Đóng khi click nút ✕
+    // ÄÃ³ng khi click nÃºt âœ•
     document.getElementById('notif-modal-close-btn').onclick = () => {
         overlay.style.display = 'none';
     };
-    // Đóng khi click ra ngoài card
+    // ÄÃ³ng khi click ra ngoÃ i card
     overlay.onclick = (e) => {
         if (e.target === overlay) overlay.style.display = 'none';
     };
-    // Đóng bằng Esc
+    // ÄÃ³ng báº±ng Esc
     const onKey = (e) => {
         if (e.key === 'Escape') { overlay.style.display = 'none'; document.removeEventListener('keydown', onKey); }
     };
@@ -2204,11 +2021,11 @@ async function loadNotificationCount() {
 async function loadNotifications() {
     const el = document.getElementById('notify-content');
     if (!el) return;
-    el.innerHTML = '<div class="loading-state">Đang tải thông báo...</div>';
+    el.innerHTML = '<div class="loading-state">Äang táº£i thÃ´ng bÃ¡o...</div>';
 
     const res = await callApi('/notifications/my');
     if (!res?.ok || !Array.isArray(res.data) || !res.data.length) {
-        el.innerHTML = '<div class="empty-state">🔔 Chưa có thông báo nào.</div>';
+        el.innerHTML = '<div class="empty-state">ðŸ”” ChÆ°a cÃ³ thÃ´ng bÃ¡o nÃ o.</div>';
         return;
     }
 
@@ -2221,11 +2038,11 @@ async function loadNotifications() {
                     <span class="notif-date">${formatDate(n.createdAt)}</span>
                 </div>
                 <p class="notif-preview">${escapeText(truncateText(n.message, 120))}</p>
-                ${n.message.length > 120 ? '<span class="notif-expand-hint">▼ Xem chi tiết</span>' : ''}
+                ${n.message.length > 120 ? '<span class="notif-expand-hint">â–¼ Xem chi tiáº¿t</span>' : ''}
             </div>`).join('')}
     </div>`;
 
-    // Click vào thông báo → mở modal + đánh dấu đã đọc
+    // Click vÃ o thÃ´ng bÃ¡o â†’ má»Ÿ modal + Ä‘Ã¡nh dáº¥u Ä‘Ã£ Ä‘á»c
     el.querySelectorAll('.notification-item').forEach(item => {
         item.addEventListener('click', async () => {
             showNotifModal({
@@ -2243,258 +2060,4 @@ async function loadNotifications() {
             }
         });
     });
-}
-
-function formatRelativeTime(dateStr) {
-    if (!dateStr) return 'Vừa xong';
-
-    const date = new Date(dateStr);
-    if (Number.isNaN(date.getTime())) return 'Vừa xong';
-
-    const diffMinutes = Math.max(0, Math.round((Date.now() - date.getTime()) / 60000));
-    if (diffMinutes < 1) return 'Vừa xong';
-    if (diffMinutes < 60) return `${diffMinutes} phút trước`;
-
-    const diffHours = Math.round(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours} giờ trước`;
-
-    const diffDays = Math.round(diffHours / 24);
-    if (diffDays < 30) return `${diffDays} ngày trước`;
-
-    return formatDate(dateStr);
-}
-
-function textIncludesAny(source, keywords) {
-    return keywords.some(keyword => source.includes(keyword));
-}
-
-function getNotificationMeta(notification) {
-    const content = `${notification?.title || ''} ${notification?.message || ''}`.toLowerCase();
-    const isPayment = textIncludesAny(content, ['thanh toán', 'hóa đơn', 'nhắc nợ', 'đến hạn', 'quá hạn', 'vnpay']);
-    const isRequest = textIncludesAny(content, ['yêu cầu', 'hỗ trợ', 'chuyển phòng', 'trả phòng', 'gia hạn']);
-    const isMaintenance = textIncludesAny(content, ['bảo trì', 'hệ thống', 'thông báo chung', 'lịch']);
-    const isSuccess = textIncludesAny(content, ['thành công', 'hoàn thành', 'đã duyệt', 'đã tiếp nhận']);
-
-    if (isPayment) {
-        return { important: true, tone: 'orange', icon: 'clock', tag: content.includes('nhắc') ? 'Nhắc nhở' : 'Quan trọng' };
-    }
-    if (isSuccess && isRequest) {
-        return { important: false, tone: 'green', icon: 'document', tag: content.includes('tiếp nhận') ? 'Đã tiếp nhận' : 'Đã duyệt' };
-    }
-    if (isRequest) {
-        return { important: false, tone: 'purple', icon: 'document', tag: 'Phản hồi' };
-    }
-    if (isMaintenance) {
-        return { important: false, tone: 'blue', icon: 'megaphone', tag: 'Thông tin' };
-    }
-
-    return { important: false, tone: 'blue', icon: 'mail', tag: notification?.isRead ? 'Đã xem' : 'Mới' };
-}
-
-function getFilteredNotifications() {
-    if (notificationFilter === 'unread') {
-        return currentNotifications.filter(item => !item.isRead);
-    }
-    if (notificationFilter === 'important') {
-        return currentNotifications.filter(item => getNotificationMeta(item).important);
-    }
-    return currentNotifications.slice();
-}
-
-function renderNotificationBadges(notifications = currentNotifications) {
-    const unread = notifications.filter(item => !item.isRead).length;
-    const badges = [
-        document.getElementById('notif-badge'),
-        document.getElementById('top-notif-badge')
-    ].filter(Boolean);
-
-    badges.forEach(badge => {
-        if (unread > 0) {
-            badge.textContent = unread;
-            badge.style.display = 'inline-flex';
-        } else {
-            badge.style.display = 'none';
-        }
-    });
-
-    const unreadCount = document.getElementById('notify-filter-unread-count');
-    if (unreadCount) unreadCount.textContent = unread;
-}
-
-function renderNotificationSummary() {
-    const totalEl = document.getElementById('notify-summary-total');
-    const unreadEl = document.getElementById('notify-summary-unread');
-    const importantEl = document.getElementById('notify-summary-important');
-
-    const total = currentNotifications.length;
-    const unread = currentNotifications.filter(item => !item.isRead).length;
-    const important = currentNotifications.filter(item => getNotificationMeta(item).important).length;
-
-    if (totalEl) totalEl.textContent = total;
-    if (unreadEl) unreadEl.textContent = unread;
-    if (importantEl) importantEl.textContent = important;
-}
-
-function renderNotificationFilterState() {
-    document.querySelectorAll('.notify-tab[data-notify-filter]').forEach(btn => {
-        btn.classList.toggle('active', (btn.dataset.notifyFilter || 'all') === notificationFilter);
-    });
-}
-
-function renderNotificationPagination(totalItems) {
-    const paginationEl = document.getElementById('notify-pagination');
-    if (!paginationEl) return;
-
-    const totalPages = Math.max(1, Math.ceil(totalItems / NOTIFICATION_PAGE_SIZE));
-    if (notificationPage > totalPages) notificationPage = totalPages;
-
-    if (totalItems <= NOTIFICATION_PAGE_SIZE) {
-        paginationEl.innerHTML = '';
-        return;
-    }
-
-    const pageButtons = Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1;
-        return `<button type="button" class="notify-page-btn ${page === notificationPage ? 'active' : ''}" data-notify-page="${page}">${page}</button>`;
-    }).join('');
-
-    paginationEl.innerHTML = `
-        <button type="button" class="notify-page-btn" data-notify-page="${Math.max(1, notificationPage - 1)}" ${notificationPage === 1 ? 'disabled' : ''} aria-label="Trang trước">‹</button>
-        ${pageButtons}
-        <button type="button" class="notify-page-btn" data-notify-page="${Math.min(totalPages, notificationPage + 1)}" ${notificationPage === totalPages ? 'disabled' : ''} aria-label="Trang sau">›</button>
-    `;
-
-    paginationEl.querySelectorAll('[data-notify-page]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const nextPage = Number(btn.dataset.notifyPage || notificationPage);
-            if (!Number.isFinite(nextPage) || nextPage === notificationPage) return;
-            notificationPage = nextPage;
-            renderNotificationsPanel();
-        });
-    });
-}
-
-function renderNotificationsPanel() {
-    const el = document.getElementById('notify-content');
-    const counterEl = document.getElementById('notify-counter');
-    if (!el || !counterEl) return;
-
-    renderNotificationBadges();
-    renderNotificationSummary();
-    renderNotificationFilterState();
-
-    const filtered = getFilteredNotifications();
-    const total = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(total / NOTIFICATION_PAGE_SIZE));
-    if (notificationPage > totalPages) notificationPage = totalPages;
-
-    if (!total) {
-        const emptyMessages = {
-            all: 'Chưa có thông báo nào.',
-            unread: 'Bạn đã đọc hết tất cả thông báo.',
-            important: 'Hiện chưa có thông báo quan trọng.'
-        };
-
-        el.innerHTML = `<div class="notify-empty-state">${emptyMessages[notificationFilter] || emptyMessages.all}</div>`;
-        counterEl.textContent = 'Không có thông báo phù hợp với bộ lọc đang chọn.';
-        renderNotificationPagination(0);
-        return;
-    }
-
-    const startIndex = (notificationPage - 1) * NOTIFICATION_PAGE_SIZE;
-    const items = filtered.slice(startIndex, startIndex + NOTIFICATION_PAGE_SIZE);
-
-    el.innerHTML = `<div class="notification-list">
-        ${items.map(notification => {
-            const meta = getNotificationMeta(notification);
-            return `
-                <article class="notification-item ${notification.isRead ? 'read' : 'unread'}" data-notif-id="${notification.id}">
-                    <div class="notify-entry-rail">
-                        <span class="notify-entry-dot"></span>
-                    </div>
-                    <div class="notify-entry-icon tone-${meta.tone} type-${meta.icon}"></div>
-                    <div class="notify-entry-copy">
-                        <div class="notify-entry-title-row">
-                            <strong>${escapeText(notification.title)}</strong>
-                            <span class="notify-entry-tag tone-${meta.tone}">${meta.tag}</span>
-                        </div>
-                        <p class="notif-preview">${escapeText(truncateText(notification.message, 160))}</p>
-                        <button type="button" class="notify-entry-link" data-notify-open="${notification.id}">Xem chi tiết</button>
-                    </div>
-                    <div class="notify-entry-time">${formatRelativeTime(notification.createdAt)}</div>
-                    <button type="button" class="notify-entry-arrow" data-notify-open="${notification.id}" aria-label="Xem chi tiết"></button>
-                </article>`;
-        }).join('')}
-    </div>`;
-
-    counterEl.textContent = `Hiển thị ${startIndex + 1} đến ${startIndex + items.length} trong tổng số ${total} thông báo`;
-    renderNotificationPagination(total);
-
-    const openNotification = async (notificationId) => {
-        const notification = currentNotifications.find(item => String(item.id) === String(notificationId));
-        if (!notification) return;
-
-        showNotifModal({
-            title: notification.title,
-            date: `${formatDate(notification.createdAt)} • ${formatRelativeTime(notification.createdAt)}`,
-            message: notification.message
-        });
-
-        if (notification.isRead) return;
-
-        const markRes = await callApi(`/notifications/${notification.id}/read`, { method: 'PUT' });
-        if (markRes?.ok) {
-            notification.isRead = true;
-            renderNotificationsPanel();
-        }
-    };
-
-    el.querySelectorAll('.notification-item').forEach(item => {
-        item.addEventListener('click', () => openNotification(item.dataset.notifId));
-    });
-
-    el.querySelectorAll('[data-notify-open]').forEach(btn => {
-        btn.addEventListener('click', event => {
-            event.stopPropagation();
-            openNotification(btn.dataset.notifyOpen);
-        });
-    });
-}
-
-async function loadNotificationCount(notifications = null) {
-    let data = notifications;
-    if (!Array.isArray(data)) {
-        const res = await callApi('/notifications/my');
-        if (!res?.ok || !Array.isArray(res.data)) return;
-        data = res.data;
-    }
-
-    renderNotificationBadges(data);
-}
-
-async function loadNotifications() {
-    const el = document.getElementById('notify-content');
-    const counterEl = document.getElementById('notify-counter');
-    if (!el || !counterEl) return;
-
-    el.innerHTML = '<div class="loading-state">Đang tải thông báo...</div>';
-    counterEl.textContent = 'Đang tải dữ liệu...';
-
-    const res = await callApi('/notifications/my');
-    if (!res?.ok || !Array.isArray(res.data)) {
-        currentNotifications = [];
-        el.innerHTML = '<div class="notify-empty-state">Không thể tải danh sách thông báo lúc này.</div>';
-        counterEl.textContent = 'Tải thông báo thất bại.';
-        renderNotificationBadges([]);
-        renderNotificationSummary();
-        renderNotificationPagination(0);
-        return;
-    }
-
-    currentNotifications = res.data
-        .slice()
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    notificationPage = 1;
-    renderNotificationsPanel();
 }

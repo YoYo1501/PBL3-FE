@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trang thông tin sinh viên</title>
     <meta name="description" content="Cổng thông tin sinh viên ký túc xá">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
     <link rel="stylesheet" href="../css/student.css">
 </head>
 <body class="student-app">
@@ -497,9 +500,12 @@
             </section>
 
             <section id="section-request" class="tab-panel">
-                <div class="content-card">
-                    <h2 class="page-heading" id="request-section-title">Yêu cầu</h2>
-                    <p class="section-subtitle" id="request-section-desc">Gửi yêu cầu tới ban quản lý ký túc xá.</p>
+                <div class="content-card request-hero-card">
+                    <div class="request-hero-copy">
+                        <h2 class="page-heading" id="request-section-title">Yêu cầu</h2>
+                        <p class="section-subtitle" id="request-section-desc">Gửi yêu cầu tới ban quản lý ký túc xá.</p>
+                    </div>
+                    <div class="request-hero-illustration" aria-hidden="true"></div>
                 </div>
 
                 <div class="content-card" id="request-form-card">
@@ -518,16 +524,27 @@
                     </div>
                 </div>
 
-                <div class="content-card section-gap">
-                    <h2 class="section-title">LỊCH SỬ YÊU CẦU</h2>
-                    <div id="my-requests-list">
-                        <div class="loading-state">Đang tải...</div>
+                    <div class="content-card request-history-card section-gap">
+                        <div class="request-history-head">
+                            <h2 class="section-title">LỊCH SỬ YÊU CẦU</h2>
+                            <select id="request-status-filter" aria-label="Lọc trạng thái yêu cầu">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Completed">Đã hoàn thành</option>
+                                <option value="Rejected">Từ chối</option>
+                                <option value="Cancelled">Đã hủy</option>
+                            </select>
+                        </div>
+                        <div id="my-requests-list">
+                            <div class="loading-state">Đang tải...</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <div id="transfer-form-template" style="display:none">
-                <div class="content-card section-gap">
+                <div class="content-card section-gap transfer-form-card">
                     <h2 class="section-title">YÊU CẦU CHUYỂN PHÒNG</h2>
                     <div class="form-row">
                         <label for="transfer-search">Tìm kiếm phòng</label>
@@ -543,21 +560,103 @@
                     </div>
                     <div class="form-row">
                         <label for="transfer-reason">Lý do chuyển phòng</label>
-                        <textarea id="transfer-reason" rows="4"></textarea>
+                        <textarea id="transfer-reason" rows="3" maxlength="500" placeholder="Nhập lý do chuyển phòng..."></textarea>
+                        <small id="transfer-reason-counter">0/500</small>
                     </div>
                     <p class="form-error" id="transfer-error"></p>
                     <div class="action-row">
                         <button type="button" class="btn-primary" id="transfer-submit-btn">Gửi yêu cầu chuyển phòng</button>
                     </div>
                 </div>
+
+                <div class="content-card section-gap transfer-history-card">
+                    <h3 class="section-title">Lịch sử yêu cầu chuyển phòng</h3>
+                    <div id="transfer-history-list">
+                        <div class="loading-state">Đang tải...</div>
+                    </div>
+                </div>
             </div>
 
             <section id="section-notify" class="tab-panel">
-                <div class="content-card">
-                    <h2 class="page-heading">Thông báo</h2>
-                    <div id="notify-content">
-                        <div class="loading-state">Đang tải thông báo...</div>
+                <div class="notifications-shell">
+                    <div class="notifications-main">
+                        <div class="notifications-header">
+                            <div class="notifications-heading">
+                                <h2 class="page-heading notifications-title">Thông báo</h2>
+                                <p class="notifications-subtitle">Cập nhật các thông tin quan trọng và phản hồi liên quan đến bạn.</p>
+                            </div>
+                            <div class="notifications-tabs" id="notify-filters" role="tablist" aria-label="Bộ lọc thông báo">
+                                <button type="button" class="notify-tab active" data-notify-filter="all">Tất cả</button>
+                                <button type="button" class="notify-tab" data-notify-filter="unread">Chưa đọc (<span id="notify-filter-unread-count">0</span>)</button>
+                                <button type="button" class="notify-tab" data-notify-filter="important">Quan trọng</button>
+                            </div>
+                        </div>
+
+                        <div class="notifications-feed-card">
+                            <div id="notify-content" class="notifications-feed">
+                                <div class="loading-state">Đang tải thông báo...</div>
+                            </div>
+                            <div class="notifications-footer">
+                                <p class="notifications-counter" id="notify-counter">Đang tải dữ liệu...</p>
+                                <div class="notifications-pagination" id="notify-pagination"></div>
+                            </div>
+                        </div>
                     </div>
+
+                    <aside class="notifications-sidebar">
+                        <div class="notify-side-card">
+                            <h3 class="notify-side-title">Tổng quan</h3>
+                            <div class="notify-summary-list">
+                                <article class="notify-summary-item">
+                                    <span class="notify-summary-icon tone-blue type-mail"></span>
+                                    <div>
+                                        <span>Tổng thông báo</span>
+                                        <strong id="notify-summary-total">0</strong>
+                                    </div>
+                                </article>
+                                <article class="notify-summary-item">
+                                    <span class="notify-summary-icon tone-indigo type-dot"></span>
+                                    <div>
+                                        <span>Chưa đọc</span>
+                                        <strong id="notify-summary-unread">0</strong>
+                                    </div>
+                                </article>
+                                <article class="notify-summary-item">
+                                    <span class="notify-summary-icon tone-orange type-bell"></span>
+                                    <div>
+                                        <span>Quan trọng</span>
+                                        <strong id="notify-summary-important">0</strong>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+
+                        <div class="notify-side-card notify-note-card">
+                            <div class="notify-note-head">
+                                <span class="notify-note-icon"></span>
+                                <strong>Lưu ý</strong>
+                            </div>
+                            <p>Hãy thường xuyên kiểm tra thông báo để không bỏ lỡ các cập nhật quan trọng về hóa đơn, lưu trú và yêu cầu của bạn.</p>
+                        </div>
+
+                        <div class="notify-side-card">
+                            <h3 class="notify-side-title">Thao tác nhanh</h3>
+                            <button type="button" class="notify-quick-action" id="notify-go-invoice">
+                                <span class="notify-quick-icon type-wallet"></span>
+                                <span>
+                                    <strong>Thanh toán ngay</strong>
+                                    <small>Xem và thanh toán hóa đơn</small>
+                                </span>
+                            </button>
+                            <button type="button" class="notify-quick-action" id="notify-go-request">
+                                <span class="notify-quick-icon type-edit"></span>
+                                <span>
+                                    <strong>Tạo yêu cầu mới</strong>
+                                    <small>Gửi yêu cầu hỗ trợ đến KTX</small>
+                                </span>
+                            </button>
+                        </div>
+                    </aside>
                 </div>
             </section>
         </main>
