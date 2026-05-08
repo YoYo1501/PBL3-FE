@@ -306,7 +306,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
             </section>
 
             <section id="section-room" class="tab-panel">
@@ -496,7 +495,6 @@
                     <div id="invoice-content">
                         <div class="loading-state">Đang tải hóa đơn...</div>
                     </div>
-                </div>
             </section>
 
             <section id="section-request" class="tab-panel">
@@ -524,7 +522,7 @@
                     </div>
                 </div>
 
-                    <div class="content-card request-history-card section-gap">
+                <div class="content-card request-history-card section-gap">
                         <div class="request-history-head">
                             <h2 class="section-title">LỊCH SỬ YÊU CẦU</h2>
                             <select id="request-status-filter" aria-label="Lọc trạng thái yêu cầu">
@@ -539,7 +537,6 @@
                         <div id="my-requests-list">
                             <div class="loading-state">Đang tải...</div>
                         </div>
-                    </div>
                 </div>
             </section>
 
@@ -578,85 +575,87 @@
             </div>
 
             <section id="section-notify" class="tab-panel">
-                <div class="notifications-shell">
-                    <div class="notifications-main">
-                        <div class="notifications-header">
-                            <div class="notifications-heading">
-                                <h2 class="page-heading notifications-title">Thông báo</h2>
-                                <p class="notifications-subtitle">Cập nhật các thông tin quan trọng và phản hồi liên quan đến bạn.</p>
+                <div class="notify-page-layout">
+                    <!-- Cột trái: Danh sách thông báo -->
+                    <div class="notify-main-col">
+                        <div class="content-card notify-card">
+                            <div class="notify-card-head">
+                                <div class="notify-title-block">
+                                <h2 class="page-heading">Thông báo</h2>
+                                <p class="section-subtitle">Cập nhật các thông tin quan trọng và phản hồi liên quan đến bạn.</p>
+                                </div>
+                                <div class="notify-filter-tabs">
+                                    <button class="notify-tab active" data-notify-filter="all" type="button">Tất cả</button>
+                                    <button class="notify-tab" data-notify-filter="unread" type="button">Chưa đọc (<span id="notify-unread-count">0</span>)</button>
+                                    <button class="notify-tab" data-notify-filter="important" type="button">Quan trọng</button>
+                                </div>
                             </div>
-                            <div class="notifications-tabs" id="notify-filters" role="tablist" aria-label="Bộ lọc thông báo">
-                                <button type="button" class="notify-tab active" data-notify-filter="all">Tất cả</button>
-                                <button type="button" class="notify-tab" data-notify-filter="unread">Chưa đọc (<span id="notify-filter-unread-count">0</span>)</button>
-                                <button type="button" class="notify-tab" data-notify-filter="important">Quan trọng</button>
-                            </div>
-                        </div>
-
-                        <div class="notifications-feed-card">
-                            <div id="notify-content" class="notifications-feed">
+                            <div id="notify-content">
                                 <div class="loading-state">Đang tải thông báo...</div>
                             </div>
-                            <div class="notifications-footer">
-                                <p class="notifications-counter" id="notify-counter">Đang tải dữ liệu...</p>
-                                <div class="notifications-pagination" id="notify-pagination"></div>
+                            <div class="notify-pagination" id="notify-pagination" style="display:none">
+                                <button type="button" class="notify-page-btn" id="notify-prev-btn">‹</button>
+                                <span id="notify-page-info">1</span>
+                                <button type="button" class="notify-page-btn" id="notify-next-btn">›</button>
                             </div>
                         </div>
                     </div>
 
-                    <aside class="notifications-sidebar">
-                        <div class="notify-side-card">
-                            <h3 class="notify-side-title">Tổng quan</h3>
+                    <!-- Cột phải: Tổng quan + Thao tác nhanh -->
+                    <div class="notify-side-col">
+                        <div class="content-card notify-summary-card">
+                            <h3 class="notify-summary-title">Tổng quan</h3>
                             <div class="notify-summary-list">
-                                <article class="notify-summary-item">
-                                    <span class="notify-summary-icon tone-blue type-mail"></span>
-                                    <div>
-                                        <span>Tổng thông báo</span>
-                                        <strong id="notify-summary-total">0</strong>
+                                <div class="notify-summary-item">
+                                    <span class="notify-summary-icon nsicon-mail"></span>
+                                    <div class="notify-summary-info">
+                                        <span class="notify-summary-label">Tổng thông báo</span>
+                                        <strong class="notify-summary-value" id="notify-total-count">—</strong>
                                     </div>
-                                </article>
-                                <article class="notify-summary-item">
-                                    <span class="notify-summary-icon tone-indigo type-dot"></span>
-                                    <div>
-                                        <span>Chưa đọc</span>
-                                        <strong id="notify-summary-unread">0</strong>
+                                </div>
+                                <div class="notify-summary-item">
+                                    <span class="notify-summary-icon nsicon-unread"></span>
+                                    <div class="notify-summary-info">
+                                        <span class="notify-summary-label">Chưa đọc</span>
+                                        <strong class="notify-summary-value notify-summary-blue" id="notify-unread-summary">—</strong>
                                     </div>
-                                </article>
-                                <article class="notify-summary-item">
-                                    <span class="notify-summary-icon tone-orange type-bell"></span>
-                                    <div>
-                                        <span>Quan trọng</span>
-                                        <strong id="notify-summary-important">0</strong>
+                                </div>
+                                <div class="notify-summary-item">
+                                    <span class="notify-summary-icon nsicon-important"></span>
+                                    <div class="notify-summary-info">
+                                        <span class="notify-summary-label">Quan trọng</span>
+                                        <strong class="notify-summary-value notify-summary-orange" id="notify-important-summary">—</strong>
                                     </div>
-                                </article>
+                                </div>
+                            </div>
+                            <div class="notify-tip-box">
+                                <span class="notify-tip-icon">⚠</span>
+                                <p>Hãy thường xuyên kiểm tra thông báo để không bỏ lỡ thông tin quan trọng.</p>
                             </div>
                         </div>
 
-                        <div class="notify-side-card notify-note-card">
-                            <div class="notify-note-head">
-                                <span class="notify-note-icon"></span>
-                                <strong>Lưu ý</strong>
+                        <div class="content-card notify-quickact-card">
+                            <h3 class="notify-summary-title">Thao tác nhanh</h3>
+                            <div class="notify-quickact-list">
+                                <button type="button" class="notify-quickact-btn" id="notify-go-invoice">
+                                    <span class="notify-quickact-icon nqicon-invoice"></span>
+                                    <div class="notify-quickact-copy">
+                                        <strong>Thanh toán ngay</strong>
+                                        <span>Xem và thanh toán hóa đơn</span>
+                                    </div>
+                                    <span class="notify-quickact-arrow">›</span>
+                                </button>
+                                <button type="button" class="notify-quickact-btn" id="notify-go-request">
+                                    <span class="notify-quickact-icon nqicon-request"></span>
+                                    <div class="notify-quickact-copy">
+                                        <strong>Tạo yêu cầu mới</strong>
+                                        <span>Gửi yêu cầu hỗ trợ đến KTX</span>
+                                    </div>
+                                    <span class="notify-quickact-arrow">›</span>
+                                </button>
                             </div>
-                            <p>Hãy thường xuyên kiểm tra thông báo để không bỏ lỡ các cập nhật quan trọng về hóa đơn, lưu trú và yêu cầu của bạn.</p>
                         </div>
-
-                        <div class="notify-side-card">
-                            <h3 class="notify-side-title">Thao tác nhanh</h3>
-                            <button type="button" class="notify-quick-action" id="notify-go-invoice">
-                                <span class="notify-quick-icon type-wallet"></span>
-                                <span>
-                                    <strong>Thanh toán ngay</strong>
-                                    <small>Xem và thanh toán hóa đơn</small>
-                                </span>
-                            </button>
-                            <button type="button" class="notify-quick-action" id="notify-go-request">
-                                <span class="notify-quick-icon type-edit"></span>
-                                <span>
-                                    <strong>Tạo yêu cầu mới</strong>
-                                    <small>Gửi yêu cầu hỗ trợ đến KTX</small>
-                                </span>
-                            </button>
-                        </div>
-                    </aside>
+                    </div>
                 </div>
             </section>
         </main>
@@ -705,6 +704,16 @@
     <script>
         requireRole('Student');
     </script>
-    <script src="../js/student.js"></script>
+    <script src="../js/student/student-state.js"></script>
+    <script src="../js/student/student-core.js"></script>
+    <script src="../js/student/student-layout.js"></script>
+    <script src="../js/student/student-profile.js"></script>
+    <script src="../js/student/student-room.js"></script>
+    <script src="../js/student/student-facilities.js"></script>
+    <script src="../js/student/student-contracts.js"></script>
+    <script src="../js/student/student-invoices.js"></script>
+    <script src="../js/student/student-requests.js"></script>
+    <script src="../js/student/student-notifications.js"></script>
+    <script src="../js/student/student-main.js"></script>
 </body>
 </html>
