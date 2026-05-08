@@ -9,11 +9,16 @@
 </head>
 <body class="student-app">
     <div class="top-bar">
+        <button type="button" class="top-notify-btn" id="top-notify-btn" aria-label="Thông báo" title="Thông báo">
+            <span class="top-notify-icon"></span>
+            <span class="top-notif-badge" id="top-notif-badge" style="display:none">0</span>
+        </button>
         <div class="welcome-menu" id="welcome-menu">
             <button type="button" class="welcome-trigger" id="welcome-trigger" aria-expanded="false">
+                <span class="header-avatar" id="header-avatar">S</span>
                 <span class="welcome-copy">
-                    <span>Welcome,</span>
                     <strong id="header-name">Đang tải...</strong>
+                    <span>Sinh viên</span>
                 </span>
                 <span class="welcome-caret">▾</span>
             </button>
@@ -46,6 +51,10 @@
                         <span class="menu-icon">●</span>
                         <span>Thông tin lưu trú</span>
                     </li>
+                    <li class="menu-item menu-item-facilities" data-target="section-facilities">
+                        <span class="menu-icon">●</span>
+                        <span>Cơ sở vật chất</span>
+                    </li>
                     <li class="menu-item menu-item-invoice" data-target="section-invoice">
                         <span class="menu-icon">●</span>
                         <span>Hóa đơn, biên lai</span>
@@ -57,7 +66,6 @@
                         </button>
                         <ul class="submenu" id="request-submenu">
                             <li class="submenu-item" data-target="section-request" data-req-type="Checkout">Yêu cầu trả phòng</li>
-                            <li class="submenu-item" data-target="section-request" data-req-type="Maintenance">Yêu cầu sửa chữa</li>
                             <li class="submenu-item" data-target="section-request" data-req-type="RoomTransfer">Yêu cầu chuyển phòng</li>
                             <li class="submenu-item" data-target="section-request" data-req-type="Other">Yêu cầu khác</li>
                         </ul>
@@ -69,6 +77,12 @@
                     </li>
                 </ul>
             </nav>
+            <div class="sidebar-support">
+                <span class="support-icon"></span>
+                <strong>Hỗ trợ sinh viên</strong>
+                <p>Nếu bạn cần hỗ trợ hãy liên hệ với chúng tôi</p>
+                <button type="button" class="support-btn" data-target="section-request">Liên hệ ngay</button>
+            </div>
         </aside>
 
         <main class="content">
@@ -80,100 +94,396 @@
                 </div>
 
                 <div class="info-sub-panel active" id="info-general">
-                    <div class="content-card">
-                        <h2 class="section-title">THÔNG TIN CÁ NHÂN</h2>
-                        <table class="table-details portal-table">
-                            <tr><th>Họ và tên</th><td id="sv-fullname">—</td></tr>
-                            <tr><th>Số CCCD</th><td id="sv-citizenid">—</td></tr>
-                            <tr><th>Giới tính</th><td id="sv-gender">—</td></tr>
-                            <tr><th>Email</th><td id="sv-email">—</td></tr>
-                        </table>
+                    <div class="content-card student-profile-card">
+                        <div class="profile-hero">
+                            <div class="profile-title-block">
+                                <span class="profile-title-icon icon-user"></span>
+                                <div>
+                                    <h2 class="section-title">THÔNG TIN CÁ NHÂN</h2>
+                                    <p>Thông tin cơ bản về cá nhân của bạn</p>
+                                </div>
+                            </div>
+                            <div class="profile-illustration" aria-hidden="true">
+                                <span class="profile-id-card"></span>
+                                <span class="profile-shield"></span>
+                            </div>
+                        </div>
+
+                        <div class="profile-info-grid">
+                            <article class="profile-info-item">
+                                <span class="profile-field-icon icon-user"></span>
+                                <div>
+                                    <span class="profile-field-label">Họ và tên</span>
+                                    <strong id="sv-fullname">—</strong>
+                                </div>
+                            </article>
+                            <article class="profile-info-item">
+                                <span class="profile-field-icon icon-id"></span>
+                                <div>
+                                    <span class="profile-field-label">Số CCCD</span>
+                                    <strong id="sv-citizenid">—</strong>
+                                </div>
+                            </article>
+                            <article class="profile-info-item">
+                                <span class="profile-field-icon icon-gender"></span>
+                                <div>
+                                    <span class="profile-field-label">Giới tính</span>
+                                    <strong id="sv-gender">—</strong>
+                                </div>
+                            </article>
+                            <article class="profile-info-item">
+                                <span class="profile-field-icon icon-mail"></span>
+                                <div>
+                                    <span class="profile-field-label">Email</span>
+                                    <strong id="sv-email">—</strong>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="profile-note">
+                            <span class="profile-note-icon">i</span>
+                            <span>Vui lòng kiểm tra và cập nhật thông tin cá nhân của bạn để đảm bảo tính chính xác.</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="info-sub-panel" id="info-contact">
-                    <div class="dual-grid">
-                        <article class="content-card">
-                            <h2 class="section-title">THÔNG TIN CƯ TRÚ, LIÊN HỆ</h2>
-                            <div class="form-row">
-                                <label for="edit-phone">Số điện thoại</label>
-                                <input type="text" id="edit-phone" maxlength="10" placeholder="Nhập số điện thoại">
+                    <div class="contact-layout">
+                        <article class="content-card contact-card contact-residence-card">
+                            <div class="contact-card-head">
+                                <span class="contact-head-icon contact-icon-home"></span>
+                                <div>
+                                    <h2 class="section-title">THÔNG TIN CƯ TRÚ, LIÊN HỆ</h2>
+                                    <p>Thông tin liên hệ và địa chỉ cư trú hiện tại</p>
+                                </div>
                             </div>
-                            <div class="form-row">
+
+                            <div class="form-row contact-form-row">
+                                <label for="edit-phone">Số điện thoại</label>
+                                <div class="contact-input-shell">
+                                    <span class="contact-input-icon contact-icon-phone"></span>
+                                    <input type="text" id="edit-phone" maxlength="10" placeholder="Nhập số điện thoại">
+                                </div>
+                            </div>
+
+                            <div class="form-row contact-form-row">
                                 <label for="edit-address">Địa chỉ thường trú</label>
-                                <input type="text" id="edit-address" placeholder="Nhập địa chỉ thường trú">
+                                <div class="contact-input-shell contact-input-tall">
+                                    <span class="contact-input-icon contact-icon-location"></span>
+                                    <input type="text" id="edit-address" placeholder="Nhập địa chỉ thường trú">
+                                </div>
+                            </div>
+
+                            <div class="contact-note contact-note-success">
+                                <span class="contact-note-icon contact-icon-shield"></span>
+                                <span>Vui lòng cập nhật thông tin chính xác để chúng tôi có thể liên hệ khi cần thiết.</span>
                             </div>
                         </article>
 
-                        <article class="content-card">
-                            <h2 class="section-title">THÔNG TIN LIÊN LẠC</h2>
-                            <div class="form-row">
+                        <article class="content-card contact-card contact-relative-card">
+                            <div class="contact-card-head">
+                                <span class="contact-head-icon contact-icon-people"></span>
+                                <div>
+                                    <h2 class="section-title">THÔNG TIN LIÊN LẠC</h2>
+                                    <p>Thông tin liên lạc khẩn cấp</p>
+                                </div>
+                            </div>
+
+                            <div class="form-row contact-form-row">
                                 <label for="edit-relative-name">Họ tên thân nhân</label>
-                                <input type="text" id="edit-relative-name" placeholder="Nhập họ tên thân nhân">
+                                <div class="contact-input-shell">
+                                    <span class="contact-input-icon contact-icon-user"></span>
+                                    <input type="text" id="edit-relative-name" placeholder="Nhập họ tên thân nhân">
+                                </div>
                             </div>
-                            <div class="form-row">
+
+                            <div class="form-row contact-form-row">
                                 <label for="edit-relative-phone">Số điện thoại thân nhân</label>
-                                <input type="text" id="edit-relative-phone" placeholder="Nhập số điện thoại thân nhân">
+                                <div class="contact-input-shell">
+                                    <span class="contact-input-icon contact-icon-phone"></span>
+                                    <input type="text" id="edit-relative-phone" placeholder="Nhập số điện thoại thân nhân">
+                                </div>
                             </div>
-                            <div class="form-row">
+
+                            <div class="form-row contact-form-row">
                                 <label for="edit-relationship">Quan hệ</label>
-                                <input type="text" id="edit-relationship" placeholder="Ví dụ: Bố, Mẹ, Anh/Chị">
+                                <div class="contact-input-shell">
+                                    <span class="contact-input-icon contact-icon-relation"></span>
+                                    <input type="text" id="edit-relationship" placeholder="Ví dụ: Bố, Mẹ, Anh/Chị">
+                                </div>
+                            </div>
+
+                            <div class="contact-note contact-note-info">
+                                <span class="profile-note-icon">i</span>
+                                <span>Thông tin này được sử dụng trong trường hợp khẩn cấp.</span>
                             </div>
                         </article>
                     </div>
                     <p class="form-error" id="contact-error"></p>
-                    <div class="action-row">
-                        <button id="save-contact-btn" type="button" class="btn-primary">Lưu thông tin</button>
+                    <div class="action-row contact-save-row">
+                        <button id="save-contact-btn" type="button" class="btn-primary contact-save-btn">
+                            <span class="save-icon"></span>
+                            <span>Lưu thông tin</span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="info-sub-panel" id="info-password">
-                    <div class="content-card narrow-card">
-                        <h2 class="section-title">ĐỔI MẬT KHẨU</h2>
-                        <div class="form-row">
-                            <label for="pw-current">Mật khẩu hiện tại</label>
-                            <input type="password" id="pw-current">
-                        </div>
-                        <div class="form-row">
-                            <label for="pw-new">Mật khẩu mới</label>
-                            <input type="password" id="pw-new">
-                        </div>
-                        <div class="form-row">
-                            <label for="pw-confirm">Xác nhận mật khẩu mới</label>
-                            <input type="password" id="pw-confirm">
-                        </div>
-                        <p class="form-error" id="pw-error"></p>
-                        <div class="action-row">
-                            <button id="change-pw-btn" type="button" class="btn-primary">Đổi mật khẩu</button>
+                    <div class="content-card password-card">
+                        <div class="password-layout">
+                            <aside class="password-security-panel">
+                                <div class="password-illustration" aria-hidden="true">
+                                    <span class="password-shield"></span>
+                                    <span class="password-lock"></span>
+                                    <span class="password-check"></span>
+                                </div>
+                                <h2>BẢO MẬT TÀI KHOẢN</h2>
+                                <p>Vui lòng sử dụng mật khẩu mạnh để bảo vệ tài khoản của bạn.</p>
+
+                                <div class="password-tips">
+                                    <strong>Gợi ý mật khẩu mạnh</strong>
+                                    <span><i></i> Ít nhất 8 ký tự</span>
+                                    <span><i></i> Kết hợp chữ hoa, chữ thường</span>
+                                    <span><i></i> Có ít nhất 1 số</span>
+                                    <span><i></i> Có ít nhất 1 ký tự đặc biệt</span>
+                                </div>
+                            </aside>
+
+                            <div class="password-form-panel">
+                                <div class="form-row password-form-row">
+                                    <label for="pw-current">Mật khẩu hiện tại</label>
+                                    <div class="password-input-shell">
+                                        <span class="password-input-icon password-icon-lock"></span>
+                                        <input type="password" id="pw-current" placeholder="Nhập mật khẩu hiện tại">
+                                        <button type="button" class="password-toggle" data-toggle-password="pw-current" aria-label="Hiện mật khẩu hiện tại">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-row password-form-row">
+                                    <label for="pw-new">Mật khẩu mới</label>
+                                    <div class="password-input-shell">
+                                        <span class="password-input-icon password-icon-lock"></span>
+                                        <input type="password" id="pw-new" placeholder="Nhập mật khẩu mới">
+                                        <button type="button" class="password-toggle" data-toggle-password="pw-new" aria-label="Hiện mật khẩu mới">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="password-strength-row">
+                                    <span>Độ mạnh mật khẩu:</span>
+                                    <div class="password-strength-bars" id="pw-strength-bars" aria-hidden="true">
+                                        <i></i>
+                                        <i></i>
+                                        <i></i>
+                                    </div>
+                                    <strong id="pw-strength-label">Yếu</strong>
+                                </div>
+
+                                <div class="form-row password-form-row">
+                                    <label for="pw-confirm">Xác nhận mật khẩu mới</label>
+                                    <div class="password-input-shell">
+                                        <span class="password-input-icon password-icon-lock"></span>
+                                        <input type="password" id="pw-confirm" placeholder="Nhập lại mật khẩu mới">
+                                        <button type="button" class="password-toggle" data-toggle-password="pw-confirm" aria-label="Hiện mật khẩu xác nhận">
+                                            <span></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p class="form-error" id="pw-error"></p>
+                                <div class="action-row password-action-row">
+                                    <button id="change-pw-btn" type="button" class="btn-primary password-submit-btn">
+                                        <span class="password-btn-icon"></span>
+                                        <span>Đổi mật khẩu</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
             <section id="section-room" class="tab-panel">
-                <div class="content-card">
-                    <h2 class="page-heading">Thông tin lưu trú hiện tại</h2>
+                <div class="content-card residence-card">
                     <div id="room-content">
                         <div class="loading-state">Đang tải thông tin phòng...</div>
                     </div>
                 </div>
 
-                <div class="content-card section-gap">
-                    <h2 class="section-title">CƠ SỞ VẬT CHẤT TRONG PHÒNG</h2>
-                    <div id="my-room-facilities">
-                        <div class="loading-state">Đang tải danh sách thiết bị...</div>
-                    </div>
-                </div>
-
-                <div class="content-card section-gap">
+                <div class="residence-detail-grid">
                     <div id="contract-content">
                         <div class="loading-state">Đang tải hợp đồng...</div>
                     </div>
-                    <div id="renewal-section" style="display:none">
-                        <h2 class="section-title">GÓI GIA HẠN</h2>
-                        <div id="renewal-packages-list" class="grid-2"></div>
-                        <p class="form-error" id="renewal-error"></p>
+                    <div id="residence-history-content">
+                        <div class="loading-state">Đang tải lịch sử lưu trú...</div>
                     </div>
+                </div>
+
+                <div id="renewal-section" class="content-card section-gap renewal-panel" style="display:none">
+                    <h2 class="section-title">GÓI GIA HẠN</h2>
+                    <div id="renewal-packages-list" class="grid-2"></div>
+                    <p class="form-error" id="renewal-error"></p>
+                </div>
+            </section>
+
+            <section id="section-facilities" class="tab-panel">
+                <div class="content-card facilities-hero-card">
+                    <div class="facilities-title-block">
+                        <span class="facilities-title-icon icon-sofa"></span>
+                        <div>
+                            <h2>CƠ SỞ VẬT CHẤT</h2>
+                            <p>Quản lý và theo dõi các thiết bị, tiện ích trong phòng của bạn</p>
+                        </div>
+                    </div>
+                    <div class="facility-stat-grid">
+                        <article class="facility-stat-card">
+                            <span class="facility-stat-icon icon-monitor tone-blue"></span>
+                            <strong id="facility-total-count">—</strong>
+                            <span>Tổng thiết bị</span>
+                        </article>
+                        <article class="facility-stat-card">
+                            <span class="facility-stat-icon icon-check-circle tone-green"></span>
+                            <strong id="facility-good-count">—</strong>
+                            <span>Hoạt động tốt</span>
+                        </article>
+                        <article class="facility-stat-card">
+                            <span class="facility-stat-icon icon-warning tone-orange"></span>
+                            <strong id="facility-repair-count">—</strong>
+                            <span>Cần sửa chữa</span>
+                        </article>
+                        <article class="facility-stat-card">
+                            <span class="facility-stat-icon icon-history tone-purple"></span>
+                            <strong id="facility-history-count">—</strong>
+                            <span>Theo dõi sửa chữa</span>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="content-card facilities-workspace-card">
+                    <div class="facility-tabs">
+                        <button class="facility-tab-btn active" type="button" data-facility-panel="facility-room-panel">Thiết bị trong phòng</button>
+                        <button class="facility-tab-btn" type="button" data-facility-panel="facility-report-panel">Báo hỏng thiết bị</button>
+                        <button class="facility-tab-btn" type="button" data-facility-panel="facility-history-panel">Theo dõi sửa chữa</button>
+                    </div>
+
+                    <div class="facility-tab-panel active" id="facility-room-panel">
+                        <div class="facility-table-head">
+                            <div>
+                                <h3>Danh sách thiết bị trong phòng</h3>
+                                <p id="facility-room-subtitle">Đang tải thông tin phòng...</p>
+                            </div>
+                            <div class="facility-tools">
+                                <label class="facility-search">
+                                    <input type="search" id="facility-search" placeholder="Tìm kiếm thiết bị...">
+                                    <span></span>
+                                </label>
+                                <select id="facility-status-filter" aria-label="Lọc tình trạng thiết bị">
+                                    <option value="">Tất cả</option>
+                                    <option value="Good">Hoạt động tốt</option>
+                                    <option value="Damaged">Cần sửa chữa</option>
+                                    <option value="UnderMaintenance">Đang bảo trì</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="my-room-facilities">
+                            <div class="loading-state">Đang tải danh sách thiết bị...</div>
+                        </div>
+                    </div>
+
+                    <div class="facility-tab-panel" id="facility-report-panel">
+                        <div class="facility-report-card">
+                            <div class="facility-report-head">
+                                <span class="facility-report-head-icon icon-tools"></span>
+                                <div>
+                                    <h3>BÁO HỎNG THIẾT BỊ</h3>
+                                    <p>Vui lòng cung cấp thông tin chi tiết về thiết bị bị hỏng</p>
+                                </div>
+                            </div>
+
+                            <div class="facility-form-grid">
+                                <div class="facility-field">
+                                    <label for="facility-report-device">Thiết bị cần báo hỏng <span>*</span></label>
+                                    <div class="facility-input-shell">
+                                        <span class="facility-input-icon icon-cube"></span>
+                                        <select id="facility-report-device">
+                                            <option value="">Chọn thiết bị cần báo hỏng</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="facility-field">
+                                    <label for="facility-report-title">Tiêu đề <span>*</span></label>
+                                    <div class="facility-input-shell">
+                                        <span class="facility-input-icon icon-clipboard"></span>
+                                        <input type="text" id="facility-report-title" maxlength="200" placeholder="Ví dụ: Ổ cắm điện bị lỏng">
+                                    </div>
+                                </div>
+                                <div class="facility-field facility-form-wide">
+                                    <label for="facility-report-desc">Mô tả tình trạng <span>*</span></label>
+                                    <div class="facility-input-shell facility-textarea-shell">
+                                        <span class="facility-input-icon icon-file-warning"></span>
+                                        <textarea id="facility-report-desc" rows="4" placeholder="Mô tả rõ vị trí, dấu hiệu hư hỏng và thời điểm phát hiện..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="facility-field facility-form-wide">
+                                    <label for="facility-report-image">Hình ảnh minh họa (nếu có)</label>
+                                    <label class="facility-upload-box" for="facility-report-image">
+                                        <input type="file" id="facility-report-image" accept="image/png,image/jpeg">
+                                        <span class="facility-upload-icon"></span>
+                                        <strong>Kéo thả ảnh vào đây hoặc</strong>
+                                        <em>Chọn ảnh</em>
+                                    </label>
+                                    <p class="facility-upload-hint" id="facility-upload-hint">Hỗ trợ: JPG, PNG (tối đa 5MB)</p>
+                                </div>
+                            </div>
+                            <p class="form-error" id="facility-report-error"></p>
+                            <div class="action-row facility-report-actions">
+                                <button type="button" class="btn-primary facility-submit-btn" id="facility-report-submit">
+                                    <span class="facility-submit-icon"></span>
+                                    <span>Gửi báo hỏng</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="facility-tab-panel" id="facility-history-panel">
+                        <div class="facility-history-tools">
+                            <select id="facility-history-status" aria-label="Lọc trạng thái sửa chữa">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="Pending">Đã gửi</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Completed">Đã hoàn thành</option>
+                                <option value="Rejected">Đã từ chối</option>
+                                <option value="Cancelled">Đã hủy</option>
+                            </select>
+                            <label class="facility-search">
+                                <input type="search" id="facility-history-search" placeholder="Tìm kiếm yêu cầu...">
+                                <span></span>
+                            </label>
+                        </div>
+                        <div id="facilities-repair-history">
+                            <div class="loading-state">Đang tải lịch sử sửa chữa...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="facilities-note-grid">
+                    <article class="facilities-note-card is-info">
+                        <span class="facility-stat-icon icon-info"></span>
+                        <div>
+                            <strong>Quy định sử dụng</strong>
+                            <p>Sinh viên có trách nhiệm bảo quản và sử dụng đúng mục đích các thiết bị trong phòng. Mọi hư hỏng vui lòng báo ngay cho quản lý.</p>
+                        </div>
+                    </article>
+                    <article class="facilities-note-card is-warning">
+                        <span class="facility-stat-icon icon-warning"></span>
+                        <div>
+                            <strong>Lưu ý</strong>
+                            <p>Không tự ý sửa chữa thiết bị. Việc tự ý sửa chữa có thể dẫn đến bồi thường.</p>
+                        </div>
+                    </article>
                 </div>
             </section>
 
