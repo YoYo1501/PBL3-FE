@@ -55,24 +55,25 @@ function renderRegistrationsList() {
     .map(
       (item) => `
         <article class="queue-item">
-            <div class="queue-head">
+            <div class="queue-item-icon icon-blue">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="queue-item-content">
                 <strong>${escapeHtml(item.fullName)}</strong>
+                <p class="queue-body">Mã đơn: ${escapeHtml(item.registrationCode)} &bull; Phòng: ${escapeHtml(item.roomCode || "-")} &bull; Ngày gửi: ${formatDate(item.submittedAt)}</p>
+                ${
+                  item.status === "Pending"
+                    ? `<div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button type="button" class="primary-btn" data-reg-approve="${item.id}"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Duyệt</button>
+                        <button type="button" class="danger-btn" data-reg-reject="${item.id}"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Từ chối</button>
+                    </div>`
+                    : ""
+                }
+            </div>
+            <div class="queue-item-actions">
                 ${adminBadge(item.status)}
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
-            <div class="queue-meta">
-                <span>Mã đơn: ${escapeHtml(item.registrationCode)}</span>
-                <span>Phòng: ${escapeHtml(item.roomCode || "-")}</span>
-                <span>${formatDate(item.startDate)} - ${formatDate(item.endDate)}</span>
-                <span>Ngày gửi: ${formatDate(item.submittedAt)}</span>
-            </div>
-            ${
-              item.status === "Pending"
-                ? `<div class="queue-actions">
-                    <button type="button" class="primary-btn" data-reg-approve="${item.id}">Duyệt</button>
-                    <button type="button" class="danger-btn" data-reg-reject="${item.id}">Từ chối</button>
-                </div>`
-                : ""
-            }
         </article>
     `,
     )

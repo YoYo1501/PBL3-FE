@@ -172,31 +172,28 @@ function renderContractsTable() {
 
   if (!adminContracts.length) {
     tbody.innerHTML =
-      '<tr><td colspan="7" class="table-empty">Không có hợp đồng phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="6" class="table-empty">Không có hợp đồng phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   tbody.innerHTML = adminContracts
     .map(
       (contract) => `
-        <tr class="${selectedContractId === contract.id ? "is-selected" : ""}">
+        <tr class="${selectedContractId === contract.id ? "is-selected" : ""}" style="cursor: pointer;" data-contract-view="${contract.id}">
             <td><strong>${escapeHtml(contract.contractCode)}</strong></td>
             <td>${escapeHtml(contract.studentName || "-")}</td>
             <td>${escapeHtml(contract.roomCode || "-")} (${escapeHtml(contract.roomType || "-")})</td>
             <td>${formatDate(contract.startDate)} - ${formatDate(contract.endDate)}</td>
             <td>${escapeHtml(formatCurrency(contract.price))}</td>
             <td>${adminBadge(contract.status)}</td>
-            <td>
-                <button type="button" class="secondary-btn" data-contract-view="${contract.id}">Chon</button>
-            </td>
         </tr>
     `,
     )
     .join("");
 
-  tbody.querySelectorAll("[data-contract-view]").forEach((button) => {
-    button.addEventListener("click", () =>
-      selectContract(Number(button.dataset.contractView)),
+  tbody.querySelectorAll("tr[data-contract-view]").forEach((row) => {
+    row.addEventListener("click", () =>
+      selectContract(Number(row.dataset.contractView)),
     );
   });
 }
