@@ -498,78 +498,249 @@
             </section>
 
             <section id="section-request" class="tab-panel">
-                <div class="content-card request-hero-card">
-                    <div class="request-hero-copy">
-                        <h2 class="page-heading" id="request-section-title">Yêu cầu</h2>
-                        <p class="section-subtitle" id="request-section-desc">Gửi yêu cầu tới ban quản lý ký túc xá.</p>
-                    </div>
-                    <div class="request-hero-illustration" aria-hidden="true"></div>
-                </div>
-
-                <div class="content-card" id="request-form-card">
-                    <h2 class="section-title">TẠO YÊU CẦU MỚI</h2>
-                    <div class="form-row">
-                        <label for="req-title">Tiêu đề yêu cầu</label>
-                        <input type="text" id="req-title" maxlength="200">
-                    </div>
-                    <div class="form-row">
-                        <label for="req-desc">Nội dung chi tiết</label>
-                        <textarea id="req-desc" rows="4"></textarea>
-                    </div>
-                    <p class="form-error" id="req-error"></p>
-                    <div class="action-row">
-                        <button type="button" class="btn-primary" id="req-submit-btn">Gửi yêu cầu</button>
-                    </div>
-                </div>
-
-                <div class="content-card request-history-card section-gap">
-                        <div class="request-history-head">
-                            <h2 class="section-title">LỊCH SỬ YÊU CẦU</h2>
-                            <select id="request-status-filter" aria-label="Lọc trạng thái yêu cầu">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="Pending">Chờ duyệt</option>
-                                <option value="Approved">Đã duyệt</option>
-                                <option value="Completed">Đã hoàn thành</option>
-                                <option value="Rejected">Từ chối</option>
-                                <option value="Cancelled">Đã hủy</option>
-                            </select>
+                <div class="request-page-shell">
+                    <div class="content-card request-hero-card">
+                        <div class="request-hero-copy">
+                            <span class="request-hero-icon checkout-icon-door"></span>
+                            <div>
+                                <h2 class="page-heading" id="request-section-title">Yêu cầu trả phòng</h2>
+                                <p class="section-subtitle" id="request-section-desc">Gửi yêu cầu trả phòng khi bạn muốn chấm dứt hợp đồng và rời khỏi ký túc xá.</p>
+                            </div>
                         </div>
-                        <div id="my-requests-list">
-                            <div class="loading-state">Đang tải...</div>
+                        <div class="request-hero-illustration" aria-hidden="true">
+                            <span class="checkout-plant"></span>
+                            <span class="checkout-desk"></span>
+                            <span class="checkout-laptop"></span>
+                            <span class="checkout-person"></span>
+                            <span class="checkout-bag"></span>
+                            <span class="checkout-check"></span>
                         </div>
+                    </div>
+
+                    <div class="checkout-stats-grid" aria-label="Tổng quan yêu cầu trả phòng">
+                        <article class="checkout-stat-card">
+                            <span class="checkout-stat-icon stat-total"></span>
+                            <div>
+                                <span>Tổng yêu cầu</span>
+                                <strong id="request-stat-total">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
+                        <article class="checkout-stat-card">
+                            <span class="checkout-stat-icon stat-pending"></span>
+                            <div>
+                                <span>Đang chờ duyệt</span>
+                                <strong id="request-stat-pending">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
+                        <article class="checkout-stat-card">
+                            <span class="checkout-stat-icon stat-approved"></span>
+                            <div>
+                                <span>Đã duyệt</span>
+                                <strong id="request-stat-approved">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
+                        <article class="checkout-stat-card">
+                            <span class="checkout-stat-icon stat-rejected"></span>
+                            <div>
+                                <span>Đã từ chối</span>
+                                <strong id="request-stat-rejected">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="request-workspace" id="request-workspace">
+                        <div class="content-card checkout-form-card" id="request-form-card">
+                            <h2 class="section-title" id="request-form-title">TẠO YÊU CẦU TRẢ PHÒNG</h2>
+
+                            <div class="checkout-form-grid">
+                                <div class="checkout-field generic-only">
+                                    <label for="req-title">Tiêu đề yêu cầu <span>*</span></label>
+                                    <input type="text" id="req-title" maxlength="200" placeholder="Nhập tiêu đề yêu cầu">
+                                </div>
+
+                                <div class="checkout-field checkout-only">
+                                    <label for="checkout-date">Ngày dự kiến trả phòng <span>*</span></label>
+                                    <div class="checkout-input-shell">
+                                        <input type="date" id="checkout-date">
+                                        <span class="checkout-input-icon icon-calendar"></span>
+                                    </div>
+                                </div>
+
+                                <div class="checkout-field checkout-only">
+                                    <label for="checkout-reason">Lý do trả phòng <span>*</span></label>
+                                    <div class="checkout-input-shell">
+                                        <select id="checkout-reason">
+                                            <option value="">Chọn lý do trả phòng</option>
+                                            <option value="Kết thúc học kỳ / năm học">Kết thúc học kỳ / năm học</option>
+                                            <option value="Chuyển nơi ở">Chuyển nơi ở</option>
+                                            <option value="Tốt nghiệp / thôi học">Tốt nghiệp / thôi học</option>
+                                            <option value="Lý do cá nhân">Lý do cá nhân</option>
+                                        </select>
+                                        <span class="checkout-input-icon icon-chevron"></span>
+                                    </div>
+                                </div>
+
+                                <div class="checkout-field checkout-wide">
+                                    <label for="req-desc">Nội dung chi tiết <em class="checkout-optional">(nếu có)</em></label>
+                                    <div class="checkout-textarea-shell">
+                                        <textarea id="req-desc" rows="5" maxlength="500" placeholder="Nhập nội dung chi tiết..."></textarea>
+                                        <small id="req-desc-counter">0/500</small>
+                                    </div>
+                                </div>
+
+                                <div class="checkout-field checkout-wide checkout-only">
+                                    <label class="checkout-upload-box" for="checkout-file">
+                                        <input type="file" id="checkout-file" accept="image/jpeg,image/png,application/pdf">
+                                        <span class="checkout-upload-icon"></span>
+                                        <strong>Đính kèm minh chứng <em>(nếu có)</em></strong>
+                                        <small id="checkout-file-name">Định dạng: JPG, PNG, PDF (Tối đa 5MB)</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <p class="form-error" id="req-error"></p>
+                            <div class="action-row checkout-action-row">
+                                <button type="button" class="btn-primary checkout-submit-btn" id="req-submit-btn">
+                                    <span class="checkout-submit-icon"></span>
+                                    <span>Gửi yêu cầu trả phòng</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="content-card request-history-card">
+                            <div class="request-history-head">
+                                <h2 class="section-title" id="request-history-title">LỊCH SỬ YÊU CẦU TRẢ PHÒNG</h2>
+                                <select id="request-status-filter" aria-label="Lọc trạng thái yêu cầu">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Pending">Đang chờ duyệt</option>
+                                    <option value="Approved">Đã duyệt</option>
+                                    <option value="Completed">Đã hoàn thành</option>
+                                    <option value="Rejected">Đã từ chối</option>
+                                    <option value="Cancelled">Đã hủy</option>
+                                </select>
+                            </div>
+                            <div id="my-requests-list" class="checkout-timeline">
+                                <div class="loading-state">Đang tải...</div>
+                            </div>
+                            <div class="request-history-footer" id="request-history-footer" style="display:none">
+                                <span id="request-history-count">Hiển thị 0 yêu cầu</span>
+                                <div class="request-pagination" aria-label="Phân trang yêu cầu">
+                                    <button type="button" class="request-page-btn" disabled>‹</button>
+                                    <button type="button" class="request-page-btn active">1</button>
+                                    <button type="button" class="request-page-btn" disabled>›</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <div id="transfer-form-template" style="display:none">
-                <div class="content-card section-gap transfer-form-card">
-                    <h2 class="section-title">YÊU CẦU CHUYỂN PHÒNG</h2>
-                    <div class="form-row">
-                        <label for="transfer-search">Tìm kiếm phòng</label>
-                        <input type="text" id="transfer-search" placeholder="Nhập mã phòng, tên tòa nhà...">
+                <div class="transfer-page-shell">
+                    <div class="transfer-stats-grid">
+                        <article class="transfer-stat-card">
+                            <span class="transfer-stat-icon transfer-stat-available"></span>
+                            <div>
+                                <span>Phòng khả dụng</span>
+                                <strong id="transfer-stat-available">00</strong>
+                                <small>phòng</small>
+                            </div>
+                        </article>
+                        <article class="transfer-stat-card">
+                            <span class="transfer-stat-icon transfer-stat-slot"></span>
+                            <div>
+                                <span>Chỗ trống</span>
+                                <strong id="transfer-stat-slots">00</strong>
+                                <small>chỗ</small>
+                            </div>
+                        </article>
+                        <article class="transfer-stat-card">
+                            <span class="transfer-stat-icon transfer-stat-pending"></span>
+                            <div>
+                                <span>Đang chờ duyệt</span>
+                                <strong id="transfer-stat-pending">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
+                        <article class="transfer-stat-card">
+                            <span class="transfer-stat-icon transfer-stat-approved"></span>
+                            <div>
+                                <span>Đã duyệt</span>
+                                <strong id="transfer-stat-approved">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
                     </div>
-                    <div id="transfer-room-list" class="room-list">
-                        <div class="loading-state">Đang tải danh sách phòng khả dụng...</div>
-                    </div>
-                    <div class="form-row" id="transfer-selected-info" style="display:none">
-                        <label>Phòng đã chọn</label>
-                        <input type="text" id="transfer-selected-display" readonly>
-                        <input type="hidden" id="transfer-selected-id">
-                    </div>
-                    <div class="form-row">
-                        <label for="transfer-reason">Lý do chuyển phòng</label>
-                        <textarea id="transfer-reason" rows="3" maxlength="500" placeholder="Nhập lý do chuyển phòng..."></textarea>
-                        <small id="transfer-reason-counter">0/500</small>
-                    </div>
-                    <p class="form-error" id="transfer-error"></p>
-                    <div class="action-row">
-                        <button type="button" class="btn-primary" id="transfer-submit-btn">Gửi yêu cầu chuyển phòng</button>
-                    </div>
-                </div>
 
-                <div class="content-card section-gap transfer-history-card">
-                    <h3 class="section-title">Lịch sử yêu cầu chuyển phòng</h3>
-                    <div id="transfer-history-list">
-                        <div class="loading-state">Đang tải...</div>
+                    <div class="transfer-workspace">
+                        <div class="content-card section-gap transfer-form-card">
+                            <div class="transfer-card-head">
+                                <span class="transfer-head-icon"></span>
+                                <div>
+                                    <h2 class="section-title">TẠO YÊU CẦU CHUYỂN PHÒNG</h2>
+                                    <p>Chọn phòng còn chỗ và gửi lý do để ban quản lý xét duyệt.</p>
+                                </div>
+                            </div>
+
+                            <div class="transfer-field">
+                                <label for="transfer-search">Tìm kiếm phòng</label>
+                                <div class="transfer-input-shell">
+                                    <span class="transfer-input-icon icon-search"></span>
+                                    <input type="text" id="transfer-search" placeholder="Nhập mã phòng, tên tòa nhà...">
+                                </div>
+                            </div>
+
+                            <div class="transfer-room-panel">
+                                <div class="transfer-room-panel-head">
+                                    <strong>Danh sách phòng khả dụng</strong>
+                                    <span id="transfer-room-count">Đang tải...</span>
+                                </div>
+                                <div id="transfer-room-list" class="room-list transfer-room-list">
+                                    <div class="loading-state">Đang tải danh sách phòng khả dụng...</div>
+                                </div>
+                            </div>
+
+                            <div class="transfer-field transfer-selected-field" id="transfer-selected-info" style="display:none">
+                                <label>Phòng đã chọn</label>
+                                <div class="transfer-selected-card">
+                                    <span class="transfer-selected-icon"></span>
+                                    <strong id="transfer-selected-display-text">—</strong>
+                                    <small>Phòng mục tiêu</small>
+                                </div>
+                                <input type="text" id="transfer-selected-display" readonly>
+                                <input type="hidden" id="transfer-selected-id">
+                            </div>
+
+                            <div class="transfer-field">
+                                <label for="transfer-reason">Lý do chuyển phòng <span>*</span></label>
+                                <div class="checkout-textarea-shell">
+                                    <textarea id="transfer-reason" rows="4" maxlength="500" placeholder="Nhập lý do chuyển phòng..."></textarea>
+                                    <small id="transfer-reason-counter">0/500</small>
+                                </div>
+                            </div>
+
+                            <p class="form-error" id="transfer-error"></p>
+                            <div class="action-row transfer-action-row">
+                                <button type="button" class="btn-primary transfer-submit-btn" id="transfer-submit-btn">
+                                    <span class="transfer-submit-icon"></span>
+                                    <span>Gửi yêu cầu chuyển phòng</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="content-card section-gap transfer-history-card">
+                            <div class="request-history-head">
+                                <h3 class="section-title">LỊCH SỬ YÊU CẦU CHUYỂN PHÒNG</h3>
+                                <span class="transfer-history-chip" id="transfer-history-count">0 yêu cầu</span>
+                            </div>
+                            <div id="transfer-history-list" class="transfer-history-list">
+                                <div class="loading-state">Đang tải...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
