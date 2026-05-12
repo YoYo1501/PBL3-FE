@@ -144,6 +144,14 @@
         .step.active .step-num { background: #2563eb; color: #fff; }
         .step.done .step-num   { background: #16a34a; color: #fff; }
 
+        .step-panel {
+            display: none;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
         /* ===== CARD ===== */
         .card {
             background: #fff;
@@ -350,9 +358,27 @@
         /* ===== ACTIONS ===== */
         .form-actions {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             gap: 10px;
             margin-top: 8px;
+        }
+
+        .step-nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-size: 22px;
+            line-height: 1;
         }
 
         .btn-primary {
@@ -424,6 +450,13 @@
         /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .form-grid, .date-row { grid-template-columns: 1fr; }
+            .form-actions {
+                align-items: stretch;
+                flex-direction: column-reverse;
+            }
+            .step-nav-actions {
+                justify-content: flex-end;
+            }
             .page-header {
                 min-height: auto;
                 padding: 16px;
@@ -494,7 +527,7 @@
         <div class="form-global-error" id="global-error"></div>
 
         <!-- BƯỚC 1: THÔNG TIN CÁ NHÂN -->
-        <div class="card" id="step-1">
+        <div class="card step-panel active" id="step-1" data-step="1">
             <h2>Bước 1: Thông tin cá nhân</h2>
 
             <!-- OCR CCCD -->
@@ -552,7 +585,7 @@
         </div>
 
         <!-- BƯỚC 2: THÂN NHÂN -->
-        <div class="card" id="step-2">
+        <div class="card step-panel" id="step-2" data-step="2">
             <h2>Bước 2: Thông tin thân nhân (tùy chọn)</h2>
             <div class="form-grid">
                 <div class="form-group">
@@ -575,7 +608,7 @@
         </div>
 
         <!-- BƯỚC 3: CHỌN PHÒNG & THỜI GIAN -->
-        <div class="card" id="step-3">
+        <div class="card step-panel" id="step-3" data-step="3">
             <h2>Bước 3: Chọn phòng & Thời gian lưu trú</h2>
 
             <div class="room-filter">
@@ -608,7 +641,11 @@
 
         <div class="form-actions">
             <button type="button" class="btn-secondary" onclick="window.location.href='login.html'">Hủy</button>
-            <button type="submit" class="btn-primary" id="submit-btn">📤 Gửi đơn đăng ký</button>
+            <div class="step-nav-actions">
+                <button type="button" class="btn-secondary btn-icon" id="prev-step-btn" aria-label="Quay lại bước trước" title="Quay lại bước trước">&larr;</button>
+                <button type="button" class="btn-primary btn-icon" id="next-step-btn" aria-label="Sang bước tiếp theo" title="Sang bước tiếp theo">&rarr;</button>
+                <button type="submit" class="btn-primary" id="submit-btn">📤 Gửi đơn đăng ký</button>
+            </div>
         </div>
 
     </form>
@@ -619,6 +656,8 @@
     const API_URL = 'http://localhost:5280/api';
     let allRooms    = [];
     let selectedRoomId = null;
+    let currentStep = 1;
+    const totalSteps = 3;
 
     function getSelectedGender() {
         return (document.getElementById('reg-gender')?.value || '').trim().toLowerCase();
@@ -640,6 +679,38 @@
                 (r.buildingCode || '').toLowerCase().includes(q)
             )
         );
+    }
+
+    function showStep(step, shouldScroll = true) {
+        currentStep = Math.max(1, Math.min(totalSteps, step));
+
+        document.querySelectorAll('.step-panel').forEach(panel => {
+            panel.classList.toggle('active', Number(panel.dataset.step) === currentStep);
+        });
+
+        for (let i = 1; i <= totalSteps; i++) {
+            const indicator = document.getElementById(`step-indicator-${i}`);
+            if (!indicator) continue;
+            indicator.classList.toggle('active', i === currentStep);
+            indicator.classList.toggle('done', i < currentStep);
+        }
+
+        document.getElementById('prev-step-btn').style.display = currentStep === 1 ? 'none' : 'inline-flex';
+        document.getElementById('next-step-btn').style.display = currentStep === totalSteps ? 'none' : 'inline-flex';
+        document.getElementById('submit-btn').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+
+        if (shouldScroll) {
+            document.querySelector('.steps')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function focusFirstError() {
+        const firstError = document.querySelector('.field-error:not(:empty)');
+        const errorStep = Number(firstError?.closest('.step-panel')?.dataset.step);
+        if (errorStep && errorStep !== currentStep) {
+            showStep(errorStep, false);
+        }
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function clearSelectedRoom(message = '') {
@@ -742,6 +813,18 @@
         refreshRoomList();
     });
 
+    document.getElementById('next-step-btn').addEventListener('click', () => {
+        if (!validateStep(currentStep)) {
+            focusFirstError();
+            return;
+        }
+        showStep(currentStep + 1);
+    });
+
+    document.getElementById('prev-step-btn').addEventListener('click', () => {
+        showStep(currentStep - 1);
+    });
+
     // ── OCR CCCD
     document.getElementById('ocr-file-input').addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -786,6 +869,63 @@
         if (el) el.classList.add('error');
         if (er) er.textContent = msg;
         return false;
+    }
+
+    function validateStep(step) {
+        clearErrors();
+        let ok = true;
+
+        if (step === 1) {
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            const citizenId = document.getElementById('reg-citizenid').value.trim();
+            const gender = document.getElementById('reg-gender').value;
+            const phone = document.getElementById('reg-phone').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const address = document.getElementById('reg-address').value.trim();
+
+            if (!fullName)                              { setErr('reg-fullname',   'err-fullname',  'Họ tên không được để trống.'); ok = false; }
+            else if (!/^[\p{L}\s]+$/u.test(fullName))  { setErr('reg-fullname',   'err-fullname',  'Họ tên chỉ được chứa chữ cái và khoảng trắng.'); ok = false; }
+
+            if (!citizenId)                             { setErr('reg-citizenid',  'err-citizenid', 'Số CCCD không được để trống.'); ok = false; }
+            else if (!/^\d{12}$/.test(citizenId))       { setErr('reg-citizenid',  'err-citizenid', 'CCCD phải gồm đúng 12 chữ số.'); ok = false; }
+
+            if (!gender)                                { setErr('reg-gender',     'err-gender',    'Vui lòng chọn giới tính.'); ok = false; }
+
+            if (!phone)                                 { setErr('reg-phone',      'err-phone',     'Số điện thoại không được để trống.'); ok = false; }
+            else if (!/^(03|05|07|08|09)\d{8}$/.test(phone)) { setErr('reg-phone', 'err-phone',    'SĐT phải bắt đầu 03/05/07/08/09 và có 10 số.'); ok = false; }
+
+            if (!email)                                 { setErr('reg-email',      'err-email',     'Email không được để trống.'); ok = false; }
+            else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)) { setErr('reg-email', 'err-email', 'Email phải có định dạng @gmail.com.'); ok = false; }
+
+            if (!address || address.length < 10)        { setErr('reg-address',    'err-address',   'Địa chỉ ít nhất 10 ký tự.'); ok = false; }
+        }
+
+        if (step === 2) {
+            const relPhone = document.getElementById('reg-rel-phone').value.trim();
+            if (relPhone && !/^(03|05|07|08|09)\d{8}$/.test(relPhone)) {
+                setErr('reg-rel-phone', 'err-rel-phone', 'SĐT thân nhân không hợp lệ.'); ok = false;
+            }
+        }
+
+        if (step === 3) {
+            const startDate = document.getElementById('reg-startdate').value;
+            const endDate = document.getElementById('reg-enddate').value;
+
+            if (!selectedRoomId) {
+                document.getElementById('err-room').textContent = 'Vui lòng chọn phòng.'; ok = false;
+            }
+
+            if (!startDate) { setErr('reg-startdate', 'err-startdate', 'Vui lòng chọn ngày bắt đầu.'); ok = false; }
+            if (!endDate)   { setErr('reg-enddate',   'err-enddate',   'Vui lòng chọn ngày kết thúc.'); ok = false; }
+            if (startDate && endDate && endDate <= startDate) {
+                setErr('reg-enddate', 'err-enddate', 'Ngày kết thúc phải sau ngày bắt đầu.'); ok = false;
+            }
+            if (startDate && startDate < today) {
+                setErr('reg-startdate', 'err-startdate', 'Ngày bắt đầu không được ở quá khứ.'); ok = false;
+            }
+        }
+
+        return ok;
     }
 
     function validate() {
@@ -840,8 +980,17 @@
     // ── SUBMIT
     document.getElementById('register-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (currentStep !== totalSteps) {
+            if (!validateStep(currentStep)) {
+                focusFirstError();
+                return;
+            }
+            showStep(currentStep + 1);
+            return;
+        }
+
         if (!validate()) {
-            document.querySelector('.field-error:not(:empty)')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            focusFirstError();
             return;
         }
 
@@ -897,6 +1046,7 @@
     });
 
     // ── INIT
+    showStep(1, false);
     loadRooms();
 })();
 </script>
