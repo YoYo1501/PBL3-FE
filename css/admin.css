@@ -190,6 +190,14 @@ select {
     display: none;
 }
 
+.notification-nav-link {
+    gap: 12px;
+}
+
+.notification-nav-link .nav-badge {
+    margin-left: auto;
+}
+
 .notification-nav-link.active {
     background: #e8f2ff;
     color: #0875ef;
