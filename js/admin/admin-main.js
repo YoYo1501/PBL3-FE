@@ -2,6 +2,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   bindAdminHeader();
   bindNavigation();
+  bindOverviewShortcuts();
   bindReloadButtons();
   bindPaginationControls();
   bindRegistrationControls();

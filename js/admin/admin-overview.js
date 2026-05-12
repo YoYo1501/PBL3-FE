@@ -28,21 +28,25 @@ async function loadOverview() {
       title: item.fullName,
       meta: `${item.registrationCode} - ${item.roomCode || "Chưa có phòng"}`,
       type: "Đăng ký mới",
+      target: "section-registrations",
     })),
     ...reqList.slice(0, 3).map((item) => ({
       title: item.title,
       meta: `${item.studentName} - ${item.requestType}`,
       type: "Yêu cầu sinh viên",
+      target: "section-requests",
     })),
     ...transferList.slice(0, 3).map((item) => ({
       title: `${item.fromRoomCode} -> ${item.toRoomCode}`,
       meta: item.reason || "Không có lý do",
       type: "Chuyển phòng",
+      target: "section-transfers",
     })),
     ...renewalList.slice(0, 3).map((item) => ({
       title: item.contractCode,
       meta: item.packageName,
       type: "Gia hạn",
+      target: "section-renewals",
     })),
   ];
 
@@ -68,7 +72,7 @@ async function loadOverview() {
                 }
 
                 return `
-                <div class="queue-item">
+                <div class="queue-item overview-link-item" data-overview-target="${item.target}" role="button" tabindex="0">
                     <div class="queue-item-icon ${iconClass}">${iconSvg}</div>
                     <div class="queue-item-content">
                         <strong>${escapeHtml(item.title)}</strong>
@@ -107,7 +111,7 @@ async function loadOverview() {
             }
 
             return `
-            <div class="queue-item">
+            <div class="queue-item overview-link-item" data-overview-target="section-rooms" role="button" tabindex="0">
                 <div class="queue-item-icon ${iconClass}">${iconSvg}</div>
                 <div class="queue-item-content">
                     <strong>${escapeHtml(item.title)}</strong>
@@ -123,6 +127,36 @@ async function loadOverview() {
         )
         .join("")
     : '<div class="empty-state">Chưa lấy được dữ liệu phòng.</div>';
+}
+
+function bindOverviewShortcuts() {
+  const loaders = {
+    "section-registrations": () => loadRegistrations(),
+    "section-requests": () => loadRequests(),
+    "section-transfers": () => loadTransfers(),
+    "section-renewals": () => loadRenewals(),
+    "section-rooms": () => loadRooms(),
+  };
+
+  const openTarget = (target) => {
+    if (!target) return;
+    if (typeof showAdminSection === "function") showAdminSection(target);
+    loaders[target]?.();
+  };
+
+  document.getElementById("section-overview")?.addEventListener("click", (event) => {
+    const item = event.target.closest("[data-overview-target]");
+    if (!item) return;
+    openTarget(item.dataset.overviewTarget);
+  });
+
+  document.getElementById("section-overview")?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const item = event.target.closest("[data-overview-target]");
+    if (!item) return;
+    event.preventDefault();
+    openTarget(item.dataset.overviewTarget);
+  });
 }
 
 function summarizeRooms(rooms) {
