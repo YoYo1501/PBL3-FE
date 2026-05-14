@@ -2,13 +2,42 @@
 async function loadRenewals() {
   setStackLoading("renewals-list", "Đang tải yêu cầu gia hạn...");
   const state = paginationState.renewals;
-  const query = new URLSearchParams({
-    page: String(state.page),
-    pageSize: String(state.size),
-  });
-  const res = await callApi(`/contracts/renewals/pending?${query.toString()}`);
-  adminRenewals = applyServerPagination("renewals", res?.data);
+  const status = getRenewalStatusFilter();
+  if (status === "Pending") {
+    const query = new URLSearchParams({
+      page: String(state.page),
+      pageSize: String(state.size),
+    });
+    const res = await callApi(`/contracts/renewals/pending?${query.toString()}`);
+    adminRenewals = applyServerPagination("renewals", res?.data);
+  } else {
+    const res = await callApi("/contracts/renewals");
+    let items = Array.isArray(res?.data) ? res.data : [];
+    if (status) {
+      items = items.filter((item) => item.status === status);
+    }
+    items.sort((a, b) => new Date(b.requestedAt || 0) - new Date(a.requestedAt || 0));
+
+    state.totalItems = items.length;
+    const totalPages = Math.max(1, Math.ceil(items.length / state.size));
+    if (state.page > totalPages) state.page = totalPages;
+    const start = (state.page - 1) * state.size;
+    adminRenewals = items.slice(start, start + state.size);
+  }
   renderRenewalsList();
+}
+
+function getRenewalStatusFilter() {
+  return document.getElementById("renewal-filter-status")?.value ?? "Pending";
+}
+
+function bindRenewalControls() {
+  document
+    .getElementById("renewal-filter-status")
+    ?.addEventListener("change", () => {
+      resetPage("renewals");
+      loadRenewals();
+    });
 }
 
 function renderRenewalsList() {
@@ -32,10 +61,14 @@ function renderRenewalsList() {
                 <span>Gói: ${escapeHtml(item.packageName || "-")}</span>
                 <span>Ngày gửi: ${formatDate(item.requestedAt)}</span>
             </div>
-            <div class="queue-actions">
-                <button type="button" class="primary-btn" data-renewal-approve="${item.id}">Duyệt</button>
-                <button type="button" class="danger-btn" data-renewal-reject="${item.id}">Từ chối</button>
-            </div>
+            ${
+              item.status === "Pending"
+                ? `<div class="queue-actions">
+                    <button type="button" class="primary-btn" data-renewal-approve="${item.id}">Duyệt</button>
+                    <button type="button" class="danger-btn" data-renewal-reject="${item.id}">Từ chối</button>
+                </div>`
+                : ""
+            }
         </article>
     `,
     )

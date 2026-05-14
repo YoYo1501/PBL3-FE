@@ -6,6 +6,9 @@ document.addEventListener("DOMContentLoaded", () => {
   bindReloadButtons();
   bindPaginationControls();
   bindRegistrationControls();
+  bindRequestControls();
+  bindTransferControls();
+  bindRenewalControls();
   bindAdminProfileControls();
   bindNotificationForm();
   bindInvoiceControls();

@@ -54,13 +54,13 @@ function renderRegistrationsList() {
   container.innerHTML = adminRegistrations
     .map(
       (item) => `
-        <article class="queue-item">
+        <article class="queue-item registration-click-item" role="button" tabindex="0" data-registration-id="${item.id}" aria-label="Xem chi tiet don dang ky ${escapeHtml(item.fullName)}">
             <div class="queue-item-icon icon-blue">
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </div>
             <div class="queue-item-content">
                 <strong>${escapeHtml(item.fullName)}</strong>
-                <p class="queue-body">Mã đơn: ${escapeHtml(item.registrationCode)} &bull; Phòng: ${escapeHtml(item.roomCode || "-")} &bull; Ngày gửi: ${formatDate(item.submittedAt)}</p>
+                <p class="queue-body">Phòng: ${escapeHtml(item.roomCode || "-")}</p>
                 ${
                   item.status === "Pending"
                     ? `<div style="display: flex; gap: 8px; margin-top: 8px;">
@@ -78,6 +78,8 @@ function renderRegistrationsList() {
     `,
     )
     .join("");
+
+  bindRegistrationDetail(container);
 
   container.querySelectorAll("[data-reg-approve]").forEach((button) => {
     button.addEventListener("click", () =>
@@ -134,4 +136,63 @@ function renderRegistrationsList() {
       }),
     );
   });
+}
+
+function bindRegistrationDetail(container) {
+  container.querySelectorAll("[data-registration-id]").forEach((itemEl) => {
+    const openDetail = (event) => {
+      if (event.target.closest("button, a")) return;
+      const item = adminRegistrations.find(
+        (registration) => String(registration.id) === String(itemEl.dataset.registrationId),
+      );
+      if (item) showRegistrationDetailModal(item);
+    };
+
+    itemEl.addEventListener("click", openDetail);
+    itemEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openDetail(event);
+    });
+  });
+}
+
+function showRegistrationDetailModal(item) {
+  const overlay = document.getElementById("request-detail-modal");
+  const titleEl = document.getElementById("request-modal-title");
+  const metaEl = document.getElementById("request-modal-meta");
+  const bodyEl = document.getElementById("request-modal-body");
+  const closeBtn = document.getElementById("request-modal-close-btn");
+  if (!overlay || !titleEl || !metaEl || !bodyEl || !closeBtn) return;
+
+  titleEl.textContent = "Chi tiet don dang ky o tru";
+  metaEl.textContent = `Ma don ${item.registrationCode || "-"}`;
+  bodyEl.innerHTML = `
+    <div class="request-detail-grid">
+      ${requestDetailField("Ho ten", item.fullName || "-")}
+      ${requestDetailField("Phong", item.roomCode || "-")}
+      ${requestDetailField("Ngay gui", formatDate(item.submittedAt))}
+      ${requestDetailField("Ngay bat dau", formatDate(item.startDate))}
+      ${requestDetailField("Ngay ket thuc", formatDate(item.endDate))}
+      <div class="request-detail-field">
+        <span>Trang thai</span>
+        ${adminBadge(item.status)}
+      </div>
+    </div>
+  `;
+
+  const closeModal = () => {
+    overlay.style.display = "none";
+    document.removeEventListener("keydown", handleKey);
+  };
+  const handleKey = (event) => {
+    if (event.key === "Escape") closeModal();
+  };
+
+  closeBtn.onclick = closeModal;
+  overlay.onclick = (event) => {
+    if (event.target === overlay) closeModal();
+  };
+  document.addEventListener("keydown", handleKey);
+  overlay.style.display = "flex";
 }

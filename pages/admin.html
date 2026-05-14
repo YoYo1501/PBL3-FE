@@ -283,6 +283,17 @@
                         </div>
                         <button type="button" class="primary-btn" id="reload-requests-btn">Tải lại</button>
                     </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="request-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
+                    </div>
                     <div id="requests-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu...</div>
                     </div>
@@ -303,6 +314,17 @@
                         </div>
                         <button type="button" class="primary-btn" id="reload-transfers-btn">Tải lại</button>
                     </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="transfer-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
+                    </div>
                     <div id="transfers-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu chuyển phòng...</div>
                     </div>
@@ -322,6 +344,17 @@
                             <h2 class="page-heading">Duyệt gia hạn hợp đồng</h2>
                         </div>
                         <button type="button" class="primary-btn" id="reload-renewals-btn">Tải lại</button>
+                    </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="renewal-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
                     </div>
                     <div id="renewals-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu gia hạn...</div>
@@ -1100,6 +1133,17 @@
             <p class="notif-modal-meta" id="notif-modal-date"></p>
             <hr class="notif-modal-divider">
             <div class="notif-modal-body" id="notif-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="notif-modal-overlay" id="request-detail-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card request-modal-card">
+            <div class="notif-modal-header">
+                <h3 id="request-modal-title">Chi tiết yêu cầu</h3>
+                <button type="button" class="notif-modal-close" id="request-modal-close-btn" aria-label="Đóng">×</button>
+            </div>
+            <p class="notif-modal-meta" id="request-modal-meta"></p>
+            <div class="notif-modal-body" id="request-modal-body"></div>
         </div>
     </div>
 </body>
