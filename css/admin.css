@@ -1531,6 +1531,10 @@ label span {
     cursor: pointer;
 }
 
+.renewal-click-item {
+    cursor: pointer;
+}
+
 .request-click-item:focus-visible {
     outline: 3px solid rgba(8, 117, 239, 0.22);
     outline-offset: -3px;
@@ -1538,6 +1542,12 @@ label span {
 }
 
 .registration-click-item:focus-visible {
+    outline: 3px solid rgba(8, 117, 239, 0.22);
+    outline-offset: -3px;
+    border-radius: 8px;
+}
+
+.renewal-click-item:focus-visible {
     outline: 3px solid rgba(8, 117, 239, 0.22);
     outline-offset: -3px;
     border-radius: 8px;

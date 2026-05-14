@@ -52,7 +52,7 @@ function renderRenewalsList() {
   container.innerHTML = adminRenewals
     .map(
       (item) => `
-        <article class="queue-item">
+        <article class="queue-item renewal-click-item" role="button" tabindex="0" data-renewal-id="${item.id}" aria-label="Xem chi tiet gia han hop dong ${escapeHtml(item.contractCode)}">
             <div class="queue-head">
                 <strong>${escapeHtml(item.contractCode)}</strong>
                 ${adminBadge(item.status)}
@@ -73,6 +73,8 @@ function renderRenewalsList() {
     `,
     )
     .join("");
+
+  bindRenewalDetail(container);
 
   container.querySelectorAll("[data-renewal-approve]").forEach((button) => {
     button.addEventListener("click", () =>
@@ -130,4 +132,72 @@ function renderRenewalsList() {
       }),
     );
   });
+}
+
+function bindRenewalDetail(container) {
+  container.querySelectorAll("[data-renewal-id]").forEach((itemEl) => {
+    const openDetail = (event) => {
+      if (event.target.closest("button, a")) return;
+      const item = adminRenewals.find(
+        (renewal) => String(renewal.id) === String(itemEl.dataset.renewalId),
+      );
+      if (item) showRenewalDetailModal(item);
+    };
+
+    itemEl.addEventListener("click", openDetail);
+    itemEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openDetail(event);
+    });
+  });
+}
+
+function showRenewalDetailModal(item) {
+  const overlay = document.getElementById("request-detail-modal");
+  const titleEl = document.getElementById("request-modal-title");
+  const metaEl = document.getElementById("request-modal-meta");
+  const bodyEl = document.getElementById("request-modal-body");
+  const closeBtn = document.getElementById("request-modal-close-btn");
+  if (!overlay || !titleEl || !metaEl || !bodyEl || !closeBtn) return;
+
+  titleEl.textContent = "Chi tiết gia hạn hợp đồng";
+  metaEl.textContent = `Hợp đồng ${item.contractCode || "-"}`;
+  bodyEl.innerHTML = `
+    <div class="request-detail-grid">
+      ${requestDetailField("Sinh viên", item.studentName || "-")}
+      ${requestDetailField("Phòng", item.roomCode || "-")}
+      ${requestDetailField("Gói gia hạn", item.packageName || "-")}
+      ${requestDetailField("Thời hạn gói", item.durationMonths ? `${item.durationMonths} tháng` : "-")}
+      ${requestDetailField("Ngày gửi", formatDate(item.requestedAt))}
+      ${requestDetailField("Ngày bắt đầu hợp đồng", formatDate(item.contractStartDate))}
+      ${requestDetailField("Ngày kết thúc hợp đồng trước gia hạn", formatDate(item.contractEndDateBeforeRenewal))}
+      ${requestDetailField("Ngày kết thúc hợp đồng sau gia hạn", formatDate(item.contractEndDateAfterRenewal))}
+      ${requestDetailField("Giá phòng", formatCurrency(item.price))}
+      ${
+        item.rejectionReason
+          ? requestDetailField("Lý do từ chối", item.rejectionReason)
+          : ""
+      }
+      <div class="request-detail-field">
+        <span>Trạng thái</span>
+        ${adminBadge(item.status)}
+      </div>
+    </div>
+  `;
+
+  const closeModal = () => {
+    overlay.style.display = "none";
+    document.removeEventListener("keydown", handleKey);
+  };
+  const handleKey = (event) => {
+    if (event.key === "Escape") closeModal();
+  };
+
+  closeBtn.onclick = closeModal;
+  overlay.onclick = (event) => {
+    if (event.target === overlay) closeModal();
+  };
+  document.addEventListener("keydown", handleKey);
+  overlay.style.display = "flex";
 }

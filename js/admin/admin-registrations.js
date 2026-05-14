@@ -165,18 +165,22 @@ function showRegistrationDetailModal(item) {
   const closeBtn = document.getElementById("request-modal-close-btn");
   if (!overlay || !titleEl || !metaEl || !bodyEl || !closeBtn) return;
 
-  titleEl.textContent = "Chi tiet don dang ky o tru";
-  metaEl.textContent = `Ma don ${item.registrationCode || "-"}`;
+  const submittedAt = item.submittedAt ?? item.SubmittedAt;
+  const startDate = item.startDate ?? item.StartDate;
+  const endDate = item.endDate ?? item.EndDate;
+
+  titleEl.textContent = "Chi tiết đơn đăng ký ở trú";
+  metaEl.textContent = `Mã đơn ${item.registrationCode || item.RegistrationCode || "-"}`;
   bodyEl.innerHTML = `
     <div class="request-detail-grid">
-      ${requestDetailField("Ho ten", item.fullName || "-")}
-      ${requestDetailField("Phong", item.roomCode || "-")}
-      ${requestDetailField("Ngay gui", formatDate(item.submittedAt))}
-      ${requestDetailField("Ngay bat dau", formatDate(item.startDate))}
-      ${requestDetailField("Ngay ket thuc", formatDate(item.endDate))}
+      ${requestDetailField("Họ tên", item.fullName || item.FullName || "-")}
+      ${requestDetailField("Phòng", item.roomCode || item.RoomCode || "-")}
+      ${requestDetailField("Ngày gửi", formatDate(submittedAt))}
+      ${requestDetailField("Ngày bắt đầu", formatDate(startDate))}
+      ${requestDetailField("Ngày kết thúc", formatDate(endDate))}
       <div class="request-detail-field">
-        <span>Trang thai</span>
-        ${adminBadge(item.status)}
+        <span>Trạng thái</span>
+        ${adminBadge(item.status || item.Status)}
       </div>
     </div>
   `;
