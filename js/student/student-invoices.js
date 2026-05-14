@@ -63,6 +63,17 @@ function invoiceDueDateSubText(inv) {
     return `Quá hạn ${Math.abs(diffDays)} ngày`;
 }
 
+function isInvoiceDueThisCycle(inv) {
+    if (!isInvoiceUnpaid(inv)) return false;
+    const dueDate = getInvoiceDueDate(inv);
+    if (!dueDate) return true;
+
+    const today = new Date();
+    const endOfCurrentMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfCurrentMonth.setHours(23, 59, 59, 999);
+    return dueDate <= endOfCurrentMonth;
+}
+
 function invoiceDueDateHtml(inv) {
     const subText = invoiceDueDateSubText(inv);
     return `
@@ -75,10 +86,13 @@ function invoiceDueDateHtml(inv) {
 function getInvoiceSearchText(inv) {
     return [
         inv.period,
+        formatReceiptPeriod(inv.period),
         inv.roomCode,
         inv.status,
         inv.receiptCode,
+        getReceiptDisplayCode(inv),
         inv.paymentMethod,
+        getReceiptPaymentMethod(inv),
         inv.transactionCode,
         formatCurrency(inv.totalAmount || inv.paidAmount),
         formatDate(inv.issuedAt),
@@ -92,24 +106,56 @@ function normalizePaymentMethod(value) {
     const raw = String(value || '').trim();
     const uppercase = raw.toUpperCase();
     if (!raw) return 'Khác';
-    if (uppercase.includes('MOMO')) return 'MoMo';
     if (uppercase.includes('VNPAY')) return 'VNPAY';
-    if (uppercase.includes('VIETCOMBANK') || uppercase === 'VCB') return 'Vietcombank';
     return raw;
+}
+
+function getReceiptPaymentMethod() {
+    return 'VNPAY';
 }
 
 function getReceiptMethodKey(value) {
     const method = normalizePaymentMethod(value).toLowerCase();
-    if (method === 'momo') return 'momo';
     if (method === 'vnpay') return 'vnpay';
-    if (method === 'vietcombank') return 'vietcombank';
     return 'other';
 }
 
 function getReceiptMethodBadge(receipt) {
-    const method = normalizePaymentMethod(receipt?.paymentMethod);
+    const method = getReceiptPaymentMethod(receipt);
     const cls = getReceiptMethodKey(method);
-    return `<span class="receipt-method-badge ${cls}">${escapeText(method)}</span>`;
+    return `
+        <span class="receipt-method-display ${cls}">
+            <span class="receipt-method-logo ${cls}">VN</span>
+            <strong>${escapeText(method)}</strong>
+        </span>`;
+}
+
+function getReceiptDisplayCode(receipt) {
+    const id = getInvoiceRecordId(receipt);
+    const fallbackPeriod = String(receipt?.period || '').replace(/[^\d]+/g, '') || id;
+    const raw = String(receipt?.receiptCode || `BR-${fallbackPeriod}-${String(id).padStart(3, '0')}`).trim();
+    const normalized = raw.replace(/^BL-/i, 'BR-');
+    return normalized.startsWith('#') ? normalized : `#${normalized}`;
+}
+
+function formatReceiptPeriod(period) {
+    const parsed = parseInvoicePeriod(period);
+    if (!parsed) return String(period || '—');
+    return `${String(parsed.month).padStart(2, '0')}/${parsed.year}`;
+}
+
+function getDateTimeParts(value) {
+    const d = new Date(value);
+    if (isNaN(d)) return { date: '—', time: '—' };
+    return {
+        date: d.toLocaleDateString('vi-VN'),
+        time: d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    };
+}
+
+function formatReceiptDateTime(value) {
+    const parts = getDateTimeParts(value);
+    return parts.date === '—' ? '—' : `${parts.date} - ${parts.time}`;
 }
 
 function getActiveInvoiceItems() {
@@ -123,7 +169,7 @@ function getFilteredInvoices() {
         if (invoiceActiveTab === 'invoice' && status && normalizeInvoiceStatus(inv.status) !== status) return false;
         if (invoiceActiveTab === 'receipt') {
             const method = receiptMethodFilter.trim().toLowerCase();
-            const normalizedMethod = normalizePaymentMethod(inv.paymentMethod).toLowerCase();
+            const normalizedMethod = getReceiptPaymentMethod(inv).toLowerCase();
             if (method && normalizedMethod !== method) return false;
 
             const paidAt = new Date(inv.paidAt || inv.issuedAt);
@@ -156,6 +202,18 @@ function invoiceSummaryCard(icon, tone, label, value, hint = '') {
                 ${hint ? `<em>${escapeText(hint)}</em>` : ''}
             </div>
         </article>`;
+}
+
+function invoiceFooterText(filteredCount, totalCount, label) {
+    if (!filteredCount) return `Hiển thị 0 trong tổng số ${totalCount} ${label}`;
+    return `Hiển thị 1 đến ${filteredCount} trong tổng số ${totalCount} ${label}`;
+}
+
+function getInvoicePeriodTotal(invoices, receipts) {
+    const items = [...invoices, ...receipts];
+    const periods = new Set(items.map(item => String(item?.period || '').trim()).filter(Boolean));
+    const withoutPeriod = items.filter(item => !String(item?.period || '').trim()).length;
+    return periods.size + withoutPeriod;
 }
 
 function invoiceStatusPill(status) {
@@ -218,6 +276,45 @@ async function downloadReceipt(receipt) {
     saveBlob(res.blob, `bien-lai-${safeCode}.xlsx`);
 }
 
+function renderReceiptDetail(receipt) {
+    const id = getInvoiceRecordId(receipt);
+    const amount = receipt.paidAmount ?? receipt.totalAmount;
+    const statusPill = '<span class="invoice-status is-paid receipt-success-status">Thanh toán thành công</span>';
+
+    return `
+        <aside class="invoice-detail-card receipt-detail-card">
+            <div class="invoice-detail-head">
+                <h3>CHI TIẾT BIÊN LAI</h3>
+                ${statusPill}
+            </div>
+            <div class="receipt-detail-code">
+                <span>Mã biên lai</span>
+                <strong>${escapeText(getReceiptDisplayCode(receipt))}</strong>
+            </div>
+            <div class="invoice-detail-list receipt-detail-list">
+                <div class="inv-detail-row"><span>Kỳ thanh toán</span><strong>${escapeText(formatReceiptPeriod(receipt.period))}</strong></div>
+                <div class="inv-detail-row"><span>Phòng</span><strong>${escapeText(receipt.roomCode || '—')}</strong></div>
+                <div class="inv-detail-row"><span>Ngày thanh toán</span><strong>${escapeText(formatReceiptDateTime(receipt.paidAt))}</strong></div>
+                <div class="inv-detail-row"><span>Phương thức</span><strong>${escapeText(getReceiptPaymentMethod(receipt))}</strong></div>
+                <div class="inv-detail-row"><span>Mã giao dịch</span><strong>${escapeText(receipt.transactionCode || '—')}</strong></div>
+                <div class="inv-detail-row"><span>Trạng thái</span><strong>${statusPill}</strong></div>
+            </div>
+            <div class="invoice-payment-detail">
+                <h4>CHI TIẾT THANH TOÁN</h4>
+                <div class="inv-detail-row"><span>Tiền phòng</span><strong>${escapeText(formatCurrency(receipt.roomFee))}</strong></div>
+                <div class="inv-detail-row"><span>Tiền điện</span><strong>${escapeText(formatCurrency(receipt.electricFee))}</strong></div>
+                <div class="inv-detail-row"><span>Tiền nước</span><strong>${escapeText(formatCurrency(receipt.waterFee))}</strong></div>
+            </div>
+            <div class="invoice-total-line">
+                <span>Tổng cộng</span>
+                <strong>${escapeText(formatCurrency(amount))}</strong>
+            </div>
+            <div class="invoice-detail-actions">
+                <button type="button" class="invoice-detail-download" data-receipt-download="${id}"><span class="inv-dl-icon"></span>Tải biên lai</button>
+            </div>
+        </aside>`;
+}
+
 function renderInvoiceDetail(inv) {
     const isReceiptTab = invoiceActiveTab === 'receipt';
     if (!inv) {
@@ -227,16 +324,11 @@ function renderInvoiceDetail(inv) {
             </aside>`;
     }
 
-    const id = getInvoiceRecordId(inv);
-    const title = isReceiptTab ? 'CHI TIẾT BIÊN LAI' : 'CHI TIẾT HÓA ĐƠN';
-    const amount = inv.paidAmount ?? inv.totalAmount;
-    const receiptStatusPill = '<span class="invoice-status is-paid">Thành công</span>';
+    if (isReceiptTab) return renderReceiptDetail(inv);
 
-    const receiptMeta = `
-        <div class="inv-detail-row"><span>Mã biên lai</span><strong>${escapeText(inv.receiptCode || `BR-${id}`)}</strong></div>
-        <div class="inv-detail-row"><span>Ngày thanh toán</span><strong>${escapeText(formatDate(inv.paidAt))}</strong></div>
-        <div class="inv-detail-row"><span>Phương thức</span><strong>${escapeText(inv.paymentMethod || '—')}</strong></div>
-        <div class="inv-detail-row"><span>Mã giao dịch</span><strong>${escapeText(inv.transactionCode || '—')}</strong></div>`;
+    const id = getInvoiceRecordId(inv);
+    const title = 'CHI TIẾT HÓA ĐƠN';
+    const amount = inv.paidAmount ?? inv.totalAmount;
 
     const invoiceMeta = `
         <div class="inv-detail-row"><span>Ngày phát hành</span><strong>${escapeText(formatDate(inv.issuedAt))}</strong></div>
@@ -247,7 +339,7 @@ function renderInvoiceDetail(inv) {
         <aside class="invoice-detail-card">
             <div class="invoice-detail-head">
                 <h3>${title}</h3>
-                ${isReceiptTab ? receiptStatusPill : invoiceStatusPill(inv.status)}
+                ${invoiceStatusPill(inv.status)}
             </div>
             <div class="invoice-detail-period">
                 <span>Kỳ thanh toán</span>
@@ -255,7 +347,7 @@ function renderInvoiceDetail(inv) {
             </div>
             <div class="invoice-detail-list">
                 <div class="inv-detail-row"><span>Phòng</span><strong>${escapeText(inv.roomCode || '—')}</strong></div>
-                ${isReceiptTab ? receiptMeta : invoiceMeta}
+                ${invoiceMeta}
             </div>
             <div class="invoice-payment-detail">
                 <h4>CHI TIẾT THANH TOÁN</h4>
@@ -268,10 +360,8 @@ function renderInvoiceDetail(inv) {
                 <strong>${escapeText(formatCurrency(amount))}</strong>
             </div>
             <div class="invoice-detail-actions">
-                ${isReceiptTab
-                    ? `<button type="button" class="invoice-detail-download" data-receipt-download="${id}"><span class="inv-dl-icon"></span>Tải biên lai</button>`
-                    : `<button type="button" class="invoice-detail-pay" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán ngay</button>
-                       <button type="button" class="invoice-detail-download" data-invoice-download="${id}"><span class="inv-dl-icon"></span>Tải hóa đơn</button>`}
+                <button type="button" class="invoice-detail-pay" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán ngay</button>
+                <button type="button" class="invoice-detail-download" data-invoice-download="${id}"><span class="inv-dl-icon"></span>Tải hóa đơn</button>
             </div>
         </aside>`;
 }
@@ -281,25 +371,35 @@ function renderInvoiceRows(filtered) {
         return filtered.map(receipt => {
             const id = getInvoiceRecordId(receipt);
             const selected = id === Number(selectedInvoiceId);
+            const paidAt = getDateTimeParts(receipt.paidAt);
             return `
                 <tr class="${selected ? 'is-selected' : ''}" data-invoice-row="${id}">
                     <td>
                         <div class="receipt-period-cell">
                             <span class="receipt-doc-icon"></span>
                             <div>
-                                <strong>${escapeText(receipt.period || '—')}</strong>
-                                <small>Biên lai điện tử</small>
+                                <strong>${escapeText(formatReceiptPeriod(receipt.period))}</strong>
                             </div>
                         </div>
                     </td>
-                    <td><strong>${escapeText(receipt.receiptCode || `BR-${id}`)}</strong></td>
-                    <td>${escapeText(formatDate(receipt.paidAt))}</td>
+                    <td>
+                        <div class="receipt-code-cell">
+                            <strong>${escapeText(getReceiptDisplayCode(receipt))}</strong>
+                            <small>Biên lai điện tử</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="receipt-date-cell">
+                            <strong>${escapeText(paidAt.date)}</strong>
+                            <small>${escapeText(paidAt.time)}</small>
+                        </span>
+                    </td>
                     <td>${getReceiptMethodBadge(receipt)}</td>
-                    <td><strong>${escapeText(formatCurrency(receipt.paidAmount ?? receipt.totalAmount))}</strong></td>
-                    <td>${escapeText(receipt.transactionCode || '—')}</td>
+                    <td><strong class="receipt-amount">${escapeText(formatCurrency(receipt.paidAmount ?? receipt.totalAmount))}</strong></td>
+                    <td><span class="receipt-transaction-code">${escapeText(receipt.transactionCode || '—')}</span></td>
                     <td>
                         <div class="receipt-actions">
-                            <button type="button" class="invoice-icon-btn" data-invoice-select="${id}" title="Xem chi tiết">Xem</button>
+                            <button type="button" class="receipt-view-btn" data-invoice-select="${id}" title="Xem chi tiết"><span class="receipt-eye-icon"></span>Xem</button>
                             <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải PDF"><span class="inv-dl-icon"></span>Tải PDF</button>
                         </div>
                     </td>
@@ -318,7 +418,7 @@ function renderInvoiceRows(filtered) {
                 <td>${invoiceDueDateHtml(inv)}</td>
                 <td><strong>${escapeText(formatCurrency(inv.totalAmount))}</strong></td>
                 <td>${invoiceStatusPill(inv.status)}</td>
-                <td><div class="invoice-row-actions">${invoiceActionButtons(inv)}<button type="button" class="invoice-more-btn" data-invoice-select="${id}">⋮</button></div></td>
+                <td><div class="invoice-row-actions">${invoiceActionButtons(inv)}</div></td>
             </tr>`;
     }).join('');
 }
@@ -356,13 +456,20 @@ function renderInvoiceDashboard() {
 
     const paidTotal = currentReceipts.reduce((sum, inv) => sum + Number(inv.paidAmount ?? inv.totalAmount ?? 0), 0);
     const unpaidTotal = currentInvoices.reduce((sum, inv) => sum + Number(inv.totalAmount || 0), 0);
-    const allTotal = paidTotal + unpaidTotal;
-    const totalRecords = currentInvoices.length + currentReceipts.length;
+    const debtInvoices = currentInvoices.filter(isInvoiceDueThisCycle);
+    const debtTotal = debtInvoices.reduce((sum, inv) => sum + Number(inv.totalAmount || 0), 0);
+    const totalPeriods = getInvoicePeriodTotal(currentInvoices, currentReceipts);
     const activeItems = getActiveInvoiceItems();
     const filtered = getFilteredInvoices();
     const selectedInvoice = getSelectedInvoice(filtered);
     selectedInvoiceId = selectedInvoice ? getInvoiceRecordId(selectedInvoice) : null;
 
+    const totalPayable = paidTotal + unpaidTotal;
+    const summaryCountLabel = invoiceActiveTab === 'receipt' ? 'Tổng biên lai' : 'Tổng hóa đơn';
+    const summaryCountValue = invoiceActiveTab === 'receipt' ? String(currentReceipts.length) : String(totalPeriods);
+    const summaryCountHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${Math.max(totalPeriods, 0)} kỳ`;
+    const summaryCountIcon = invoiceActiveTab === 'receipt' ? 'invoice-icon-receipt' : 'invoice-icon-count';
+    const paidHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${currentReceipts.length} giao dịch`;
     const rows = renderInvoiceRows(filtered);
     const emptyLabel = invoiceActiveTab === 'receipt' ? 'Chưa có biên lai nào.' : 'Không có hóa đơn chưa thanh toán.';
     const activeLabel = invoiceActiveTab === 'receipt' ? 'biên lai' : 'hóa đơn';
@@ -371,14 +478,14 @@ function renderInvoiceDashboard() {
         : 'Các hóa đơn chưa thanh toán. Vui lòng thanh toán trước hạn để tránh phát sinh phí trễ hạn.';
 
     el.innerHTML = `
-        <div class="invoice-dashboard">
+        <div class="invoice-dashboard ${invoiceActiveTab === 'receipt' ? 'is-receipt' : 'is-invoice'}">
             <div class="invoice-main-column">
                 <section class="invoice-overview-card">
                     <div class="invoice-summary-grid">
-                        ${invoiceSummaryCard('invoice-icon-total', 'tone-blue', 'Tổng phải thanh toán', formatCurrency(allTotal), `${totalRecords} khoản`)}
-                        ${invoiceSummaryCard('invoice-icon-paid', 'tone-green', 'Đã thanh toán', formatCurrency(paidTotal), `${currentReceipts.length} biên lai`)}
-                        ${invoiceSummaryCard('invoice-icon-debt', 'tone-orange', 'Còn nợ', formatCurrency(unpaidTotal), `${currentInvoices.length} hóa đơn`)}
-                        ${invoiceSummaryCard('invoice-icon-count', 'tone-purple', 'Tổng hóa đơn', String(totalRecords), `${Math.max(totalRecords, 0)} kỳ`)}
+                        ${invoiceSummaryCard('invoice-icon-total', 'tone-blue', 'Tổng phải thanh toán', formatCurrency(totalPayable), `${currentInvoices.length + currentReceipts.length} hóa đơn`)}
+                        ${invoiceSummaryCard('invoice-icon-paid', 'tone-green', 'Đã thanh toán', formatCurrency(paidTotal), paidHint)}
+                        ${invoiceSummaryCard('invoice-icon-debt', 'tone-orange', 'Còn nợ', formatCurrency(debtTotal), `${debtInvoices.length} hóa đơn`)}
+                        ${invoiceSummaryCard(summaryCountIcon, 'tone-purple', summaryCountLabel, summaryCountValue, summaryCountHint)}
                     </div>
                 </section>
 
@@ -387,10 +494,9 @@ function renderInvoiceDashboard() {
                         <button type="button" class="${invoiceActiveTab === 'invoice' ? 'active' : ''}" data-invoice-tab="invoice">Hóa đơn</button>
                         <button type="button" class="${invoiceActiveTab === 'receipt' ? 'active' : ''}" data-invoice-tab="receipt">Biên lai</button>
                     </div>
-                    <div class="invoice-alert ${invoiceActiveTab === 'receipt' ? 'is-receipt' : ''}">
-                        <strong>i</strong>
-                        <span>${escapeText(alertMessage)}</span>
-                    </div>
+                    ${invoiceActiveTab === 'invoice'
+                        ? `<div class="invoice-alert"><strong>i</strong><span>${escapeText(alertMessage)}</span></div>`
+                        : ''}
                     <div class="invoice-toolbar">
                         ${invoiceActiveTab === 'invoice'
                             ? `<select id="invoice-status-filter">
@@ -405,9 +511,7 @@ function renderInvoiceDashboard() {
                                 </div>
                                 <select id="receipt-method-filter" aria-label="Lọc phương thức thanh toán">
                                     <option value="">Tất cả phương thức</option>
-                                    <option value="momo">MoMo</option>
                                     <option value="vnpay">VNPAY</option>
-                                    <option value="vietcombank">Vietcombank</option>
                                 </select>
                             </div>`}
                         <label class="invoice-search">
@@ -422,7 +526,7 @@ function renderInvoiceDashboard() {
                         </table>
                     </div>
                     <div class="invoice-footer">
-                        <span>Hiển thị ${filtered.length} trên ${activeItems.length} ${activeLabel}</span>
+                        <span>${escapeText(invoiceFooterText(filtered.length, activeItems.length, activeLabel))}</span>
                         <div class="invoice-pager"><button type="button" disabled>‹</button><strong>1</strong><button type="button" disabled>›</button></div>
                     </div>
                 </section>
@@ -499,11 +603,15 @@ function renderInvoiceDashboard() {
     });
 }
 
-function sortInvoicesByPeriodDesc(items) {
+function sortInvoicesByDueDateAsc(items) {
     return [...items].sort((a, b) => {
-        const periodCompare = String(b.period || '').localeCompare(String(a.period || ''));
+        const dueA = getInvoiceDueDate(a)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+        const dueB = getInvoiceDueDate(b)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+        if (dueA !== dueB) return dueA - dueB;
+
+        const periodCompare = String(a.period || '').localeCompare(String(b.period || ''));
         if (periodCompare !== 0) return periodCompare;
-        return getInvoiceRecordId(b) - getInvoiceRecordId(a);
+        return getInvoiceRecordId(a) - getInvoiceRecordId(b);
     });
 }
 
@@ -533,7 +641,7 @@ async function loadMyInvoices(options = {}) {
         return;
     }
 
-    currentInvoices = sortInvoicesByPeriodDesc(invoiceData.filter(isInvoiceUnpaid));
+    currentInvoices = sortInvoicesByDueDateAsc(invoiceData.filter(isInvoiceUnpaid));
     currentReceipts = sortReceiptsDesc(receiptRes?.ok ? receiptData : invoiceData.filter(isInvoicePaid));
 
     invoiceActiveTab = options.initialTab || 'invoice';

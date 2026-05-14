@@ -21,6 +21,7 @@ let receiptMethodFilter = '';
 let receiptDateFrom = '';
 let receiptDateTo = '';
 let requestStatusFilter = '';
+let transferStatusFilter = '';
 let currentNotifications = [];
 let notificationFilter = 'all';
 let notificationPage = 1;
