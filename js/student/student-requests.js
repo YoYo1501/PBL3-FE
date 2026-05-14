@@ -1,14 +1,15 @@
 // 11. YÊU CẦU – POST /api/studentrequests & GET /api/studentrequests/my
 // ======================================================================
 const reqTitleMap = {
-    'Checkout':     { title: 'Yêu cầu trả phòng',    desc: 'Gửi yêu cầu trả phòng khi muốn chấm dứt hợp đồng sớm.' },
-    'RoomTransfer': { title: 'Yêu cầu chuyển phòng', desc: 'Chọn phòng muốn chuyển đến và gửi yêu cầu. Admin sẽ xét duyệt.' },
+    'Checkout':     { title: 'Yêu cầu trả phòng',    desc: 'Gửi yêu cầu trả phòng khi bạn muốn chấm dứt hợp đồng và rời khỏi ký túc xá.' },
+    'RoomTransfer': { title: 'Yêu cầu chuyển phòng', desc: 'Chọn phòng muốn chuyển đến và gửi yêu cầu. Admin sẽ xem xét và phản hồi trong thời gian sớm nhất.' },
     'Other':        { title: 'Yêu cầu khác',          desc: 'Gửi các yêu cầu khác tới ban quản lý ký túc xá.' },
 };
 
 function loadRequestSection(reqType) {
     currentReqType = reqType || 'Other';
     requestStatusFilter = '';
+    transferStatusFilter = '';
     const info = reqTitleMap[currentReqType] || reqTitleMap['Other'];
 
     const titleEl       = document.getElementById('request-section-title');
@@ -19,6 +20,8 @@ function loadRequestSection(reqType) {
     const sectionEl     = document.getElementById('section-request');
     if (sectionEl) sectionEl.classList.toggle('is-transfer-mode', currentReqType === 'RoomTransfer');
     if (sectionEl) sectionEl.classList.toggle('is-checkout-mode', currentReqType === 'Checkout');
+    if (sectionEl) sectionEl.classList.toggle('is-other-mode', currentReqType === 'Other');
+    document.body?.classList.toggle('is-transfer-request-page', currentReqType === 'RoomTransfer');
 
     if (titleEl) titleEl.textContent = info.title;
     if (descEl)  descEl.textContent  = info.desc;
@@ -44,6 +47,8 @@ function loadRequestSection(reqType) {
         // Ẩn danh sách yêu cầu thông thường, hiện lịch sử chuyển phòng
         document.getElementById('my-requests-list')?.closest('.content-card')?.style.setProperty('display', 'none');
         bindTransferReasonCounter();
+        bindTransferFileInput();
+        bindTransferFilters();
         loadTransferHistory();
         loadTransferRooms();
     } else {
@@ -77,13 +82,36 @@ function updateRequestCopy() {
     const submitText = document.querySelector('#req-submit-btn span:last-child');
     const titleInput = document.getElementById('req-title');
     const descInput = document.getElementById('req-desc');
+    const descLabel = document.getElementById('req-desc-label');
+    const uploadTitle = document.getElementById('request-upload-title');
+    const fileName = document.getElementById('checkout-file-name');
+    const fileInput = document.getElementById('checkout-file');
 
     if (formTitle) formTitle.textContent = isCheckout ? 'TẠO YÊU CẦU TRẢ PHÒNG' : 'TẠO YÊU CẦU MỚI';
     if (historyTitle) historyTitle.textContent = isCheckout ? 'LỊCH SỬ YÊU CẦU TRẢ PHÒNG' : 'LỊCH SỬ YÊU CẦU';
     if (submitText) submitText.textContent = isCheckout ? 'Gửi yêu cầu trả phòng' : 'Gửi yêu cầu';
-    if (titleInput && isCheckout) titleInput.value = 'Yêu cầu trả phòng';
+    if (titleInput) {
+        titleInput.maxLength = 100;
+        titleInput.placeholder = isCheckout ? 'Yêu cầu trả phòng' : 'Nhập tiêu đề yêu cầu ngắn gọn, rõ ràng...';
+        if (isCheckout) titleInput.value = 'Yêu cầu trả phòng';
+        else if (titleInput.value === 'Yêu cầu trả phòng') titleInput.value = '';
+    }
     if (descInput) {
-        descInput.placeholder = isCheckout ? 'Nhập nội dung chi tiết...' : 'Nhập nội dung yêu cầu...';
+        descInput.maxLength = isCheckout ? 500 : 1000;
+        descInput.placeholder = isCheckout ? 'Nhập nội dung chi tiết...' : 'Nhập nội dung chi tiết yêu cầu của bạn...';
+    }
+    if (descLabel) {
+        descLabel.innerHTML = isCheckout
+            ? 'Nội dung chi tiết <em class="checkout-optional">(nếu có)</em>'
+            : 'Nội dung chi tiết <span>*</span>';
+    }
+    if (uploadTitle) {
+        uploadTitle.innerHTML = isCheckout
+            ? 'Đính kèm minh chứng <em>(nếu có)</em>'
+            : 'Đính kèm tệp (nếu có)';
+    }
+    if (fileName && !fileInput?.files?.length) {
+        fileName.textContent = getRequestFileHint(isCheckout);
     }
 }
 
@@ -96,18 +124,24 @@ function bindRequestCounters() {
     if (titleInput && !titleInput._counterBound) {
         titleInput._counterBound = true;
         titleInput.addEventListener('input', () => {
-            if (titleCounter) titleCounter.textContent = `${titleInput.value.length}/100`;
+            if (titleCounter) titleCounter.textContent = `${titleInput.value.length}/${titleInput.maxLength || 100}`;
         });
     }
     if (descInput && !descInput._counterBound) {
         descInput._counterBound = true;
         descInput.addEventListener('input', () => {
-            if (descCounter) descCounter.textContent = `${descInput.value.length}/500`;
+            if (descCounter) descCounter.textContent = `${descInput.value.length}/${descInput.maxLength || 1000}`;
         });
     }
 
-    if (titleCounter && titleInput) titleCounter.textContent = `${titleInput.value.length}/100`;
-    if (descCounter && descInput) descCounter.textContent = `${descInput.value.length}/500`;
+    if (titleCounter && titleInput) titleCounter.textContent = `${titleInput.value.length}/${titleInput.maxLength || 100}`;
+    if (descCounter && descInput) descCounter.textContent = `${descInput.value.length}/${descInput.maxLength || 1000}`;
+}
+
+function getRequestFileHint(isCheckout = currentReqType === 'Checkout') {
+    return isCheckout
+        ? 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)'
+        : 'Định dạng: PDF, JPG, PNG (Tối đa 5MB)';
 }
 
 function bindCheckoutFileInput() {
@@ -117,7 +151,7 @@ function bindCheckoutFileInput() {
     input._bound = true;
     input.addEventListener('change', () => {
         const file = input.files?.[0];
-        if (nameEl) nameEl.textContent = file ? file.name : 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
+        if (nameEl) nameEl.textContent = file ? file.name : getRequestFileHint();
     });
 }
 
@@ -141,15 +175,15 @@ function bindRequestSubmit() {
         const isCheckout = currentReqType === 'Checkout';
         let title = document.getElementById('req-title')?.value.trim() || '';
         let desc  = document.getElementById('req-desc')?.value.trim() || '';
+        const requestFile = document.getElementById('checkout-file')?.files?.[0];
 
         if (isCheckout) {
             const checkoutDate = document.getElementById('checkout-date')?.value || '';
             const checkoutReason = document.getElementById('checkout-reason')?.value || '';
-            const checkoutFile = document.getElementById('checkout-file')?.files?.[0];
 
             if (!checkoutDate) { errEl.textContent = 'Vui lòng chọn ngày dự kiến trả phòng.'; return; }
             if (!checkoutReason) { errEl.textContent = 'Vui lòng chọn lý do trả phòng.'; return; }
-            if (checkoutFile && checkoutFile.size > 5 * 1024 * 1024) {
+            if (requestFile && requestFile.size > 5 * 1024 * 1024) {
                 errEl.textContent = 'Tệp đính kèm không được vượt quá 5MB.';
                 return;
             }
@@ -159,11 +193,18 @@ function bindRequestSubmit() {
                 `Ngày dự kiến trả phòng: ${formatDate(checkoutDate)}`,
                 `Lý do trả phòng: ${checkoutReason}`,
                 desc ? `Nội dung chi tiết: ${desc}` : '',
-                checkoutFile ? `Đính kèm minh chứng: ${checkoutFile.name}` : ''
+                requestFile ? `Đính kèm minh chứng: ${requestFile.name}` : ''
             ].filter(Boolean).join('\n');
         } else {
             if (!title) { errEl.textContent = 'Vui lòng nhập tiêu đề yêu cầu.'; return; }
             if (!desc)  { errEl.textContent = 'Vui lòng nhập nội dung yêu cầu.'; return; }
+            if (requestFile && requestFile.size > 5 * 1024 * 1024) {
+                errEl.textContent = 'Tệp đính kèm không được vượt quá 5MB.';
+                return;
+            }
+            if (requestFile) {
+                desc = `${desc}\nĐính kèm tệp: ${requestFile.name}`;
+            }
         }
 
         btn.disabled = true;
@@ -181,7 +222,7 @@ function bindRequestSubmit() {
             if (document.getElementById('checkout-reason')) document.getElementById('checkout-reason').value = '';
             if (document.getElementById('checkout-file')) document.getElementById('checkout-file').value = '';
             const fileName = document.getElementById('checkout-file-name');
-            if (fileName) fileName.textContent = 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
+            if (fileName) fileName.textContent = getRequestFileHint(isCheckout);
             bindRequestCounters();
             loadMyRequests();
         } else {
@@ -247,6 +288,9 @@ async function loadMyRequests() {
 }
 
 function renderRequestHistoryItem(r) {
+    if (currentReqType === 'Checkout') return renderCheckoutHistoryItem(r);
+    if (currentReqType === 'Other') return renderOtherHistoryItem(r);
+
     const status = String(r.status || '');
     const safeTitle = escapeText(r.title || 'Yêu cầu');
     const safeDesc = escapeText(r.description || '').replace(/\n/g, '<br>');
@@ -260,7 +304,6 @@ function renderRequestHistoryItem(r) {
             <div class="request-row-body">
                 <div class="request-row-main">
                     <strong>${safeTitle}</strong>
-                    <p>Ngày dự kiến: ${extractCheckoutDate(r.description) || '—'}</p>
                     <span>Gửi ngày: ${formatDate(r.createdAt)}${time ? ` • ${time}` : ''}</span>
                     ${safeDesc ? `<p class="request-item-desc">${safeDesc}</p>` : ''}
                     ${safeNote ? `<span class="resolution-note">${safeNote}</span>` : ''}
@@ -272,6 +315,52 @@ function renderRequestHistoryItem(r) {
                         ? `<button type="button" class="request-cancel-btn" data-req-id="${r.id}">Hủy</button>`
                         : ''}
                 </div>
+            </div>
+        </article>`;
+}
+
+function renderCheckoutHistoryItem(r) {
+    const status = String(r.status || '');
+    const time = formatRequestTime(r.createdAt);
+    const checkoutDate = extractCheckoutDate(r.description) || '—';
+    const code = getCheckoutRequestCode(r);
+
+    return `
+        <article class="request-timeline-item checkout-history-item status-${status.toLowerCase()}">
+            <span class="request-timeline-dot"></span>
+            <span class="request-row-icon"></span>
+            <div class="request-row-body">
+                <div class="request-row-main">
+                    <strong>${escapeText(code)}</strong>
+                    <p>Ngày dự kiến: ${escapeText(checkoutDate)}</p>
+                    <span>Gửi ngày: ${escapeText(formatDate(r.createdAt))}${time ? ` <b>•</b> ${escapeText(time)}` : ''}</span>
+                </div>
+                <div class="request-row-actions">
+                    ${renderRequestStatusPill(status)}
+                    <button type="button" class="request-detail-btn" data-request-detail="${r.id}">Xem chi tiết</button>
+                </div>
+            </div>
+        </article>`;
+}
+
+function renderOtherHistoryItem(r) {
+    const status = String(r.status || '');
+    const time = formatRequestTime(r.createdAt);
+    const safeTitle = escapeText(r.title || 'Yêu cầu');
+    const safeNote = r.resolutionNote ? escapeText(r.resolutionNote) : '';
+
+    return `
+        <article class="other-request-card status-${status.toLowerCase()}">
+            <span class="other-request-icon"></span>
+            <div class="other-request-main">
+                <strong>${safeTitle}</strong>
+                <p>Mã yêu cầu: <b>${escapeText(getOtherRequestCode(r))}</b></p>
+                <span>Gửi ngày: ${escapeText(formatDate(r.createdAt))}${time ? ` <b>•</b> ${escapeText(time)}` : ''}</span>
+                ${safeNote ? `<em class="resolution-note">${safeNote}</em>` : ''}
+            </div>
+            <div class="other-request-actions">
+                ${renderOtherStatusPill(status)}
+                <button type="button" class="other-request-detail-btn" data-request-detail="${r.id}" aria-label="Xem chi tiết yêu cầu">›</button>
             </div>
         </article>`;
 }
@@ -319,6 +408,17 @@ function renderRequestStatusPill(status) {
     return `<span class="request-status-pill ${cls}">${label}</span>`;
 }
 
+function renderOtherStatusPill(status) {
+    const cls = {
+        Pending: 'request-pill-processing',
+        Approved: 'request-pill-done',
+        Completed: 'request-pill-done',
+        Rejected: 'request-pill-closed',
+        Cancelled: 'request-pill-closed'
+    }[status] || 'request-pill-closed';
+    return `<span class="request-status-pill ${cls}">${getOtherRequestStatusLabel(status)}</span>`;
+}
+
 function getRequestStatusLabel(status) {
     return {
         Pending: 'Đang chờ duyệt',
@@ -326,6 +426,16 @@ function getRequestStatusLabel(status) {
         Completed: 'Đã duyệt',
         Rejected: 'Đã từ chối',
         Cancelled: 'Đã hủy'
+    }[status] || status || 'Không rõ';
+}
+
+function getOtherRequestStatusLabel(status) {
+    return {
+        Pending: 'Đang xử lý',
+        Approved: 'Đã hoàn thành',
+        Completed: 'Đã hoàn thành',
+        Rejected: 'Đã đóng',
+        Cancelled: 'Đã đóng'
     }[status] || status || 'Không rõ';
 }
 
@@ -341,6 +451,20 @@ function extractCheckoutDate(description) {
     return match?.[1] || '';
 }
 
+function getCheckoutRequestCode(item) {
+    const id = Number(item?.id || 0);
+    const created = new Date(item?.createdAt);
+    const year = isNaN(created) ? new Date().getFullYear() : created.getFullYear();
+    return `#CHECKOUT-${year}-${String(id).padStart(4, '0')}`;
+}
+
+function getOtherRequestCode(item) {
+    const id = Number(item?.id || 0);
+    const created = new Date(item?.createdAt);
+    const year = isNaN(created) ? new Date().getFullYear() : created.getFullYear();
+    return `#REQ-${year}-${String(id).padStart(4, '0')}`;
+}
+
 // ======================================================================
 // 12. CHUYỂN PHÒNG – GET /api/roomtransfers/available & POST
 // ======================================================================
@@ -350,16 +474,22 @@ async function loadTransferRooms() {
     listEl.innerHTML = '<div class="loading-state">Đang tải danh sách phòng khả dụng...</div>';
 
     const res = await callApi('/roomtransfers/available');
-    if (!res?.ok || !res.data?.rooms?.length) {
-        updateTransferRoomStats([]);
+    if (!res?.ok) {
+        updateTransferRoomCount(0);
+        listEl.innerHTML = `<div class="empty-state">${escapeText(res?.data?.message || 'Không thể tải danh sách phòng khả dụng.')}</div>`;
+        bindTransferReasonCounter();
+        return;
+    }
+
+    const rooms = Array.isArray(res.data) ? res.data : (Array.isArray(res.data?.rooms) ? res.data.rooms : []);
+    if (!rooms.length) {
         updateTransferRoomCount(0);
         listEl.innerHTML = `<div class="empty-state">Không có phòng nào khả dụng để chuyển.</div>`;
         bindTransferReasonCounter();
         return;
     }
 
-    transferRooms = res.data.rooms;
-    updateTransferRoomStats(transferRooms);
+    transferRooms = rooms;
     renderTransferRooms(transferRooms);
     bindTransferReasonCounter();
 
@@ -381,12 +511,6 @@ async function loadTransferRooms() {
     bindTransferSubmit();
 }
 
-function updateTransferRoomStats(rooms) {
-    const totalSlots = rooms.reduce((sum, room) => sum + Number(room.availableSlots || 0), 0);
-    setRequestStat('transfer-stat-available', rooms.length);
-    setRequestStat('transfer-stat-slots', totalSlots);
-}
-
 function updateTransferRoomCount(count) {
     const el = document.getElementById('transfer-room-count');
     if (el) el.textContent = `${count} phòng phù hợp`;
@@ -405,6 +529,29 @@ function bindTransferReasonCounter() {
     counterEl.textContent = `${reasonEl.value.length}/500`;
 }
 
+function bindTransferFileInput() {
+    const input = document.getElementById('transfer-file');
+    const nameEl = document.getElementById('transfer-file-name');
+    if (!input || input._bound) return;
+    input._bound = true;
+    input.addEventListener('change', () => {
+        const file = input.files?.[0];
+        if (nameEl) nameEl.textContent = file ? file.name : 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
+    });
+}
+
+function bindTransferFilters() {
+    const filter = document.getElementById('transfer-status-filter');
+    if (!filter) return;
+    filter.value = transferStatusFilter || '';
+    if (filter._bound) return;
+    filter._bound = true;
+    filter.addEventListener('change', () => {
+        transferStatusFilter = filter.value || '';
+        loadTransferHistory();
+    });
+}
+
 function renderTransferRooms(rooms) {
     const listEl = document.getElementById('transfer-room-list');
     if (!listEl) return;
@@ -415,22 +562,25 @@ function renderTransferRooms(rooms) {
         return;
     }
 
-    listEl.innerHTML = rooms.map(r => `
+    listEl.innerHTML = rooms.map(r => {
+        const availableSlots = Number(r.availableSlots ?? Math.max(Number(r.capacity || 0) - Number(r.currentOccupancy || 0), 0));
+        const genderLabel = normalizeTransferGender(r.genderAllowed);
+        return `
         <article class="room-item transfer-room-item" data-room-id="${r.id}" data-room-code="${escapeText(r.roomCode || '')}">
             <div class="transfer-room-top">
                 <span class="transfer-room-icon"></span>
                 <div>
                     <strong>${escapeText(r.roomCode || '—')}</strong>
-                    <span>${escapeText(r.buildingName || r.buildingCode || 'Ký túc xá')}</span>
+                    <span>${escapeText(formatTransferRoomLocation(r))}</span>
+                    <span>${escapeText(r.capacity ?? '0')} người • Còn ${escapeText(availableSlots)} chỗ</span>
                 </div>
-                <em>${escapeText(r.availableSlots ?? '0')} chỗ</em>
             </div>
             <div class="transfer-room-meta">
-                <span>${escapeText(r.roomType || '—')}</span>
-                <span>${escapeText(r.genderAllowed || '—')}</span>
-                <span>${escapeText(r.currentOccupancy ?? '0')}/${escapeText(r.capacity ?? '0')} người</span>
+                <span class="transfer-gender-badge ${genderLabel.cls}">${escapeText(genderLabel.label)}</span>
+                <span class="transfer-room-radio"></span>
             </div>
-        </article>`).join('');
+        </article>`;
+    }).join('');
 
     let selectedId   = null;
     let selectedCode = null;
@@ -454,6 +604,23 @@ function renderTransferRooms(rooms) {
     });
 }
 
+function formatTransferRoomLocation(room) {
+    const building = room.buildingCode || room.buildingName || 'Tòa nhà';
+    const floor = room.floor ? `Tầng ${room.floor}` : '';
+    return [building, floor].filter(Boolean).join(' • ');
+}
+
+function normalizeTransferGender(value) {
+    const raw = String(value || '').toLowerCase();
+    if (raw.includes('female') || raw.includes('nữ') || raw.includes('nu')) {
+        return { label: 'Nữ', cls: 'is-female' };
+    }
+    if (raw.includes('male') || raw.includes('nam')) {
+        return { label: 'Nam', cls: 'is-male' };
+    }
+    return { label: 'Chung', cls: 'is-any' };
+}
+
 function bindTransferSubmit() {
     const btn = document.getElementById('transfer-submit-btn');
     if (!btn || btn._bound) return;
@@ -464,10 +631,15 @@ function bindTransferSubmit() {
         errEl.textContent = '';
         const toRoomId = Number(document.getElementById('transfer-selected-id')?.value);
         const reason   = document.getElementById('transfer-reason')?.value.trim();
+        const proofFile = document.getElementById('transfer-file')?.files?.[0];
 
         if (!toRoomId)  { errEl.textContent = 'Vui lòng chọn phòng muốn chuyển đến.'; return; }
         if (!reason)    { errEl.textContent = 'Vui lòng nhập lý do chuyển phòng.'; return; }
         if (reason.length < 15) { errEl.textContent = 'Lý do cần ít nhất 15 ký tự.'; return; }
+        if (proofFile && proofFile.size > 5 * 1024 * 1024) {
+            errEl.textContent = 'Tệp minh chứng không được vượt quá 5MB.';
+            return;
+        }
 
         btn.disabled = true;
         // Buoc 1: Hold truoc 10 phut de tranh race condition
@@ -495,6 +667,9 @@ function bindTransferSubmit() {
             document.getElementById('transfer-selected-info').style.display = 'none';
             document.getElementById('transfer-selected-id').value = '';
             document.getElementById('transfer-selected-display').value = '';
+            if (document.getElementById('transfer-file')) document.getElementById('transfer-file').value = '';
+            const fileName = document.getElementById('transfer-file-name');
+            if (fileName) fileName.textContent = 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
             const selectedText = document.getElementById('transfer-selected-display-text');
             if (selectedText) selectedText.textContent = '—';
             document.querySelectorAll('.room-item').forEach(i => i.classList.remove('selected'));
@@ -517,52 +692,97 @@ async function loadTransferHistory() {
     if (!res?.ok || !Array.isArray(res.data) || !res.data.length) {
         updateTransferHistoryStats([]);
         histEl.innerHTML = '<div class="empty-state">Chưa có yêu cầu chuyển phòng nào.</div>';
+        updateTransferHistoryFooter(0, 0);
         return;
     }
 
-    updateTransferHistoryStats(res.data);
-    histEl.innerHTML = res.data.map(t => `
-        <article class="transfer-history-item status-${String(t.status || '').toLowerCase()}">
-            <span class="transfer-history-icon"></span>
-            <div class="transfer-history-body">
-                <div>
-                    <strong>${escapeText(t.fromRoomCode || 'Phòng hiện tại')} → ${escapeText(t.toRoomCode || t.toRoomId || 'Phòng mới')}</strong>
-                    <p>${escapeText(t.reason || '—')}</p>
-                    <span>Ngày gửi: ${formatDate(t.requestedAt || t.createdAt)}${formatRequestTime(t.requestedAt || t.createdAt) ? ` • ${formatRequestTime(t.requestedAt || t.createdAt)}` : ''}</span>
-                    ${t.resolvedAt ? `<span>Ngày duyệt: ${formatDate(t.resolvedAt)}</span>` : ''}
-                    ${t.rejectionReason ? `<em>${escapeText(t.rejectionReason)}</em>` : ''}
-                </div>
-                <div class="transfer-history-actions">
-                    ${renderRequestStatusPill(t.status)}
-                    ${t.status === 'Pending'
-                        ? `<button type="button" class="request-cancel-btn" data-cancel-transfer-id="${t.id}">Hủy yêu cầu</button>`
-                        : ''}
-                </div>
-            </div>
-        </article>`).join('');
+    const allItems = [...res.data].sort((a, b) =>
+        new Date(b.requestedAt || b.createdAt || 0) - new Date(a.requestedAt || a.createdAt || 0)
+    );
+    updateTransferHistoryStats(allItems);
 
-    // Xử lý nút hủy yêu cầu chuyển phòng
-    histEl.querySelectorAll('[data-cancel-transfer-id]').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (!confirm('Xác nhận hủy yêu cầu chuyển phòng này?')) return;
-            const res2 = await callApi(`/roomtransfers/${btn.dataset.cancelTransferId}/cancel`, { method: 'DELETE' });
-            if (res2?.ok) {
-                showToast('Đã hủy yêu cầu chuyển phòng.');
-                loadTransferHistory();
-            } else {
-                showToast(res2?.data?.message || 'Không thể hủy yêu cầu.', true);
-            }
+    const filtered = transferStatusFilter
+        ? allItems.filter(t => String(t.status || '') === transferStatusFilter)
+        : allItems;
+
+    if (!filtered.length) {
+        histEl.innerHTML = '<div class="empty-state">Không có yêu cầu phù hợp với bộ lọc.</div>';
+        updateTransferHistoryFooter(0, allItems.length);
+        return;
+    }
+
+    const visibleItems = filtered.slice(0, 4);
+    histEl.innerHTML = visibleItems.map(renderTransferHistoryItem).join('');
+    updateTransferHistoryFooter(visibleItems.length, filtered.length);
+
+    histEl.querySelectorAll('[data-transfer-detail]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = filtered.find(t => String(t.id) === String(btn.dataset.transferDetail));
+            if (!item) return;
+            const detail = [
+                getTransferRequestCode(item),
+                `Trạng thái: ${getRequestStatusLabel(item.status)}`,
+                `Từ: ${item.fromRoomCode || 'Phòng hiện tại'} -> Đến: ${item.toRoomCode || item.toRoomId || 'Phòng mới'}`,
+                `Gửi ngày: ${formatDate(item.requestedAt || item.createdAt)}${formatRequestTime(item.requestedAt || item.createdAt) ? ` - ${formatRequestTime(item.requestedAt || item.createdAt)}` : ''}`,
+                '',
+                item.reason || '',
+                item.rejectionReason ? `\nLý do từ chối: ${item.rejectionReason}` : ''
+            ].join('\n');
+            alert(detail);
         });
     });
 }
 
 function updateTransferHistoryStats(items) {
-    const totalEl = document.getElementById('transfer-history-count');
-    if (totalEl) totalEl.textContent = `${items.length} yêu cầu`;
+    setRequestStat('transfer-stat-total', items.length);
     const pending = items.filter(item => item.status === 'Pending').length;
     const approved = items.filter(item => item.status === 'Approved' || item.status === 'Completed').length;
+    const rejected = items.filter(item => item.status === 'Rejected').length;
     setRequestStat('transfer-stat-pending', pending);
     setRequestStat('transfer-stat-approved', approved);
+    setRequestStat('transfer-stat-rejected', rejected);
+}
+
+function renderTransferHistoryItem(t) {
+    const status = String(t.status || '');
+    const sentDate = t.requestedAt || t.createdAt;
+    const time = formatRequestTime(sentDate);
+    const fromRoom = t.fromRoomCode || 'A101';
+    const toRoom = t.toRoomCode || t.toRoomId || 'Phòng mới';
+
+    return `
+        <article class="transfer-history-item status-${status.toLowerCase()}">
+            <span class="transfer-timeline-dot"></span>
+            <span class="transfer-history-icon"></span>
+            <div class="transfer-history-body">
+                <div class="transfer-history-main">
+                    <strong>${escapeText(getTransferRequestCode(t))}</strong>
+                    <p><b>Từ:</b> ${escapeText(fromRoom)} <span class="transfer-arrow">→</span> <b>Đến:</b> ${escapeText(toRoom)}</p>
+                    <span>Gửi ngày: ${escapeText(formatDate(sentDate))}${time ? ` <b>•</b> ${escapeText(time)}` : ''}</span>
+                </div>
+                <div class="transfer-history-actions">
+                    ${renderRequestStatusPill(status)}
+                    <button type="button" class="request-detail-btn" data-transfer-detail="${t.id}">Xem chi tiết</button>
+                </div>
+            </div>
+        </article>`;
+}
+
+function updateTransferHistoryFooter(shown, total) {
+    const footer = document.getElementById('transfer-history-footer');
+    const label = document.getElementById('transfer-history-count');
+    if (!footer || !label) return;
+    footer.style.display = total ? 'flex' : 'none';
+    label.textContent = shown
+        ? `Hiển thị 1 đến ${shown} trong tổng số ${total} yêu cầu`
+        : `Không có yêu cầu phù hợp trong tổng số ${total} yêu cầu`;
+}
+
+function getTransferRequestCode(item) {
+    const id = Number(item?.id || 0);
+    const created = new Date(item?.requestedAt || item?.createdAt);
+    const year = isNaN(created) ? new Date().getFullYear() : created.getFullYear();
+    return `#REQ-${year}-${String(id).padStart(4, '0')}`;
 }
 
 // ======================================================================

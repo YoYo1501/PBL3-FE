@@ -495,6 +495,7 @@
                     <div id="invoice-content">
                         <div class="loading-state">Đang tải hóa đơn...</div>
                     </div>
+                </div>
             </section>
 
             <section id="section-request" class="tab-panel">
@@ -559,7 +560,10 @@
                             <div class="checkout-form-grid">
                                 <div class="checkout-field generic-only">
                                     <label for="req-title">Tiêu đề yêu cầu <span>*</span></label>
-                                    <input type="text" id="req-title" maxlength="200" placeholder="Nhập tiêu đề yêu cầu">
+                                    <div class="checkout-title-shell">
+                                        <input type="text" id="req-title" maxlength="100" placeholder="Nhập tiêu đề yêu cầu ngắn gọn, rõ ràng...">
+                                        <small id="req-title-counter">0/100</small>
+                                    </div>
                                 </div>
 
                                 <div class="checkout-field checkout-only">
@@ -585,19 +589,21 @@
                                 </div>
 
                                 <div class="checkout-field checkout-wide">
-                                    <label for="req-desc">Nội dung chi tiết <em class="checkout-optional">(nếu có)</em></label>
+                                    <label for="req-desc" id="req-desc-label">Nội dung chi tiết <span>*</span></label>
                                     <div class="checkout-textarea-shell">
-                                        <textarea id="req-desc" rows="5" maxlength="500" placeholder="Nhập nội dung chi tiết..."></textarea>
-                                        <small id="req-desc-counter">0/500</small>
+                                        <textarea id="req-desc" rows="5" maxlength="1000" placeholder="Nhập nội dung chi tiết yêu cầu của bạn..."></textarea>
+                                        <small id="req-desc-counter">0/1000</small>
                                     </div>
                                 </div>
 
-                                <div class="checkout-field checkout-wide checkout-only">
+                                <div class="checkout-field checkout-wide request-upload-field">
                                     <label class="checkout-upload-box" for="checkout-file">
                                         <input type="file" id="checkout-file" accept="image/jpeg,image/png,application/pdf">
                                         <span class="checkout-upload-icon"></span>
-                                        <strong>Đính kèm minh chứng <em>(nếu có)</em></strong>
-                                        <small id="checkout-file-name">Định dạng: JPG, PNG, PDF (Tối đa 5MB)</small>
+                                        <span class="checkout-upload-copy">
+                                            <strong id="request-upload-title">Đính kèm tệp (nếu có)</strong>
+                                            <small id="checkout-file-name">Định dạng: PDF, JPG, PNG (Tối đa 5MB)</small>
+                                        </span>
                                     </label>
                                 </div>
                             </div>
@@ -643,19 +649,11 @@
                 <div class="transfer-page-shell">
                     <div class="transfer-stats-grid">
                         <article class="transfer-stat-card">
-                            <span class="transfer-stat-icon transfer-stat-available"></span>
+                            <span class="transfer-stat-icon transfer-stat-total"></span>
                             <div>
-                                <span>Phòng khả dụng</span>
-                                <strong id="transfer-stat-available">00</strong>
-                                <small>phòng</small>
-                            </div>
-                        </article>
-                        <article class="transfer-stat-card">
-                            <span class="transfer-stat-icon transfer-stat-slot"></span>
-                            <div>
-                                <span>Chỗ trống</span>
-                                <strong id="transfer-stat-slots">00</strong>
-                                <small>chỗ</small>
+                                <span>Tổng yêu cầu</span>
+                                <strong id="transfer-stat-total">00</strong>
+                                <small>đơn</small>
                             </div>
                         </article>
                         <article class="transfer-stat-card">
@@ -674,23 +672,25 @@
                                 <small>đơn</small>
                             </div>
                         </article>
+                        <article class="transfer-stat-card">
+                            <span class="transfer-stat-icon transfer-stat-rejected"></span>
+                            <div>
+                                <span>Đã từ chối</span>
+                                <strong id="transfer-stat-rejected">00</strong>
+                                <small>đơn</small>
+                            </div>
+                        </article>
                     </div>
 
                     <div class="transfer-workspace">
                         <div class="content-card section-gap transfer-form-card">
-                            <div class="transfer-card-head">
-                                <span class="transfer-head-icon"></span>
-                                <div>
-                                    <h2 class="section-title">TẠO YÊU CẦU CHUYỂN PHÒNG</h2>
-                                    <p>Chọn phòng còn chỗ và gửi lý do để ban quản lý xét duyệt.</p>
-                                </div>
-                            </div>
+                            <h2 class="section-title">TẠO YÊU CẦU CHUYỂN PHÒNG</h2>
 
                             <div class="transfer-field">
-                                <label for="transfer-search">Tìm kiếm phòng</label>
+                                <label for="transfer-search">1. Chọn phòng muốn chuyển đến</label>
                                 <div class="transfer-input-shell">
                                     <span class="transfer-input-icon icon-search"></span>
-                                    <input type="text" id="transfer-search" placeholder="Nhập mã phòng, tên tòa nhà...">
+                                    <input type="text" id="transfer-search" placeholder="Tìm kiếm phòng (ví dụ: A101, B203...)">
                                 </div>
                             </div>
 
@@ -699,8 +699,11 @@
                                     <strong>Danh sách phòng khả dụng</strong>
                                     <span id="transfer-room-count">Đang tải...</span>
                                 </div>
-                                <div id="transfer-room-list" class="room-list transfer-room-list">
-                                    <div class="loading-state">Đang tải danh sách phòng khả dụng...</div>
+                                <div class="transfer-room-list-shell">
+                                    <div id="transfer-room-list" class="room-list transfer-room-list">
+                                        <div class="loading-state">Đang tải danh sách phòng khả dụng...</div>
+                                    </div>
+                                    <button type="button" class="transfer-room-next-btn" aria-label="Xem thêm phòng">›</button>
                                 </div>
                             </div>
 
@@ -716,11 +719,21 @@
                             </div>
 
                             <div class="transfer-field">
-                                <label for="transfer-reason">Lý do chuyển phòng <span>*</span></label>
+                                <label for="transfer-reason">2. Lý do chuyển phòng</label>
                                 <div class="checkout-textarea-shell">
                                     <textarea id="transfer-reason" rows="4" maxlength="500" placeholder="Nhập lý do chuyển phòng..."></textarea>
                                     <small id="transfer-reason-counter">0/500</small>
                                 </div>
+                            </div>
+
+                            <div class="transfer-field transfer-proof-field">
+                                <label class="transfer-proof-label">3. Minh chứng <em>(nếu có)</em></label>
+                                <label class="transfer-upload-box" for="transfer-file">
+                                    <input type="file" id="transfer-file" accept="image/jpeg,image/png,application/pdf">
+                                    <span class="transfer-upload-icon"></span>
+                                    <strong>Kéo thả file hoặc chọn file để tải lên</strong>
+                                    <small id="transfer-file-name">Định dạng: JPG, PNG, PDF (Tối đa 5MB)</small>
+                                </label>
                             </div>
 
                             <p class="form-error" id="transfer-error"></p>
@@ -735,10 +748,25 @@
                         <div class="content-card section-gap transfer-history-card">
                             <div class="request-history-head">
                                 <h3 class="section-title">LỊCH SỬ YÊU CẦU CHUYỂN PHÒNG</h3>
-                                <span class="transfer-history-chip" id="transfer-history-count">0 yêu cầu</span>
+                                <select id="transfer-status-filter" aria-label="Lọc trạng thái yêu cầu chuyển phòng">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="Pending">Đang chờ duyệt</option>
+                                    <option value="Approved">Đã duyệt</option>
+                                    <option value="Completed">Đã hoàn thành</option>
+                                    <option value="Rejected">Đã từ chối</option>
+                                    <option value="Cancelled">Đã hủy</option>
+                                </select>
                             </div>
                             <div id="transfer-history-list" class="transfer-history-list">
                                 <div class="loading-state">Đang tải...</div>
+                            </div>
+                            <div class="request-history-footer" id="transfer-history-footer" style="display:none">
+                                <span id="transfer-history-count">Hiển thị 0 yêu cầu</span>
+                                <div class="request-pagination" aria-label="Phân trang yêu cầu chuyển phòng">
+                                    <button type="button" class="request-page-btn" disabled>‹</button>
+                                    <button type="button" class="request-page-btn active">1</button>
+                                    <button type="button" class="request-page-btn" disabled>›</button>
+                                </div>
                             </div>
                         </div>
                     </div>
