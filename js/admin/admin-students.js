@@ -97,7 +97,7 @@ async function loadStudents() {
   const tbody = document.getElementById("students-table-body");
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="7" class="table-empty">Đang tải danh sách sinh viên...</td></tr>';
+    '<tr><td colspan="6" class="table-empty">Đang tải danh sách sinh viên...</td></tr>';
 
   const filters = getStudentFilters();
   const state = paginationState.students;
@@ -135,29 +135,28 @@ function renderStudentsTable() {
 
   if (!adminStudents.length) {
     tbody.innerHTML =
-      '<tr><td colspan="7" class="table-empty">Không có sinh viên phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="6" class="table-empty">Không có sinh viên phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   tbody.innerHTML = adminStudents
     .map(
       (student) => `
-        <tr class="${selectedStudentId === student.id ? "is-selected" : ""}">
+        <tr class="${selectedStudentId === student.id ? "is-selected" : ""}" style="cursor: pointer;" data-student-view="${student.id}">
             <td><strong>${escapeHtml(student.fullName)}</strong></td>
             <td>${escapeHtml(student.citizenId)}</td>
             <td>${escapeHtml(student.gender)}</td>
             <td>${escapeHtml(student.roomCode || "-")}</td>
             <td>${escapeHtml(student.phone || "-")}</td>
             <td>${student.isActive ? '<span class="pill">Hoạt động</span>' : '<span class="pill neutral">Ngừng hoạt động</span>'}</td>
-            <td><button type="button" class="secondary-btn" data-student-view="${student.id}">Chọn</button></td>
         </tr>
     `,
     )
     .join("");
 
-  tbody.querySelectorAll("[data-student-view]").forEach((button) => {
-    button.addEventListener("click", () =>
-      selectStudent(Number(button.dataset.studentView)),
+  tbody.querySelectorAll("tr[data-student-view]").forEach((row) => {
+    row.addEventListener("click", () =>
+      selectStudent(Number(row.dataset.studentView)),
     );
   });
 }

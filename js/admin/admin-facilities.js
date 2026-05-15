@@ -146,7 +146,7 @@ async function loadFacilitiesInventory() {
   const tbody = document.getElementById("facilities-table-body");
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td></tr>';
+    '<tr><td colspan="5" class="table-empty">Đang tải danh sách thiết bị...</td></tr>';
 
   const res = await callApi("/facilities");
   const filters = getFacilityInventoryFilters();
@@ -189,30 +189,27 @@ function renderFacilitiesInventory() {
 
   if (!adminFacilities.length) {
     tbody.innerHTML =
-      '<tr><td colspan="6" class="table-empty">Không có thiết bị phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="5" class="table-empty">Không có thiết bị phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   tbody.innerHTML = adminFacilities
     .map(
       (item) => `
-        <tr class="${selectedFacilityId === item.id ? "is-selected" : ""}">
+        <tr class="${selectedFacilityId === item.id ? "is-selected" : ""}" style="cursor: pointer;" data-facility-view="${item.id}">
             <td>${escapeHtml(item.roomCode || "-")}</td>
             <td>${escapeHtml(item.name || "-")}</td>
             <td>${escapeHtml(item.quantity ?? "-")}</td>
             <td>${adminBadge(item.status)}</td>
             <td>${formatDate(item.createdAt)}</td>
-            <td>
-                <button type="button" class="secondary-btn" data-facility-view="${item.id}">Chọn</button>
-            </td>
         </tr>
     `,
     )
     .join("");
 
-  tbody.querySelectorAll("[data-facility-view]").forEach((button) => {
-    button.addEventListener("click", () =>
-      selectFacility(Number(button.dataset.facilityView)),
+  tbody.querySelectorAll("tr[data-facility-view]").forEach((row) => {
+    row.addEventListener("click", () =>
+      selectFacility(Number(row.dataset.facilityView)),
     );
   });
 }

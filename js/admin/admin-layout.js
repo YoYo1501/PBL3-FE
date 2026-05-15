@@ -20,6 +20,12 @@ function bindAdminHeader() {
       if (confirmed) logout();
     });
   });
+  document
+    .getElementById("header-notif-btn-main")
+    ?.addEventListener("click", () => {
+      showAdminSection("section-notifications");
+      if (typeof loadAdminInbox === "function") loadAdminInbox();
+    });
   initWelcomeMenu();
 }
 
@@ -44,18 +50,33 @@ function initWelcomeMenu() {
 
 function bindNavigation() {
   document.querySelectorAll(".nav-link[data-target]").forEach((button) => {
-    button.addEventListener("click", () => {
-      document
-        .querySelectorAll(".nav-link")
-        .forEach((item) => item.classList.remove("active"));
-      document
-        .querySelectorAll(".panel")
-        .forEach((panel) => panel.classList.remove("active"));
-
-      button.classList.add("active");
-      document.getElementById(button.dataset.target)?.classList.add("active");
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      showAdminSection(button.dataset.target);
+      if (
+        button.dataset.target === "section-notifications" &&
+        typeof loadAdminInbox === "function"
+      ) {
+        loadAdminInbox();
+      }
     });
   });
+}
+
+function showAdminSection(sectionId) {
+  if (!sectionId) return;
+
+  document
+    .querySelectorAll(".nav-link")
+    .forEach((item) => item.classList.remove("active"));
+  document
+    .querySelectorAll(".panel")
+    .forEach((panel) => panel.classList.remove("active"));
+
+  document
+    .querySelector(`.nav-link[data-target="${sectionId}"]`)
+    ?.classList.add("active");
+  document.getElementById(sectionId)?.classList.add("active");
 }
 
 function bindReloadButtons() {

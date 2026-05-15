@@ -10,101 +10,161 @@
     <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="admin-page">
-    <div class="top-bar">
-        <div class="welcome-menu" id="welcome-menu">
-            <button type="button" class="welcome-trigger" id="welcome-trigger" aria-expanded="false">
-                <span class="welcome-copy">
-                    <span>Welcome,</span>
-                    <strong id="admin-name">Đang tải...</strong>
-                </span>
-                <span class="welcome-caret">▾</span>
-            </button>
-            <div class="welcome-dropdown" id="welcome-dropdown">
-                <button type="button" class="welcome-dropdown-item" id="logout-btn">Đăng xuất</button>
-            </div>
-        </div>
-    </div>
-
-    <header class="portal-header">
-        <div class="portal-logo">
-            <div class="portal-logo-mark">KTX</div>
-            <div class="portal-logo-copy">
-                <strong>TRUNG TÂM QUẢN LÝ</strong>
-                <span>KÝ TÚC XÁ VÀ KHU ĐÔ THỊ</span>
-            </div>
-        </div>
-        <h1 class="portal-title">TRANG QUẢN TRỊ KÝ TÚC XÁ</h1>
-    </header>
-
-    <div class="portal-layout">
+    <div class="app-layout">
         <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="portal-logo">
+                    <div class="portal-logo-mark">KTX</div>
+                    <div class="portal-logo-copy">
+                        <strong>TRUNG TÂM QUẢN LÝ</strong>
+                        <span>KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG</span>
+                    </div>
+                </div>
+            </div>
             <nav>
-                <div class="sidebar-title">Chức năng quản trị</div>
-                <button class="nav-link active" data-target="section-overview" type="button">Tổng quan</button>
-                <button class="nav-link" data-target="section-admin-profile" type="button">Tài khoản admin</button>
-                <button class="nav-link" data-target="section-registrations" type="button">Đơn đăng ký</button>
-                <button class="nav-link" data-target="section-requests" type="button">Yêu cầu sinh viên</button>
-                <button class="nav-link" data-target="section-transfers" type="button">Chuyển phòng</button>
-                <button class="nav-link" data-target="section-renewals" type="button">Gia hạn hợp đồng</button>
-                <button class="nav-link" data-target="section-contracts" type="button">Quản lý hợp đồng</button>
-                <button class="nav-link" data-target="section-invoices" type="button">Hóa đơn</button>
-                <button class="nav-link" data-target="section-rooms" type="button">Phòng</button>
-                <button class="nav-link" data-target="section-facilities" type="button">Thiết bị</button>
-                <button class="nav-link" data-target="section-students" type="button">Sinh viên</button>
-                <button class="nav-link" data-target="section-revenue" type="button">Doanh thu</button>
-                <button class="nav-link" data-target="section-notifications" type="button">
+                <div class="sidebar-title">CHỨC NĂNG QUẢN TRỊ</div>
+                <button class="nav-link active" data-target="section-overview" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Tổng quan</span>
+                </button>
+                <button class="nav-link" data-target="section-admin-profile" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Tài khoản admin</span>
+                </button>
+                <button class="nav-link" data-target="section-registrations" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Đơn đăng ký</span>
+                </button>
+                <button class="nav-link" data-target="section-requests" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>Yêu cầu sinh viên</span>
+                </button>
+                <button class="nav-link" data-target="section-transfers" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                    <span>Chuyển phòng</span>
+                </button>
+                <button class="nav-link" data-target="section-renewals" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>Gia hạn hợp đồng</span>
+                </button>
+                <button class="nav-link" data-target="section-contracts" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    <span>Quản lý hợp đồng</span>
+                </button>
+                <button class="nav-link" data-target="section-invoices" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path></svg>
+                    <span>Hóa đơn</span>
+                </button>
+                <button class="nav-link" data-target="section-rooms" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                    <span>Phòng</span>
+                </button>
+                <button class="nav-link" data-target="section-facilities" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    <span>Thiết bị</span>
+                </button>
+                <button class="nav-link" data-target="section-students" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Sinh viên</span>
+                </button>
+                <button class="nav-link" data-target="section-revenue" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span>Doanh thu</span>
+                </button>
+                <button class="nav-link notification-nav-link" data-target="section-notifications" type="button">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span>Thông báo</span>
-                    <span class="nav-badge" id="admin-notif-badge" hidden>0</span>
+                    <span class="nav-badge admin-notif-count" id="admin-notif-badge" hidden>0</span>
                 </button>
             </nav>
         </aside>
 
-        <main class="content">
-            <section class="panel active" id="section-overview">
-                <div class="content-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="section-kicker">Dashboard</p>
-                            <h2 class="page-heading">Tổng quan vận hành</h2>
+        <div class="main-wrapper">
+            <header class="main-header">
+                <h1 class="main-title">TRUNG TÂM ĐIỀU HÀNH KÝ TÚC XÁ</h1>
+                <div class="header-actions">
+                    <button type="button" class="header-notif-btn" id="header-notif-btn-main" aria-label="Mở trang thông báo">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="header-notif-badge admin-notif-count" id="header-notif-badge-main" hidden>0</span>
+                    </button>
+                    <div class="welcome-menu" id="welcome-menu">
+                        <button type="button" class="welcome-trigger" id="welcome-trigger" aria-expanded="false">
+                            <div class="avatar-circle">L</div>
+                            <span class="welcome-copy">
+                                <strong id="admin-name">Đang tải...</strong>
+                                <span>Admin</span>
+                            </span>
+                        </button>
+                        <div class="welcome-dropdown" id="welcome-dropdown">
+                            <button type="button" class="welcome-dropdown-item" id="logout-btn">Đăng xuất</button>
                         </div>
-                        <button type="button" class="primary-btn" id="refresh-dashboard-btn">Làm mới dữ liệu</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+                <section class="panel active" id="section-overview">
+                    <div class="section-head page-head-section">
+                        <div>
+                            <h2 class="page-heading">Tổng quan vận hành</h2>
+                            <p class="section-kicker">Theo dõi và quản lý toàn bộ hoạt động ký túc xá</p>
+                        </div>
+                        <button type="button" class="primary-btn btn-refresh" id="refresh-dashboard-btn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                            Làm mới dữ liệu
+                        </button>
                     </div>
 
                     <div class="stats-grid">
-                        <article class="stat-card">
-                            <span class="stat-label">Đơn đăng ký chờ duyệt</span>
-                            <strong class="stat-value" id="stat-registrations">0</strong>
+                        <article class="stat-card" data-overview-target="section-registrations" role="button" tabindex="0" aria-label="Mở trang đơn đăng ký chờ duyệt">
+                            <div class="stat-icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Đơn đăng ký chờ duyệt</span>
+                                <strong class="stat-value" id="stat-registrations">0</strong>
+                                <span class="stat-desc">Đơn</span>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Yêu cầu đang chờ</span>
-                            <strong class="stat-value" id="stat-requests">0</strong>
+                        <article class="stat-card" data-overview-target="section-requests" role="button" tabindex="0" aria-label="Mở trang yêu cầu sinh viên đang chờ">
+                            <div class="stat-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Yêu cầu đang chờ</span>
+                                <strong class="stat-value" id="stat-requests">0</strong>
+                                <span class="stat-desc">Yêu cầu</span>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Yêu cầu chuyển phòng</span>
-                            <strong class="stat-value" id="stat-transfers">0</strong>
+                        <article class="stat-card" data-overview-target="section-transfers" role="button" tabindex="0" aria-label="Mở trang yêu cầu chuyển phòng">
+                            <div class="stat-icon bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Yêu cầu chuyển phòng</span>
+                                <strong class="stat-value" id="stat-transfers">0</strong>
+                                <span class="stat-desc">Yêu cầu</span>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Gia hạn hợp đồng</span>
-                            <strong class="stat-value" id="stat-renewals">0</strong>
+                        <article class="stat-card" data-overview-target="section-renewals" role="button" tabindex="0" aria-label="Mở trang gia hạn hợp đồng">
+                            <div class="stat-icon bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Gia hạn hợp đồng</span>
+                                <strong class="stat-value" id="stat-renewals">0</strong>
+                                <span class="stat-desc">Yêu cầu</span>
+                            </div>
                         </article>
                     </div>
-                </div>
 
                 <div class="dual-grid">
-                    <article class="content-card">
+                    <article class="content-card list-card">
                         <div class="card-head">
                             <h3>Danh sách chờ xử lý</h3>
-                            <span class="pill">Theo API</span>
+                            <a href="#" class="view-all-link nav-link" data-target="section-requests">Xem tất cả <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
                         </div>
                         <div id="overview-pending-feed" class="stack-list">
                             <div class="empty-state">Đang tải dữ liệu...</div>
                         </div>
                     </article>
 
-                    <article class="content-card">
+                    <article class="content-card list-card">
                         <div class="card-head">
                             <h3>Tình trạng phòng</h3>
-                            <span class="pill neutral">Toàn hệ thống</span>
+                            <a href="#" class="view-all-link nav-link" data-target="section-rooms">Xem chi tiết <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
                         </div>
                         <div id="overview-room-feed" class="stack-list">
                             <div class="empty-state">Đang tải dữ liệu...</div>
@@ -114,39 +174,45 @@
             </section>
 
             <section class="panel" id="section-admin-profile">
+                <div class="page-head-section">
+                    <div>
+                        <h2 class="page-heading">Thông tin tài khoản</h2>
+                        <p class="section-kicker">Quản lý thông tin tài khoản và bảo mật hệ thống</p>
+                    </div>
+                </div>
                 <div class="dual-grid">
                     <article class="content-card">
-                        <div class="section-head">
-                            <div>
-                                <p class="section-kicker">Account</p>
-                                <h2 class="page-heading">Thông tin tài khoản</h2>
-                            </div>
-                            <button type="button" class="primary-btn" id="reload-admin-profile-btn">Tải lại</button>
+                        <div class="card-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h3 style="display: flex; align-items: center; gap: 8px; color: #10B981; margin: 0; font-size: 16px;">
+                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #3b82f6;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <span style="color: #10B981;">Thông tin tài khoản</span>
+                            </h3>
+                            <button type="button" class="secondary-btn" id="reload-admin-profile-btn" style="background: #fff; color: var(--portal-blue); border: 1px solid var(--portal-blue); padding: 6px 12px; font-size: 13px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Tải lại</button>
                         </div>
                         <form id="admin-profile-form" class="form-stack">
                             <label>
                                 <span>Họ tên</span>
-                                <input type="text" id="admin-profile-name" readonly>
+                                <input type="text" id="admin-profile-name">
                             </label>
                             <label>
                                 <span>Email</span>
-                                <input type="email" id="admin-profile-email" readonly>
+                                <input type="email" id="admin-profile-email">
                             </label>
                             <label>
                                 <span>Số điện thoại</span>
                                 <input type="text" id="admin-profile-phone" placeholder="Ví dụ: 0912345678">
                             </label>
                             <p class="form-error" id="admin-profile-error"></p>
-                            <button type="submit" class="primary-btn">Lưu số điện thoại</button>
+                            <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Lưu thông tin</button>
                         </form>
                     </article>
 
                     <article class="content-card">
-                        <div class="section-head">
-                            <div>
-                                <p class="section-kicker">Security</p>
-                                <h2 class="page-heading">Đổi mật khẩu</h2>
-                            </div>
+                        <div class="card-head" style="margin-bottom: 24px;">
+                            <h3 style="display: flex; align-items: center; gap: 8px; color: #10B981; margin: 0; font-size: 16px;">
+                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #10B981;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                <span>Đổi mật khẩu</span>
+                            </h3>
                         </div>
                         <form id="admin-password-form" class="form-stack">
                             <label>
@@ -157,26 +223,35 @@
                                 <span>Mật khẩu mới</span>
                                 <input type="password" id="admin-new-password">
                             </label>
+                            <div class="password-strength-row admin-password-strength empty" id="admin-password-strength-row">
+                                <span>Độ mạnh mật khẩu:</span>
+                                <div class="password-strength-bars" aria-hidden="true">
+                                    <i></i>
+                                    <i></i>
+                                    <i></i>
+                                </div>
+                                <strong id="admin-password-strength-label"></strong>
+                            </div>
                             <label>
                                 <span>Xác nhận mật khẩu mới</span>
                                 <input type="password" id="admin-confirm-password">
                             </label>
                             <p class="form-error" id="admin-password-error"></p>
-                            <button type="submit" class="primary-btn">Đổi mật khẩu</button>
+                            <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Đổi mật khẩu</button>
                         </form>
                     </article>
                 </div>
             </section>
 
             <section class="panel" id="section-registrations">
-                <div class="content-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="section-kicker">Registrations</p>
-                            <h2 class="page-heading">Duyệt đơn đăng ký ở trú</h2>
-                        </div>
-                        <button type="button" class="primary-btn" id="reload-registrations-btn">Tải lại</button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Duyệt đơn đăng ký ở trú</h2>
+                        <p class="section-kicker">Quản lý và duyệt các đơn đăng ký ở trú của sinh viên</p>
                     </div>
+                    <button type="button" class="primary-btn" id="reload-registrations-btn" style="padding: 8px 16px;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Tải lại</button>
+                </div>
+                <div class="content-card">
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
@@ -208,6 +283,17 @@
                         </div>
                         <button type="button" class="primary-btn" id="reload-requests-btn">Tải lại</button>
                     </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="request-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
+                    </div>
                     <div id="requests-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu...</div>
                     </div>
@@ -228,6 +314,17 @@
                         </div>
                         <button type="button" class="primary-btn" id="reload-transfers-btn">Tải lại</button>
                     </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="transfer-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
+                    </div>
                     <div id="transfers-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu chuyển phòng...</div>
                     </div>
@@ -247,6 +344,17 @@
                             <h2 class="page-heading">Duyệt gia hạn hợp đồng</h2>
                         </div>
                         <button type="button" class="primary-btn" id="reload-renewals-btn">Tải lại</button>
+                    </div>
+                    <div class="registration-filter-grid">
+                        <label>
+                            <span>Trạng thái</span>
+                            <select id="renewal-filter-status">
+                                <option value="Pending">Chờ duyệt</option>
+                                <option value="">Tất cả</option>
+                                <option value="Approved">Đã duyệt</option>
+                                <option value="Rejected">Từ chối</option>
+                            </select>
+                        </label>
                     </div>
                     <div id="renewals-list" class="stack-list">
                         <div class="empty-state">Đang tải yêu cầu gia hạn...</div>
@@ -297,12 +405,11 @@
                                         <th>Thời hạn</th>
                                         <th>Giá</th>
                                         <th>Trạng thái</th>
-                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="contracts-table-body">
                                     <tr>
-                                        <td colspan="7" class="table-empty">Đang tải danh sách hợp đồng...</td>
+                                        <td colspan="6" class="table-empty">Đang tải danh sách hợp đồng...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -523,12 +630,11 @@
                                         <th>Sức chứa</th>
                                         <th>Giá</th>
                                         <th>Trạng thái</th>
-                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="rooms-table-body">
                                     <tr>
-                                        <td colspan="8" class="table-empty">Đang tải danh sách phòng...</td>
+                                        <td colspan="7" class="table-empty">Đang tải danh sách phòng...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -639,12 +745,11 @@
                                             <th>Số lượng</th>
                                             <th>Tình trạng</th>
                                             <th>Ngày tạo</th>
-                                            <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody id="facilities-table-body">
                                         <tr>
-                                            <td colspan="6" class="table-empty">Đang tải danh sách thiết bị...</td>
+                                            <td colspan="5" class="table-empty">Đang tải danh sách thiết bị...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -730,12 +835,11 @@
                                         <th>Phòng</th>
                                         <th>Điện thoại</th>
                                         <th>Trạng thái</th>
-                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="students-table-body">
                                     <tr>
-                                        <td colspan="7" class="table-empty">Đang tải danh sách sinh viên...</td>
+                                        <td colspan="6" class="table-empty">Đang tải danh sách sinh viên...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -936,7 +1040,7 @@
                                 <h2 class="page-heading">Thông báo đến</h2>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
-                                <span class="nav-badge" id="admin-notif-badge" hidden>0</span>
+                                <span class="nav-badge admin-notif-count" id="admin-inbox-badge" hidden>0</span>
                                 <button type="button" class="secondary-btn" id="reload-admin-inbox-btn">🔄 Tải lại</button>
                             </div>
                         </div>
@@ -1029,6 +1133,17 @@
             <p class="notif-modal-meta" id="notif-modal-date"></p>
             <hr class="notif-modal-divider">
             <div class="notif-modal-body" id="notif-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="notif-modal-overlay" id="request-detail-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card request-modal-card">
+            <div class="notif-modal-header">
+                <h3 id="request-modal-title">Chi tiết yêu cầu</h3>
+                <button type="button" class="notif-modal-close" id="request-modal-close-btn" aria-label="Đóng">×</button>
+            </div>
+            <p class="notif-modal-meta" id="request-modal-meta"></p>
+            <div class="notif-modal-body" id="request-modal-body"></div>
         </div>
     </div>
 </body>

@@ -138,10 +138,30 @@ async function callApiBlob(endpoint, options = {}) {
 
 /** Format ngày thành dd/MM/yyyy */
 function formatDate(dateStr) {
-    if (!dateStr) return '—';
-    const d = new Date(dateStr);
+    const d = parseDateValue(dateStr);
     if (isNaN(d)) return '—';
     return d.toLocaleDateString('vi-VN');
+}
+
+function parseDateValue(value) {
+    if (!value) return new Date(NaN);
+    if (value instanceof Date) return value;
+
+    const raw = String(value).trim();
+    const vnMatch = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+    if (vnMatch) {
+        const [, day, month, year, hour = '0', minute = '0', second = '0'] = vnMatch;
+        return new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day),
+            Number(hour),
+            Number(minute),
+            Number(second),
+        );
+    }
+
+    return new Date(raw);
 }
 
 /** Format tiền VND */

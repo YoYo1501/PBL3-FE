@@ -54,29 +54,32 @@ function renderRegistrationsList() {
   container.innerHTML = adminRegistrations
     .map(
       (item) => `
-        <article class="queue-item">
-            <div class="queue-head">
+        <article class="queue-item registration-click-item" role="button" tabindex="0" data-registration-id="${item.id}" aria-label="Xem chi tiet don dang ky ${escapeHtml(item.fullName)}">
+            <div class="queue-item-icon icon-blue">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <div class="queue-item-content">
                 <strong>${escapeHtml(item.fullName)}</strong>
+                <p class="queue-body">Phòng: ${escapeHtml(item.roomCode || "-")}</p>
+                ${
+                  item.status === "Pending"
+                    ? `<div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button type="button" class="primary-btn" data-reg-approve="${item.id}"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Duyệt</button>
+                        <button type="button" class="danger-btn" data-reg-reject="${item.id}"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Từ chối</button>
+                    </div>`
+                    : ""
+                }
+            </div>
+            <div class="queue-item-actions">
                 ${adminBadge(item.status)}
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
-            <div class="queue-meta">
-                <span>Mã đơn: ${escapeHtml(item.registrationCode)}</span>
-                <span>Phòng: ${escapeHtml(item.roomCode || "-")}</span>
-                <span>${formatDate(item.startDate)} - ${formatDate(item.endDate)}</span>
-                <span>Ngày gửi: ${formatDate(item.submittedAt)}</span>
-            </div>
-            ${
-              item.status === "Pending"
-                ? `<div class="queue-actions">
-                    <button type="button" class="primary-btn" data-reg-approve="${item.id}">Duyệt</button>
-                    <button type="button" class="danger-btn" data-reg-reject="${item.id}">Từ chối</button>
-                </div>`
-                : ""
-            }
         </article>
     `,
     )
     .join("");
+
+  bindRegistrationDetail(container);
 
   container.querySelectorAll("[data-reg-approve]").forEach((button) => {
     button.addEventListener("click", () =>
@@ -133,4 +136,67 @@ function renderRegistrationsList() {
       }),
     );
   });
+}
+
+function bindRegistrationDetail(container) {
+  container.querySelectorAll("[data-registration-id]").forEach((itemEl) => {
+    const openDetail = (event) => {
+      if (event.target.closest("button, a")) return;
+      const item = adminRegistrations.find(
+        (registration) => String(registration.id) === String(itemEl.dataset.registrationId),
+      );
+      if (item) showRegistrationDetailModal(item);
+    };
+
+    itemEl.addEventListener("click", openDetail);
+    itemEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openDetail(event);
+    });
+  });
+}
+
+function showRegistrationDetailModal(item) {
+  const overlay = document.getElementById("request-detail-modal");
+  const titleEl = document.getElementById("request-modal-title");
+  const metaEl = document.getElementById("request-modal-meta");
+  const bodyEl = document.getElementById("request-modal-body");
+  const closeBtn = document.getElementById("request-modal-close-btn");
+  if (!overlay || !titleEl || !metaEl || !bodyEl || !closeBtn) return;
+
+  const submittedAt = item.submittedAt ?? item.SubmittedAt;
+  const startDate = item.startDate ?? item.StartDate;
+  const endDate = item.endDate ?? item.EndDate;
+
+  titleEl.textContent = "Chi tiết đơn đăng ký ở trú";
+  metaEl.textContent = `Mã đơn ${item.registrationCode || item.RegistrationCode || "-"}`;
+  bodyEl.innerHTML = `
+    <div class="request-detail-grid">
+      ${requestDetailField("Họ tên", item.fullName || item.FullName || "-")}
+      ${requestDetailField("Phòng", item.roomCode || item.RoomCode || "-")}
+      ${requestDetailField("Ngày gửi", formatDate(submittedAt))}
+      ${requestDetailField("Ngày bắt đầu", formatDate(startDate))}
+      ${requestDetailField("Ngày kết thúc", formatDate(endDate))}
+      <div class="request-detail-field">
+        <span>Trạng thái</span>
+        ${adminBadge(item.status || item.Status)}
+      </div>
+    </div>
+  `;
+
+  const closeModal = () => {
+    overlay.style.display = "none";
+    document.removeEventListener("keydown", handleKey);
+  };
+  const handleKey = (event) => {
+    if (event.key === "Escape") closeModal();
+  };
+
+  closeBtn.onclick = closeModal;
+  overlay.onclick = (event) => {
+    if (event.target === overlay) closeModal();
+  };
+  document.addEventListener("keydown", handleKey);
+  overlay.style.display = "flex";
 }

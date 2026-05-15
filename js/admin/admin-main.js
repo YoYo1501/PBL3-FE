@@ -2,9 +2,13 @@
 document.addEventListener("DOMContentLoaded", () => {
   bindAdminHeader();
   bindNavigation();
+  bindOverviewShortcuts();
   bindReloadButtons();
   bindPaginationControls();
   bindRegistrationControls();
+  bindRequestControls();
+  bindTransferControls();
+  bindRenewalControls();
   bindAdminProfileControls();
   bindNotificationForm();
   bindInvoiceControls();

@@ -47,6 +47,13 @@ function setNotificationError(message = "") {
   if (el) el.textContent = message;
 }
 
+function updateAdminNotificationBadges(unreadCount) {
+  document.querySelectorAll(".admin-notif-count").forEach((badge) => {
+    badge.textContent = String(unreadCount);
+    badge.hidden = unreadCount === 0;
+  });
+}
+
 // ── Bind form tạo/gửi thông báo ─────────────────────────────────────
 function bindNotificationForm() {
   const targetTypeEl = document.getElementById("notif-target-type");
@@ -215,7 +222,6 @@ function editNotification(item) {
 // ── 1. INBOX: Thông báo hệ thống gửi cho admin ──────────────────────
 async function loadAdminInbox() {
   const container = document.getElementById("admin-inbox-list");
-  const badge = document.getElementById("admin-notif-badge");
   if (!container) return;
 
   container.innerHTML = '<div class="loading-state">Đang tải thông báo đến...</div>';
@@ -225,10 +231,7 @@ async function loadAdminInbox() {
 
   // Cập nhật badge số chưa đọc
   const unreadCount = items.filter((n) => !n.isRead).length;
-  if (badge) {
-    badge.textContent = String(unreadCount);
-    badge.hidden = unreadCount === 0;
-  }
+  updateAdminNotificationBadges(unreadCount);
 
   if (!items.length) {
     container.innerHTML = '<div class="empty-state">Chưa có thông báo nào từ hệ thống.</div>';
@@ -274,14 +277,10 @@ async function loadAdminInbox() {
 
 // ── Tổng hợp badge (dùng ở nơi khác trong app) ──────────────────────
 async function loadAdminNotificationCount() {
-  const badge = document.getElementById("admin-notif-badge");
-  if (!badge) return;
-
   const res = await callApi("/notifications/my");
   const notifications = Array.isArray(res?.data) ? res.data : [];
   const unreadCount = notifications.filter((item) => !item.isRead).length;
-  badge.textContent = String(unreadCount);
-  badge.hidden = unreadCount === 0;
+  updateAdminNotificationBadges(unreadCount);
 }
 
 // ── 2. LỊCH SỬ ĐÃ GỬI: thông báo admin tạo gửi sinh viên ───────────

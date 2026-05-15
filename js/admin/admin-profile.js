@@ -27,10 +27,51 @@ async function loadAdminProfile() {
   }
 }
 
+function getAdminPasswordStrength(password) {
+  const checks = [
+    password.length >= 8,
+    /[a-z]/.test(password) && /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password),
+  ];
+  return checks.filter(Boolean).length;
+}
+
+function updateAdminPasswordStrength(password = "") {
+  const row = document.getElementById("admin-password-strength-row");
+  const label = document.getElementById("admin-password-strength-label");
+  if (!row || !label) return;
+
+  row.classList.remove("empty", "weak", "medium", "strong");
+  if (!password) {
+    row.classList.add("empty");
+    label.textContent = "";
+    return;
+  }
+
+  const score = getAdminPasswordStrength(password);
+  if (score >= 4) {
+    row.classList.add("strong");
+    label.textContent = "Mạnh";
+  } else if (score >= 2) {
+    row.classList.add("medium");
+    label.textContent = "Trung bình";
+  } else {
+    row.classList.add("weak");
+    label.textContent = "Yếu";
+  }
+}
+
 function bindAdminProfileControls() {
   document
     .getElementById("reload-admin-profile-btn")
     ?.addEventListener("click", loadAdminProfile);
+
+  const adminNewPasswordInput = document.getElementById("admin-new-password");
+  adminNewPasswordInput?.addEventListener("input", () =>
+    updateAdminPasswordStrength(adminNewPasswordInput.value),
+  );
+  updateAdminPasswordStrength(adminNewPasswordInput?.value || "");
 
   document
     .getElementById("admin-profile-form")
@@ -96,6 +137,7 @@ function bindAdminProfileControls() {
       if (res?.ok) {
         adminToast(res.data?.message || "Đã đổi mật khẩu.");
         event.target.reset();
+        updateAdminPasswordStrength("");
       } else {
         errorEl.textContent = getApiErrorMessage(
           res,

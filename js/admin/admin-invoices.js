@@ -196,7 +196,7 @@ async function loadInvoices() {
   if (!tbody) return;
 
   tbody.innerHTML =
-    '<tr><td colspan="11" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
+    '<tr><td colspan="8" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
   setInvoiceActionError("");
 
   const filters = getInvoiceFilters();
@@ -223,43 +223,31 @@ function renderInvoicesTable() {
 
   if (!adminInvoices.length) {
     tbody.innerHTML =
-      '<tr><td colspan="11" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="8" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   tbody.innerHTML = adminInvoices
     .map(
       (invoice) => `
-        <tr>
+        <tr data-invoice-view="${invoice.id}" style="cursor: pointer;">
             <td>${escapeHtml(invoice.id)}</td>
-            <td>${escapeHtml(invoice.period || "-")}</td>
-            <td>${escapeHtml(invoice.roomCode || "-")}</td>
             <td>${escapeHtml(invoice.studentName || "-")}</td>
-            <td>${escapeHtml(formatCurrency(invoice.roomFee))}</td>
+            <td>${escapeHtml(invoice.roomCode || "-")}</td>
+            <td>${escapeHtml(invoice.period || "-")}</td>
             <td>${escapeHtml(formatCurrency(invoice.electricFee))}</td>
             <td>${escapeHtml(formatCurrency(invoice.waterFee))}</td>
             <td><strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong></td>
             <td>${adminBadge(invoice.status)}</td>
-            <td>${formatDate(invoice.issuedAt)}</td>
-            <td>
-                <div class="invoice-status-actions">
-                    <button type="button" class="secondary-btn" data-invoice-view="${invoice.id}">Chi tiết</button>
-                    ${
-                      invoice.status === "Unpaid"
-                        ? `<button type="button" class="primary-btn" data-invoice-pay="${invoice.id}">Đánh dấu đã thu</button>`
-                        : ""
-                    }
-                </div>
-            </td>
         </tr>
     `,
     )
     .join("");
 
-  tbody.querySelectorAll("[data-invoice-view]").forEach((button) => {
-    button.addEventListener("click", async () => {
+  tbody.querySelectorAll("tr[data-invoice-view]").forEach((row) => {
+    row.addEventListener("click", async () => {
       const resDetail = await callApi(
-        `/invoices/${button.dataset.invoiceView}`,
+        `/invoices/${row.dataset.invoiceView}`,
       );
       const invoice = resDetail?.data;
       if (!resDetail?.ok || !invoice) {
@@ -283,7 +271,28 @@ function renderInvoicesTable() {
         `Ngày phát hành: ${formatDate(invoice.issuedAt)}`,
       ].join("\n");
 
-      window.alert(details);
+      // We should probably allow the user to mark it as paid if it's unpaid.
+      // But since we removed the button, let's use a confirm dialog if it's Unpaid.
+      if (invoice.status === "Unpaid") {
+          const confirmed = confirm(details + "\n\nBạn có muốn đánh dấu hóa đơn này là đã thu tiền không?");
+          if (confirmed) {
+            const resPay = await callApi(
+              `/invoices/${invoice.id}/pay`,
+              { method: "PUT" },
+            );
+            if (resPay?.ok) {
+              adminToast(resPay.data?.message || "Đã cập nhật hóa đơn đã thanh toán.");
+              loadInvoices();
+            } else {
+              adminToast(
+                resPay?.data?.message || "Không thể cập nhật hóa đơn.",
+                true,
+              );
+            }
+          }
+      } else {
+          window.alert(details);
+      }
     });
   });
 

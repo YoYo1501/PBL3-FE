@@ -136,7 +136,7 @@ async function loadRooms() {
   const tbody = document.getElementById("rooms-table-body");
   if (!tbody) return;
   tbody.innerHTML =
-    '<tr><td colspan="8" class="table-empty">Đang tải danh sách phòng...</td></tr>';
+    '<tr><td colspan="7" class="table-empty">Đang tải danh sách phòng...</td></tr>';
 
   const filters = getRoomFilters();
   const state = paginationState.rooms;
@@ -194,30 +194,29 @@ function renderRoomsTable() {
 
   if (!adminRooms.length) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="table-empty">Không có phòng phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="7" class="table-empty">Không có phòng phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
   tbody.innerHTML = adminRooms
     .map(
       (room) => `
-        <tr class="${selectedRoomId === room.id ? "is-selected" : ""}">
+        <tr class="${selectedRoomId === room.id ? "is-selected" : ""}" style="cursor: pointer;" data-room-view="${room.id}">
             <td><strong>${escapeHtml(room.roomCode)}</strong></td>
-            <td>${escapeHtml(room.buildingName || "-")} (${escapeHtml(room.buildingCode || "-")})</td>
+            <td>${escapeHtml(room.buildingName || room.buildingCode || "-")}</td>
             <td>${escapeHtml(room.roomType || "-")}</td>
             <td>${escapeHtml(room.genderAllowed || "-")}</td>
             <td>${escapeHtml(room.currentOccupancy)}/${escapeHtml(room.capacity)} (${escapeHtml(room.availableSlots)} chỗ trống)</td>
             <td>${escapeHtml(formatCurrency(room.price))}</td>
             <td>${adminBadge(room.status)}</td>
-            <td><button type="button" class="secondary-btn" data-room-view="${room.id}">Chọn</button></td>
         </tr>
     `,
     )
     .join("");
 
-  tbody.querySelectorAll("[data-room-view]").forEach((button) => {
-    button.addEventListener("click", () =>
-      selectRoom(Number(button.dataset.roomView)),
+  tbody.querySelectorAll("tr[data-room-view]").forEach((row) => {
+    row.addEventListener("click", () =>
+      selectRoom(Number(row.dataset.roomView)),
     );
   });
 }
