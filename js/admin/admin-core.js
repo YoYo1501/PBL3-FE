@@ -47,8 +47,58 @@ function escapeHtml(value) {
 }
 
 function promptNote(message) {
-  const value = window.prompt(message);
-  return value == null ? null : value.trim();
+  const overlay = document.getElementById("note-input-modal");
+  const form = document.getElementById("note-input-form");
+  const title = document.getElementById("note-input-title");
+  const label = document.getElementById("note-input-label");
+  const textarea = document.getElementById("note-input-text");
+  const closeBtn = document.getElementById("note-input-close-btn");
+  const cancelBtn = document.getElementById("note-input-cancel-btn");
+
+  if (!overlay || !form || !textarea || !closeBtn || !cancelBtn) {
+    const value = window.prompt(message);
+    return Promise.resolve(value == null ? null : value.trim());
+  }
+
+  if (title) title.textContent = "Nhập thông tin xử lý";
+  if (label) label.textContent = message;
+  textarea.value = "";
+  overlay.style.display = "flex";
+  window.setTimeout(() => textarea.focus(), 0);
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      overlay.style.display = "none";
+      form.removeEventListener("submit", handleSubmit);
+      closeBtn.removeEventListener("click", handleCancel);
+      cancelBtn.removeEventListener("click", handleCancel);
+      overlay.removeEventListener("click", handleOverlayClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+
+    const done = (value) => {
+      cleanup();
+      resolve(value);
+    };
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      done(textarea.value.trim());
+    };
+    const handleCancel = () => done(null);
+    const handleOverlayClick = (event) => {
+      if (event.target === overlay) done(null);
+    };
+    const handleKey = (event) => {
+      if (event.key === "Escape") done(null);
+    };
+
+    form.addEventListener("submit", handleSubmit);
+    closeBtn.addEventListener("click", handleCancel);
+    cancelBtn.addEventListener("click", handleCancel);
+    overlay.addEventListener("click", handleOverlayClick);
+    document.addEventListener("keydown", handleKey);
+  });
 }
 
 async function withAction(button, task) {

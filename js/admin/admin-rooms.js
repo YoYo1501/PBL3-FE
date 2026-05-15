@@ -1,8 +1,18 @@
+let roomOverviewFilter = "";
+
+const roomOverviewFilterLabels = {
+  available: "Phòng còn chỗ",
+  full: "Phòng đã đầy",
+  male: "Phòng nam",
+  female: "Phòng nữ",
+};
+
 function getRoomFilters() {
   return {
     keyword:
       document.getElementById("room-search")?.value.trim().toLowerCase() || "",
     status: document.getElementById("room-filter-status")?.value || "",
+    overview: roomOverviewFilter,
   };
 }
 
@@ -13,6 +23,7 @@ function setRoomError(message = "") {
 
 function bindRoomControls() {
   const rerenderRooms = () => {
+    clearRoomOverviewFilter(false);
     resetPage("rooms");
     loadRooms();
   };
@@ -22,6 +33,9 @@ function bindRoomControls() {
   document
     .getElementById("room-filter-status")
     ?.addEventListener("change", rerenderRooms);
+  document
+    .getElementById("room-overview-filter-clear")
+    ?.addEventListener("click", () => clearRoomOverviewFilter(true));
 
   document.getElementById("new-room-btn")?.addEventListener("click", () => {
     selectedRoomId = null;
@@ -119,6 +133,50 @@ function bindRoomControls() {
     });
 }
 
+function applyRoomOverviewFilter(filterKey) {
+  if (!roomOverviewFilterLabels[filterKey]) return;
+
+  roomOverviewFilter = filterKey;
+  selectedRoomId = null;
+
+  const searchInput = document.getElementById("room-search");
+  const statusSelect = document.getElementById("room-filter-status");
+  if (searchInput) searchInput.value = "";
+  if (statusSelect) statusSelect.value = "";
+
+  resetPage("rooms");
+  updateRoomOverviewFilterNote();
+  loadRooms();
+}
+
+function clearRoomOverviewFilter(shouldReload = true) {
+  if (!roomOverviewFilter && !shouldReload) {
+    updateRoomOverviewFilterNote();
+    return;
+  }
+
+  roomOverviewFilter = "";
+  updateRoomOverviewFilterNote();
+
+  if (shouldReload) {
+    resetPage("rooms");
+    loadRooms();
+  }
+}
+
+function updateRoomOverviewFilterNote() {
+  const note = document.getElementById("room-overview-filter-note");
+  const label = document.getElementById("room-overview-filter-label");
+  if (!note) return;
+
+  note.hidden = !roomOverviewFilter;
+  if (label) {
+    label.textContent = roomOverviewFilter
+      ? `Đang lọc: ${roomOverviewFilterLabels[roomOverviewFilter]}`
+      : "Đang lọc phòng";
+  }
+}
+
 function populateRoomBuildings() {
   const select = document.getElementById("room-building-id");
   if (!select) return;
@@ -140,6 +198,42 @@ async function loadRooms() {
 
   const filters = getRoomFilters();
   const state = paginationState.rooms;
+  updateRoomOverviewFilterNote();
+
+  if (filters.overview) {
+    const res = await callApi("/room");
+    const rooms = Array.isArray(res?.data) ? res.data : [];
+    const filteredRooms = applyRoomClientFilters(rooms, filters);
+    state.totalItems = filteredRooms.length;
+    const totalPages = Math.max(1, Math.ceil(filteredRooms.length / state.size));
+    if (state.page > totalPages) state.page = totalPages;
+    adminRooms = filteredRooms.slice(
+      (state.page - 1) * state.size,
+      state.page * state.size,
+    );
+
+    if (!roomBuildings.length) {
+      roomBuildings = Array.from(
+        new Map(
+          rooms
+            .filter((room) => room.buildingId)
+            .map((room) => [
+              room.buildingId,
+              {
+                id: room.buildingId,
+                label: `${room.buildingName || "Tòa"} (${room.buildingCode || room.buildingId})`,
+              },
+            ]),
+        ).values(),
+      );
+      populateRoomBuildings();
+    }
+
+    renderRoomsTable();
+    clearRoomDetail();
+    return;
+  }
+
   const query = new URLSearchParams({
     page: String(state.page),
     pageSize: String(state.size),
@@ -182,6 +276,32 @@ async function loadRooms() {
   } else {
     clearRoomDetail();
   }
+}
+
+function applyRoomClientFilters(rooms, filters) {
+  return rooms.filter((room) => {
+    if (filters.status && room.status !== filters.status) return false;
+    if (filters.keyword) {
+      const searchable = [
+        room.roomCode,
+        room.roomType,
+        room.buildingName,
+        room.buildingCode,
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!searchable.includes(filters.keyword)) return false;
+    }
+
+    if (filters.overview === "available") return (room.availableSlots ?? 0) > 0;
+    if (filters.overview === "full") return (room.availableSlots ?? 0) <= 0;
+    if (filters.overview === "male") return room.genderAllowed === "Nam";
+    if (filters.overview === "female") {
+      return room.genderAllowed === "Nu" || room.genderAllowed === "Nữ";
+    }
+
+    return true;
+  });
 }
 
 function renderRoomsTable() {

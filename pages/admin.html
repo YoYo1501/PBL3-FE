@@ -154,10 +154,15 @@
                     <article class="content-card list-card">
                         <div class="card-head">
                             <h3>Danh sách chờ xử lý</h3>
-                            <a href="#" class="view-all-link nav-link" data-target="section-requests">Xem tất cả <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
+                            <span class="overview-count-badge" id="overview-pending-count">0 yêu cầu</span>
                         </div>
                         <div id="overview-pending-feed" class="stack-list">
                             <div class="empty-state">Đang tải dữ liệu...</div>
+                        </div>
+                        <div class="list-pagination overview-pagination" id="overview-pending-pagination" hidden>
+                            <button type="button" class="secondary-btn" id="overview-pending-prev-btn">Trang trước</button>
+                            <span class="pagination-summary" id="overview-pending-page-info">Trang 1 / 1</span>
+                            <button type="button" class="secondary-btn" id="overview-pending-next-btn">Trang sau</button>
                         </div>
                     </article>
 
@@ -617,6 +622,10 @@
                             </select>
                         </label>
                     </div>
+                    <div class="room-overview-filter-note" id="room-overview-filter-note" hidden>
+                        <span id="room-overview-filter-label">Đang lọc phòng</span>
+                        <button type="button" class="secondary-btn" id="room-overview-filter-clear">Bỏ lọc</button>
+                    </div>
 
                     <div class="contract-layout room-layout">
                         <div class="table-wrap">
@@ -994,12 +1003,11 @@
 
             <section class="panel" id="section-notifications">
                 <!-- Hàng 1: Form gửi + Thông báo đến -->
-                <div class="dual-grid">
+                <div class="notifications-admin-grid">
                     <!-- Card 1: Form tạo/gửi thông báo -->
-                    <article class="content-card">
+                    <article class="content-card notification-compose-card">
                         <div class="section-head">
                             <div>
-                                <p class="section-kicker">Notifications</p>
                                 <h2 class="page-heading">Tạo / sửa thông báo</h2>
                             </div>
                             <span class="pill neutral" id="notif-form-mode">Tạo mới</span>
@@ -1022,7 +1030,8 @@
                             </label>
                             <label>
                                 <span>Nội dung</span>
-                                <textarea id="notif-message" rows="5" placeholder="Nội dung thông báo gửi đến người dùng"></textarea>
+                                <textarea id="notif-message" rows="7" maxlength="1000" placeholder="Nội dung thông báo gửi đến người dùng"></textarea>
+                                <small class="field-counter" id="notif-message-count">0/1000</small>
                             </label>
                             <p class="form-error" id="notif-form-error"></p>
                             <div class="contract-actions">
@@ -1033,39 +1042,42 @@
                     </article>
 
                     <!-- Card 2: Thông báo đến cho admin (từ hệ thống) -->
-                    <article class="content-card">
+                    <article class="content-card notification-inbox-card">
                         <div class="section-head">
                             <div>
-                                <p class="section-kicker">Inbox</p>
                                 <h2 class="page-heading">Thông báo đến</h2>
+                                <p class="section-subtitle">Thông báo hệ thống gửi khi sinh viên thực hiện các yêu cầu.</p>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <span class="nav-badge admin-notif-count" id="admin-inbox-badge" hidden>0</span>
-                                <button type="button" class="secondary-btn" id="reload-admin-inbox-btn">🔄 Tải lại</button>
+                                <button type="button" class="secondary-btn" id="reload-admin-inbox-btn">Tải lại</button>
                             </div>
                         </div>
-                        <p class="section-subtitle" style="margin-bottom:12px;color:var(--text-muted,#6b7280);font-size:.85rem;">Thông báo hệ thống gửi khi sinh viên thực hiện các yêu cầu.</p>
-                        <div id="admin-inbox-list" class="stack-list">
+                        <div id="admin-inbox-list" class="notification-inbox-list">
                             <div class="empty-state">Đang tải thông báo đến...</div>
+                        </div>
+                        <div class="notification-inbox-pagination" id="admin-inbox-pagination" hidden>
+                            <button type="button" class="secondary-btn" id="admin-inbox-prev-btn">‹</button>
+                            <span id="admin-inbox-pages" class="notification-page-list"></span>
+                            <button type="button" class="secondary-btn" id="admin-inbox-next-btn">›</button>
                         </div>
                     </article>
                 </div>
 
                 <!-- Hàng 2: Lịch sử đã gửi -->
-                <div class="content-card" style="margin-top:20px;">
+                <div class="content-card notification-sent-card">
                     <div class="section-head">
                         <div>
-                            <p class="section-kicker">Sent History</p>
                             <h2 class="page-heading">Lịch sử đã gửi</h2>
+                            <p class="section-subtitle">Danh sách các thông báo admin đã tạo và gửi cho sinh viên.</p>
                         </div>
-                        <button type="button" class="secondary-btn" id="toggle-sent-history-btn" aria-expanded="false">📋 Xem lịch sử đã gửi</button>
+                        <button type="button" class="secondary-btn" id="toggle-sent-history-btn" aria-expanded="false">Xem lịch sử đã gửi</button>
                     </div>
-                    <p class="section-subtitle" style="margin-bottom:12px;color:var(--text-muted,#6b7280);font-size:.85rem;">Danh sách các thông báo admin đã tạo và gửi cho sinh viên.</p>
 
                     <!-- Panel ẩn mặc định -->
                     <div id="sent-history-panel" hidden>
                         <div class="toolbar-actions" style="margin-bottom:10px;">
-                            <button type="button" class="secondary-btn" id="reload-notifications-btn">🔄 Tải lại</button>
+                            <button type="button" class="secondary-btn" id="reload-notifications-btn">Tải lại</button>
                         </div>
                         <div class="notification-filter-grid">
                             <label>
@@ -1144,6 +1156,25 @@
             </div>
             <p class="notif-modal-meta" id="request-modal-meta"></p>
             <div class="notif-modal-body" id="request-modal-body"></div>
+        </div>
+    </div>
+
+    <div class="notif-modal-overlay" id="note-input-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card note-input-card">
+            <div class="notif-modal-header">
+                <h3 id="note-input-title">Nhập ghi chú</h3>
+                <button type="button" class="notif-modal-close" id="note-input-close-btn" aria-label="Đóng">×</button>
+            </div>
+            <form class="note-input-form" id="note-input-form">
+                <label>
+                    <span id="note-input-label">Nội dung</span>
+                    <textarea id="note-input-text" rows="4" placeholder="Nhập nội dung..."></textarea>
+                </label>
+                <div class="note-input-actions">
+                    <button type="button" class="secondary-btn" id="note-input-cancel-btn">Hủy</button>
+                    <button type="submit" class="primary-btn">Xác nhận</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
