@@ -719,6 +719,25 @@ select {
     border-radius: 8px;
 }
 
+.overview-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    margin-left: 10px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--portal-blue-soft);
+    color: var(--portal-blue);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+#overview-pending-count {
+    margin-right: auto;
+}
+
 .primary-btn,
 .secondary-btn,
 .danger-btn {
@@ -1037,6 +1056,239 @@ label span {
     gap: 6px;
 }
 
+.notifications-admin-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.4fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.notification-compose-card,
+.notification-inbox-card,
+.notification-sent-card {
+    border-radius: 8px;
+    box-shadow: 0 14px 30px rgba(16, 40, 74, 0.06);
+}
+
+.notification-compose-card,
+.notification-inbox-card {
+    height: 100%;
+}
+
+.notification-inbox-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-compose-card .page-heading,
+.notification-inbox-card .page-heading,
+.notification-sent-card .page-heading {
+    font-size: 18px;
+    line-height: 1.25;
+}
+
+.notification-inbox-card .section-head,
+.notification-sent-card .section-head,
+.notification-compose-card .section-head {
+    align-items: flex-start;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--portal-line);
+}
+
+.section-subtitle {
+    margin: 4px 0 0;
+    color: var(--portal-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.field-counter {
+    justify-self: end;
+    color: var(--portal-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.notification-compose-card textarea {
+    resize: vertical;
+    min-height: 156px;
+}
+
+.notification-inbox-list {
+    display: grid;
+    gap: 8px;
+}
+
+.notification-inbox-item {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr) auto 12px;
+    gap: 12px;
+    align-items: center;
+    min-height: 74px;
+    padding: 12px 14px;
+    border: 1px solid #dfe8f3;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.notification-inbox-item:hover {
+    border-color: rgba(8, 117, 239, 0.3);
+    box-shadow: 0 10px 24px rgba(16, 40, 74, 0.08);
+    transform: translateY(-1px);
+}
+
+.notification-inbox-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--portal-blue);
+    background: #eef5ff;
+}
+
+.notification-inbox-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.notification-inbox-icon.registration {
+    color: #059669;
+    background: #dcfce7;
+}
+
+.notification-inbox-icon.request {
+    color: #7c3aed;
+    background: #f0e7ff;
+}
+
+.notification-inbox-icon.transfer {
+    color: #f97316;
+    background: #fff0dc;
+}
+
+.notification-inbox-content {
+    min-width: 0;
+}
+
+.notification-inbox-content strong {
+    display: block;
+    color: var(--portal-text);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-inbox-content p {
+    margin: 4px 0 0;
+    color: #52627a;
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification-inbox-meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: #52627a;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.notification-read-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 66px;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.notification-read-pill.unread {
+    color: #0b60d0;
+    background: #eaf3ff;
+}
+
+.notification-read-pill.read {
+    color: #059669;
+    background: #dcfce7;
+}
+
+.notification-unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #0b63f6;
+}
+
+.notification-inbox-item.is-read .notification-unread-dot {
+    background: #cbd5e1;
+}
+
+.notification-inbox-pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 16px;
+}
+
+.notification-inbox-pagination[hidden] {
+    display: none;
+}
+
+.notification-inbox-pagination > .secondary-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.notification-page-list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.notification-page-btn {
+    width: 34px;
+    height: 34px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--portal-text);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.notification-page-btn.active {
+    background: var(--portal-blue);
+    color: #fff;
+}
+
+.notification-page-gap {
+    color: var(--portal-muted);
+    padding: 0 4px;
+}
+
+.notification-sent-card {
+    margin-top: 0;
+}
+
 .invoice-status-actions {
     display: flex;
     flex-wrap: wrap;
@@ -1156,6 +1408,29 @@ label span {
 .revenue-filter-grid label {
     display: grid;
     gap: 6px;
+}
+
+.room-overview-filter-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 8px 10px 8px 12px;
+    border: 1px solid var(--portal-line);
+    border-radius: 8px;
+    background: #f8fafc;
+    color: var(--portal-text);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.room-overview-filter-note[hidden] {
+    display: none;
+}
+
+.room-overview-filter-note .secondary-btn {
+    padding: 6px 10px;
+    font-size: 13px;
 }
 
 .revenue-stats-grid {
@@ -1324,7 +1599,8 @@ label span {
     }
 
     .stats-grid,
-    .dual-grid {
+    .dual-grid,
+    .notifications-admin-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1527,12 +1803,143 @@ label span {
     cursor: pointer;
 }
 
+.request-card-meta,
+.request-student-meta,
+.request-inline-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.request-card-meta {
+    gap: 10px;
+    color: var(--portal-muted);
+    font-size: 13px;
+}
+
+.request-student-meta {
+    gap: 6px;
+}
+
+.request-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.request-type-badge.is-maintenance {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.request-type-badge.is-checkout {
+    background: #fff1f2;
+    color: #e11d48;
+}
+
+.request-type-badge.is-transfer {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.request-type-badge.is-other {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.request-inline-actions {
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.request-inline-actions .primary-btn,
+.request-inline-actions .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .registration-click-item {
     cursor: pointer;
 }
 
 .renewal-click-item {
     cursor: pointer;
+}
+
+.transfer-click-item {
+    cursor: pointer;
+    align-items: flex-start;
+}
+
+.transfer-inline-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.transfer-inline-actions .primary-btn,
+.transfer-inline-actions .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.renewal-item-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.renewal-item-icon.is-pending {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.renewal-item-icon.is-approved {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.renewal-item-icon.is-rejected {
+    background: #fff1f2;
+    color: #f43f5e;
+}
+
+.renewal-card-meta,
+.renewal-inline-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.renewal-card-meta {
+    gap: 8px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.renewal-inline-actions {
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.renewal-inline-actions .primary-btn,
+.renewal-inline-actions .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .request-click-item:focus-visible {
@@ -1555,6 +1962,54 @@ label span {
 
 .request-modal-card {
     width: min(100%, 680px);
+}
+
+.note-input-card {
+    width: min(100%, 460px);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.note-input-form {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+}
+
+.note-input-form label {
+    display: grid;
+    gap: 8px;
+}
+
+.note-input-form label span {
+    color: #17233f;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.note-input-form textarea {
+    width: 100%;
+    min-height: 112px;
+    resize: vertical;
+    padding: 12px;
+    border: 1px solid #d8e0ea;
+    border-radius: 8px;
+    color: #17233f;
+    font: inherit;
+    line-height: 1.5;
+    outline: none;
+}
+
+.note-input-form textarea:focus {
+    border-color: var(--portal-blue);
+    box-shadow: 0 0 0 3px rgba(8, 117, 239, 0.14);
+}
+
+.note-input-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 .request-detail-grid {
@@ -1584,6 +2039,390 @@ label span {
     color: #23384d;
     font-size: 14px;
     line-height: 1.45;
+}
+
+.registration-modal-code {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border-radius: 8px;
+    background: #f3f6ff;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.registration-modal-code svg {
+    color: #5b8cff;
+}
+
+.registration-modal-code strong {
+    color: #17233f;
+}
+
+.registration-detail-modal .request-modal-card {
+    width: min(100%, 540px);
+    border-color: #e5e9f0;
+    border-radius: 6px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    overflow: hidden;
+}
+
+.registration-detail-modal .notif-modal-header {
+    align-items: center;
+    padding: 24px 24px 20px;
+    border-bottom-color: #edf0f5;
+}
+
+.registration-detail-modal .notif-modal-header h3 {
+    color: #17233f;
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.registration-detail-modal .notif-modal-close {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e5e9f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.registration-detail-modal .notif-modal-meta {
+    padding: 20px 26px 6px;
+    background: #fff;
+    border-bottom: 0;
+}
+
+.registration-detail-modal .notif-modal-body {
+    padding: 18px 26px 26px;
+    white-space: normal;
+}
+
+.student-request-detail-modal .request-modal-card {
+    width: min(100%, 500px);
+    border-color: #e5e9f0;
+    border-radius: 6px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    overflow: hidden;
+}
+
+.student-request-detail-modal .notif-modal-header {
+    align-items: center;
+    padding: 24px 24px 20px;
+    border-bottom-color: #edf0f5;
+}
+
+.student-request-detail-modal .notif-modal-header h3 {
+    color: #17233f;
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.student-request-detail-modal .notif-modal-close {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e5e9f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.student-request-detail-modal .notif-modal-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px 26px 8px;
+    background: #fff;
+    border-bottom: 0;
+}
+
+.request-modal-name {
+    color: #17233f;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.student-request-detail-modal .notif-modal-body {
+    padding: 18px 26px 26px;
+    white-space: normal;
+}
+
+.renewal-detail-modal .request-modal-card {
+    width: min(100%, 720px);
+    border-color: #e5e9f0;
+    border-radius: 6px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    overflow: hidden;
+}
+
+.renewal-detail-modal .notif-modal-header {
+    align-items: center;
+    padding: 24px 28px 20px;
+    border-bottom-color: #edf0f5;
+}
+
+.renewal-detail-modal .notif-modal-header h3 {
+    color: #17233f;
+    font-size: 24px;
+    line-height: 1.2;
+}
+
+.renewal-detail-modal .notif-modal-close {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #e5e9f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.renewal-detail-modal .notif-modal-meta {
+    padding: 18px 28px 8px;
+    background: #fff;
+    border-bottom: 0;
+}
+
+.renewal-detail-modal .notif-modal-body {
+    padding: 18px 28px 28px;
+    white-space: normal;
+}
+
+.transfer-detail-modal .request-modal-card {
+    width: min(100%, 540px);
+    border-color: #e5e9f0;
+    border-radius: 6px;
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    overflow: hidden;
+}
+
+.transfer-detail-modal .notif-modal-header {
+    align-items: center;
+    padding: 24px 24px 20px;
+    border-bottom-color: #edf0f5;
+}
+
+.transfer-detail-modal .notif-modal-header h3 {
+    color: #17233f;
+    font-size: 20px;
+    line-height: 1.25;
+}
+
+.transfer-detail-modal .notif-modal-close {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e5e9f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.transfer-detail-modal .notif-modal-meta {
+    padding: 20px 26px 8px;
+    background: #fff;
+    border-bottom: 0;
+}
+
+.transfer-detail-modal .notif-modal-body {
+    padding: 18px 26px 26px;
+    white-space: normal;
+}
+
+.renewal-contract-code {
+    width: 100%;
+}
+
+.registration-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.registration-detail-card {
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px;
+    border: 1px solid #e5e9f0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.registration-detail-icon {
+    width: 39px;
+    height: 39px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: #f1f5ff;
+    color: #5b8cff;
+}
+
+.registration-detail-icon.is-purple {
+    background: #f4edff;
+    color: #7c3aed;
+}
+
+.registration-detail-icon.is-green {
+    background: #ecfdf5;
+    color: #16a34a;
+}
+
+.registration-detail-icon.is-orange {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.registration-detail-icon.is-red {
+    background: #fff1f2;
+    color: #e11d48;
+}
+
+.registration-detail-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #7b8494;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.registration-detail-card strong {
+    color: #17233f;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.registration-status-card {
+    display: grid;
+    align-content: center;
+    gap: 8px;
+}
+
+.registration-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    min-height: 32px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.registration-status-pill.pending {
+    background: linear-gradient(90deg, #f8b84a, #f59e0b);
+}
+
+.registration-status-pill.approved {
+    background: linear-gradient(90deg, #34d399, #10b981);
+}
+
+.registration-status-pill.rejected {
+    background: linear-gradient(90deg, #fb7185, #e11d48);
+}
+
+.registration-status-pill.cancelled {
+    background: linear-gradient(90deg, #94a3b8, #64748b);
+}
+
+.registration-detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.registration-detail-actions .primary-btn,
+.registration-detail-actions .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-modal-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.detail-modal-actions .primary-btn,
+.detail-modal-actions .danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.request-note-panel {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid #e5e9f0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.student-request-detail-modal .request-detail-section {
+    margin-top: 0;
+}
+
+.student-request-detail-modal .request-detail-section span {
+    display: block;
+    margin-bottom: 8px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: none;
+}
+
+.student-request-detail-modal .request-detail-section p {
+    min-height: 42px;
+    padding: 12px;
+    border: 1px solid #e5e9f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #17233f;
+    font-size: 13px;
+}
+
+@media (max-width: 640px) {
+    .notification-inbox-item {
+        grid-template-columns: 42px minmax(0, 1fr) 8px;
+    }
+
+    .notification-inbox-meta {
+        grid-column: 2 / 4;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .notification-inbox-pagination {
+        flex-wrap: wrap;
+    }
+
+    .registration-detail-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .request-detail-section {
