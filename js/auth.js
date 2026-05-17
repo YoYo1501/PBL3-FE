@@ -22,9 +22,13 @@ function logout() {
     // Chỉ xóa đúng key, không dùng clear() để tránh mất dữ liệu khác
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('fullName');
+    localStorage.removeItem('mustChangePassword');
 
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('role');
+    sessionStorage.removeItem('fullName');
+    sessionStorage.removeItem('mustChangePassword');
 
     window.location.href = 'login.html';
 }
@@ -34,7 +38,8 @@ function showAppConfirm(options = {}) {
         title: options.title || 'Xác nhận',
         message: options.message || 'Bạn có chắc muốn tiếp tục?',
         confirmText: options.confirmText || 'Xác nhận',
-        cancelText: options.cancelText || 'Hủy'
+        cancelText: options.cancelText || 'Hủy',
+        tone: options.tone || 'default'
     };
 
     let modal = document.getElementById('app-confirm-modal');
@@ -65,6 +70,7 @@ function showAppConfirm(options = {}) {
     messageEl.textContent = settings.message;
     cancelBtn.textContent = settings.cancelText;
     okBtn.textContent = settings.confirmText;
+    modal.dataset.tone = settings.tone;
 
     return new Promise(resolve => {
         const close = (result) => {
