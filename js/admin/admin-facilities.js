@@ -196,12 +196,12 @@ function renderFacilitiesInventory() {
   tbody.innerHTML = adminFacilities
     .map(
       (item) => `
-        <tr class="${selectedFacilityId === item.id ? "is-selected" : ""}" style="cursor: pointer;" data-facility-view="${item.id}">
-            <td>${escapeHtml(item.roomCode || "-")}</td>
-            <td>${escapeHtml(item.name || "-")}</td>
-            <td>${escapeHtml(item.quantity ?? "-")}</td>
-            <td>${adminBadge(item.status)}</td>
-            <td>${formatDate(item.createdAt)}</td>
+        <tr class="${selectedFacilityId === item.id ? "is-selected" : ""}" data-facility-view="${item.id}">
+            <td class="facility-room-cell"><span class="facility-room-pill">${escapeHtml(item.roomCode || "-")}</span></td>
+            <td class="facility-name-cell"><span class="facility-row-icon">${facilityDeviceIconSvg()}</span>${escapeHtml(item.name || "-")}</td>
+            <td><span class="facility-row-icon orange">${facilityQuantityIconSvg()}</span>${escapeHtml(item.quantity ?? "-")}</td>
+            <td>${facilityStatusBadge(item.status)}</td>
+            <td class="facility-date-cell">${facilityDateIconSvg()}${formatDate(item.createdAt)}</td>
         </tr>
     `,
     )
@@ -253,4 +253,45 @@ function clearFacilityForm() {
   document.getElementById("facility-quantity").value = 1;
   document.getElementById("facility-status").value = "Good";
   setFacilityError("");
+}
+
+function normalizeFacilityStatusLabel(status = "") {
+  switch (status) {
+    case "Good":
+      return "Hoạt động tốt";
+    case "Damaged":
+      return "Hư hỏng";
+    case "UnderMaintenance":
+      return "Đang bảo trì";
+    default:
+      return status || "-";
+  }
+}
+
+function facilityStatusBadge(status = "") {
+  const normalized = String(status || "").toLowerCase();
+  const className =
+    normalized === "damaged"
+      ? "damaged"
+      : normalized === "undermaintenance"
+        ? "maintenance"
+        : "good";
+  const icon =
+    normalized === "damaged"
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v5M12 16h.01"></path></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-5"></path></svg>';
+
+  return `<span class="facility-status-pill ${className}">${icon}${escapeHtml(normalizeFacilityStatusLabel(status))}</span>`;
+}
+
+function facilityDeviceIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M19.78 4.22l-2.12 2.12M6.34 17.66l-2.12 2.12"></path></svg>';
+}
+
+function facilityQuantityIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"></path><path d="M3 6h.01M3 12h.01M3 18h.01"></path></svg>';
+}
+
+function facilityDateIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>';
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -325,9 +325,38 @@
                 </div>
 
                 <div id="renewal-section" class="content-card section-gap renewal-panel" style="display:none">
-                    <h2 class="section-title">GÓI GIA HẠN</h2>
-                    <div id="renewal-packages-list" class="grid-2"></div>
+                    <div class="renewal-panel-head">
+                        <span class="renewal-panel-icon icon-calendar"></span>
+                        <div>
+                            <h2 class="section-title">Gia hạn hợp đồng</h2>
+                            <p>Chọn thời gian muốn tiếp tục lưu trú.</p>
+                        </div>
+                    </div>
+                    <div id="renewal-choice-area" class="renewal-choice-area">
+                        <div class="renewal-note">
+                            <span>i</span>
+                            <p>Tiền phòng sẽ thanh toán theo từng tháng. Điện, nước tính theo chỉ số thực tế hằng tháng.</p>
+                        </div>
+                        <div id="renewal-packages-list" class="renewal-term-grid"></div>
+                    </div>
                     <p class="form-error" id="renewal-error"></p>
+                </div>
+
+                <div id="renewal-history-section" class="content-card section-gap renewal-history-panel" style="display:none">
+                    <div class="renewal-history-head">
+                        <div class="renewal-history-title">
+                            <span class="renewal-history-icon"></span>
+                            <div>
+                                <h3>Lịch sử gia hạn</h3>
+                                <p>Theo dõi trạng thái các yêu cầu đã gửi.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="renewal-refresh-btn" id="renewal-history-refresh-btn">
+                            <span></span>
+                            Làm mới
+                        </button>
+                    </div>
+                    <div id="renewal-history-list"></div>
                 </div>
             </section>
 
@@ -397,6 +426,8 @@
 
                     <div class="facility-tab-panel" id="facility-report-panel">
                         <div class="facility-report-card">
+                            <div class="facility-report-layout">
+                                <div class="facility-report-form">
                             <div class="facility-report-head">
                                 <span class="facility-report-head-icon icon-tools"></span>
                                 <div>
@@ -429,16 +460,6 @@
                                         <textarea id="facility-report-desc" rows="4" placeholder="Mô tả rõ vị trí, dấu hiệu hư hỏng và thời điểm phát hiện..."></textarea>
                                     </div>
                                 </div>
-                                <div class="facility-field facility-form-wide">
-                                    <label for="facility-report-image">Hình ảnh minh họa (nếu có)</label>
-                                    <label class="facility-upload-box" for="facility-report-image">
-                                        <input type="file" id="facility-report-image" accept="image/png,image/jpeg">
-                                        <span class="facility-upload-icon"></span>
-                                        <strong>Kéo thả ảnh vào đây hoặc</strong>
-                                        <em>Chọn ảnh</em>
-                                    </label>
-                                    <p class="facility-upload-hint" id="facility-upload-hint">Hỗ trợ: JPG, PNG (tối đa 5MB)</p>
-                                </div>
                             </div>
                             <p class="form-error" id="facility-report-error"></p>
                             <div class="action-row facility-report-actions">
@@ -446,6 +467,16 @@
                                     <span class="facility-submit-icon"></span>
                                     <span>Gửi báo hỏng</span>
                                 </button>
+                            </div>
+                                </div>
+
+                                <div class="facility-report-visual" aria-hidden="true">
+                                    <img src="../assets/images/b%C3%A1o%20h%E1%BB%8Fng.jpg" alt="">
+                                    <div>
+                                        <strong>BÁO HỎNG NHANH CHÓNG</strong>
+                                        <p>Thông tin chi tiết giúp quá trình xử lý diễn ra nhanh hơn</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -456,6 +487,7 @@
                                 <option value="">Tất cả trạng thái</option>
                                 <option value="Pending">Đã gửi</option>
                                 <option value="Approved">Đã duyệt</option>
+                                <option value="InProgress">&#272;ang s&#7917;a</option>
                                 <option value="Completed">Đã hoàn thành</option>
                                 <option value="Rejected">Đã từ chối</option>
                                 <option value="Cancelled">Đã hủy</option>
@@ -596,16 +628,6 @@
                                     </div>
                                 </div>
 
-                                <div class="checkout-field checkout-wide request-upload-field">
-                                    <label class="checkout-upload-box" for="checkout-file">
-                                        <input type="file" id="checkout-file" accept="image/jpeg,image/png,application/pdf">
-                                        <span class="checkout-upload-icon"></span>
-                                        <span class="checkout-upload-copy">
-                                            <strong id="request-upload-title">Đính kèm tệp (nếu có)</strong>
-                                            <small id="checkout-file-name">Định dạng: PDF, JPG, PNG (Tối đa 5MB)</small>
-                                        </span>
-                                    </label>
-                                </div>
                             </div>
 
                             <p class="form-error" id="req-error"></p>
@@ -726,16 +748,6 @@
                                 </div>
                             </div>
 
-                            <div class="transfer-field transfer-proof-field">
-                                <label class="transfer-proof-label">3. Minh chứng <em>(nếu có)</em></label>
-                                <label class="transfer-upload-box" for="transfer-file">
-                                    <input type="file" id="transfer-file" accept="image/jpeg,image/png,application/pdf">
-                                    <span class="transfer-upload-icon"></span>
-                                    <strong>Kéo thả file hoặc chọn file để tải lên</strong>
-                                    <small id="transfer-file-name">Định dạng: JPG, PNG, PDF (Tối đa 5MB)</small>
-                                </label>
-                            </div>
-
                             <p class="form-error" id="transfer-error"></p>
                             <div class="action-row transfer-action-row">
                                 <button type="button" class="btn-primary transfer-submit-btn" id="transfer-submit-btn">
@@ -781,12 +793,12 @@
                             <div class="notify-card-head">
                                 <div class="notify-title-block">
                                 <h2 class="page-heading">Thông báo</h2>
-                                <p class="section-subtitle">Cập nhật các thông tin quan trọng và phản hồi liên quan đến bạn.</p>
+                                <p class="section-subtitle">Cập nhật thông báo và phản hồi liên quan đến bạn.</p>
                                 </div>
                                 <div class="notify-filter-tabs">
                                     <button class="notify-tab active" data-notify-filter="all" type="button">Tất cả</button>
                                     <button class="notify-tab" data-notify-filter="unread" type="button">Chưa đọc (<span id="notify-unread-count">0</span>)</button>
-                                    <button class="notify-tab" data-notify-filter="important" type="button">Quan trọng</button>
+                                    <button class="notify-tab" data-notify-filter="read" type="button">Đã đọc (<span id="notify-read-count">0</span>)</button>
                                 </div>
                             </div>
                             <div id="notify-content">
@@ -820,16 +832,16 @@
                                     </div>
                                 </div>
                                 <div class="notify-summary-item">
-                                    <span class="notify-summary-icon nsicon-important"></span>
+                                    <span class="notify-summary-icon nsicon-read"></span>
                                     <div class="notify-summary-info">
-                                        <span class="notify-summary-label">Quan trọng</span>
-                                        <strong class="notify-summary-value notify-summary-orange" id="notify-important-summary">—</strong>
+                                        <span class="notify-summary-label">Đã đọc</span>
+                                        <strong class="notify-summary-value notify-summary-read" id="notify-read-summary">—</strong>
                                     </div>
                                 </div>
                             </div>
                             <div class="notify-tip-box">
                                 <span class="notify-tip-icon">⚠</span>
-                                <p>Hãy thường xuyên kiểm tra thông báo để không bỏ lỡ thông tin quan trọng.</p>
+                                <p>Thông báo chưa đọc sẽ được làm nổi bật để bạn dễ theo dõi.</p>
                             </div>
                         </div>
 
@@ -889,11 +901,15 @@
     <div class="notif-modal-overlay" id="notif-detail-modal" style="display:none;" role="dialog" aria-modal="true">
         <div class="notif-modal-card">
             <div class="notif-modal-header">
-                <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
+                <span class="notif-modal-icon"></span>
+                <div class="notif-modal-heading">
+                    <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
+                    <p class="notif-modal-meta" id="notif-modal-date"></p>
+                </div>
                 <button type="button" class="notif-modal-close" id="notif-modal-close-btn" aria-label="Đóng">✕</button>
             </div>
-            <p class="notif-modal-meta" id="notif-modal-date"></p>
             <hr class="notif-modal-divider">
+            <h4 class="notif-modal-section-title">Nội dung thông báo</h4>
             <div class="notif-modal-body" id="notif-modal-body"></div>
         </div>
     </div>

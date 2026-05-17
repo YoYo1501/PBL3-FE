@@ -392,15 +392,18 @@ function resetNotificationForm() {
 
 function editNotification(item) {
   selectedNotificationId = item.id;
-  document.getElementById("notif-target-type").value = "single";
+  const isBroadcast = !!item.isBroadcast;
+  document.getElementById("notif-target-type").value = isBroadcast ? "all-students" : "single";
   document.getElementById("notif-target-type").disabled = true;
-  document.getElementById("notif-user-id").value = item.userId || "";
+  document.getElementById("notif-user-id").value = isBroadcast ? "" : item.userId || "";
   document.getElementById("notif-user-id").disabled = true;
   document.getElementById("notif-title").value = item.title || "";
   document.getElementById("notif-message").value = item.message || "";
   const messageCountEl = document.getElementById("notif-message-count");
   if (messageCountEl) messageCountEl.textContent = `${document.getElementById("notif-message").value.length}/1000`;
-  document.getElementById("notif-form-mode").textContent = `Đang sửa #${item.id}`;
+  document.getElementById("notif-form-mode").textContent = isBroadcast
+    ? "Đang sửa thông báo gửi tất cả"
+    : `Đang sửa #${item.id}`;
   document.getElementById("save-notification-btn").textContent = "Cập nhật thông báo";
   setNotificationError("");
   renderNotificationsList();
@@ -466,7 +469,10 @@ function renderNotificationsList() {
       (item) => {
         const title = formatSystemNotificationText(item.title);
         const message = formatSystemNotificationText(item.message);
-        const recipient = item.recipientName || (item.userId ? `User #${item.userId}` : "Tất cả sinh viên");
+        const isBroadcast = !!item.isBroadcast;
+        const recipient = isBroadcast
+          ? "Tất cả sinh viên"
+          : item.recipientName || (item.userId ? `User #${item.userId}` : "Tất cả sinh viên");
         return `
         <article class="queue-item ${selectedNotificationId === item.id ? 'is-selected' : ''}" data-notification-id="${item.id}" data-title="${escapeHtml(title)}" data-msg="${escapeHtml(message)}" data-date="${formatDate(item.createdAt)}" style="cursor:pointer;">
             <div class="queue-head">
@@ -512,15 +518,23 @@ function renderNotificationsList() {
     button.addEventListener("click", async (e) => {
       e.stopPropagation();
       const id = Number(button.dataset.notifDelete);
+      const notification = adminNotifications.find((item) => item.id === id);
+      const isBroadcast = !!notification?.isBroadcast;
       const confirmed =
         typeof showAppConfirm === "function"
           ? await showAppConfirm({
               title: "Xóa thông báo",
-              message: "Bạn có chắc muốn xóa thông báo này không?",
+              message: isBroadcast
+                ? "Bạn có chắc muốn xóa thông báo đã gửi đến tất cả sinh viên không?"
+                : "Bạn có chắc muốn xóa thông báo này không?",
               confirmText: "Xóa",
               cancelText: "Hủy",
             })
-          : confirm("Bạn có chắc muốn xóa thông báo này không?");
+          : confirm(
+              isBroadcast
+                ? "Bạn có chắc muốn xóa thông báo đã gửi đến tất cả sinh viên không?"
+                : "Bạn có chắc muốn xóa thông báo này không?",
+            );
       if (!confirmed) return;
 
       const res = await callApi(`/notifications/${id}`, { method: "DELETE" });

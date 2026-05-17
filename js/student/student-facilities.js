@@ -145,6 +145,7 @@ function getRepairRequestStatusMeta(status) {
     const map = {
         Pending: { label: 'Đã gửi', cls: 'is-pending' },
         Approved: { label: 'Đã duyệt', cls: 'is-approved' },
+        InProgress: { label: '\u0110ang s\u1eeda', cls: 'is-inprogress' },
         Completed: { label: 'Đã hoàn thành', cls: 'is-completed' },
         Rejected: { label: 'Đã từ chối', cls: 'is-rejected' },
         Cancelled: { label: 'Đã hủy', cls: 'is-cancelled' }
@@ -167,6 +168,7 @@ function renderRepairProgress(status) {
     const doneMap = {
         Pending: ['sent'],
         Approved: ['sent', 'approved'],
+        InProgress: ['sent', 'approved', 'repairing'],
         Completed: ['sent', 'approved', 'repairing', 'done'],
         Rejected: ['sent'],
         Cancelled: ['sent']
@@ -174,6 +176,7 @@ function renderRepairProgress(status) {
     const activeMap = {
         Pending: 'sent',
         Approved: 'approved',
+        InProgress: 'repairing',
         Completed: 'done',
         Rejected: 'approved',
         Cancelled: 'approved'
@@ -291,25 +294,6 @@ function bindFacilityHistoryFilters() {
     if (status) status.onchange = () => renderFacilityRepairHistory();
 }
 
-function bindFacilityUploadInput() {
-    const input = document.getElementById('facility-report-image');
-    const hint = document.getElementById('facility-upload-hint');
-    if (!input || input._bound) return;
-    input._bound = true;
-    input.addEventListener('change', () => {
-        const file = input.files?.[0];
-        if (!hint) return;
-        if (!file) {
-            hint.textContent = 'Hỗ trợ: JPG, PNG (tối đa 5MB)';
-            hint.classList.remove('is-error');
-            return;
-        }
-        const sizeMb = file.size / (1024 * 1024);
-        hint.textContent = `${file.name} (${sizeMb.toFixed(1)}MB)`;
-        hint.classList.toggle('is-error', sizeMb > 5);
-    });
-}
-
 function bindFacilityReportSubmit() {
     const btn = document.getElementById('facility-report-submit');
     if (!btn || btn._bound) return;
@@ -321,16 +305,11 @@ function bindFacilityReportSubmit() {
         const deviceId = document.getElementById('facility-report-device')?.value;
         const title = document.getElementById('facility-report-title')?.value.trim();
         const desc = document.getElementById('facility-report-desc')?.value.trim();
-        const image = document.getElementById('facility-report-image')?.files?.[0];
         const device = currentFacilities.find(item => String(item.id) === String(deviceId));
 
         if (!deviceId) { if (errEl) errEl.textContent = 'Vui lòng chọn thiết bị cần báo hỏng.'; return; }
         if (!title) { if (errEl) errEl.textContent = 'Vui lòng nhập tiêu đề báo hỏng.'; return; }
         if (!desc) { if (errEl) errEl.textContent = 'Vui lòng mô tả tình trạng thiết bị.'; return; }
-        if (image && image.size > 5 * 1024 * 1024) {
-            if (errEl) errEl.textContent = 'Ảnh minh họa không được vượt quá 5MB.';
-            return;
-        }
 
         btn.disabled = true;
         const res = await callApi('/studentrequests', {
@@ -347,13 +326,6 @@ function bindFacilityReportSubmit() {
             showToast('Đã gửi báo hỏng thiết bị.');
             document.getElementById('facility-report-title').value = '';
             document.getElementById('facility-report-desc').value = '';
-            const imageInput = document.getElementById('facility-report-image');
-            if (imageInput) imageInput.value = '';
-            const hint = document.getElementById('facility-upload-hint');
-            if (hint) {
-                hint.textContent = 'Hỗ trợ: JPG, PNG (tối đa 5MB)';
-                hint.classList.remove('is-error');
-            }
             document.querySelector('.facility-tab-btn[data-facility-panel="facility-history-panel"]')?.click();
             loadFacilitiesSection();
         } else if (errEl) {
@@ -399,7 +371,6 @@ async function loadFacilitiesSection() {
     renderFacilityRepairHistory(currentFacilityRepairHistory);
     bindFacilityFilters();
     bindFacilityHistoryFilters();
-    bindFacilityUploadInput();
     bindFacilityReportSubmit();
 }
 

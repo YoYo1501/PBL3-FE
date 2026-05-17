@@ -78,7 +78,7 @@ function renderRenewalsList() {
                 }
             </div>
             <div class="queue-item-actions">
-                ${adminBadge(item.status)}
+                ${renewalListStatusBadge(item.status)}
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
         </article>
@@ -151,6 +151,23 @@ function getRenewalStatusClass(status) {
   if (value === "approved" || value === "completed") return "is-approved";
   if (value === "rejected" || value === "cancelled") return "is-rejected";
   return "is-pending";
+}
+
+function renewalStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    pending: "Chờ duyệt",
+    approved: "Đã duyệt",
+    completed: "Đã duyệt",
+    rejected: "Từ chối",
+    cancelled: "Từ chối",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function renewalListStatusBadge(status = "") {
+  const statusClass = getRenewalStatusClass(status).replace("is-", "");
+  return `<span class="renewal-status-badge ${statusClass}">${escapeHtml(renewalStatusLabel(status))}</span>`;
 }
 
 function getRenewalIcon(status) {
@@ -354,15 +371,10 @@ function renewalDetailIcon(icon) {
 
 function renewalStatusPill(status) {
   const value = String(status || "").toLowerCase();
-  const labels = {
-    pending: "Chờ duyệt",
-    approved: "Đã duyệt",
-    rejected: "Từ chối",
-  };
   return `
     <strong class="registration-status-pill ${value}">
       <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-      ${escapeHtml(labels[value] || status || "Không rõ")}
+      ${escapeHtml(renewalStatusLabel(status))}
     </strong>
   `;
 }

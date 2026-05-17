@@ -238,7 +238,7 @@ function renderInvoicesTable() {
             <td>${escapeHtml(formatCurrency(invoice.electricFee))}</td>
             <td>${escapeHtml(formatCurrency(invoice.waterFee))}</td>
             <td><strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong></td>
-            <td>${adminBadge(invoice.status)}</td>
+            <td>${invoiceStatusBadge(invoice.status)}</td>
         </tr>
     `,
     )
@@ -267,7 +267,7 @@ function renderInvoicesTable() {
         `Tiền điện: ${formatCurrency(invoice.electricFee)}`,
         `Tiền nước: ${formatCurrency(invoice.waterFee)}`,
         `Tổng tiền: ${formatCurrency(invoice.totalAmount)}`,
-        `Trạng thái: ${invoice.status || "-"}`,
+        `Trạng thái: ${invoiceStatusLabel(invoice.status)}`,
         `Ngày phát hành: ${formatDate(invoice.issuedAt)}`,
       ].join("\n");
 
@@ -315,5 +315,29 @@ function renderInvoicesTable() {
       }),
     );
   });
+}
+
+function invoiceStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    draft: "Nháp",
+    unpaid: "Chưa thanh toán",
+    paid: "Đã thanh toán",
+    cancelled: "Đã hủy",
+    overdue: "Quá hạn",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function invoiceStatusClass(status = "") {
+  const value = String(status || "").toLowerCase();
+  if (value === "paid") return "paid";
+  if (value === "unpaid" || value === "overdue") return "unpaid";
+  if (value === "cancelled") return "cancelled";
+  return "draft";
+}
+
+function invoiceStatusBadge(status = "") {
+  return `<span class="invoice-status-badge ${invoiceStatusClass(status)}">${escapeHtml(invoiceStatusLabel(status))}</span>`;
 }
 

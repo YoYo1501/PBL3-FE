@@ -15,12 +15,47 @@ function bindRevenueControls() {
   }
 
   document.getElementById("load-revenue-btn")?.addEventListener("click", () => {
+    adminRevenueStatusFilter = "";
     resetPage("revenue");
     loadRevenue();
   });
   document
     .getElementById("export-revenue-btn")
     ?.addEventListener("click", exportRevenue);
+
+  bindRevenueStatusCard("revenue-total-invoices", "");
+  bindRevenueStatusCard("revenue-paid-invoices", "Paid");
+  bindRevenueStatusCard("revenue-unpaid-invoices", "Unpaid");
+  updateRevenueStatusCards();
+}
+
+function bindRevenueStatusCard(valueId, status) {
+  const valueEl = document.getElementById(valueId);
+  const card = valueEl?.closest(".stat-card");
+  if (!card) return;
+
+  card.dataset.revenueStatusFilter = status;
+  card.tabIndex = 0;
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-pressed", "false");
+  card.title = status === "Paid"
+    ? "Lọc hóa đơn đã thanh toán"
+    : status === "Unpaid"
+      ? "Lọc hóa đơn chưa thanh toán"
+      : "Hiển thị tất cả hóa đơn";
+
+  const applyFilter = () => {
+    adminRevenueStatusFilter = status && adminRevenueStatusFilter !== status ? status : "";
+    resetPage("revenue");
+    loadRevenue();
+  };
+
+  card.addEventListener("click", applyFilter);
+  card.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    applyFilter();
+  });
 }
 
 function getRevenuePayload() {
@@ -30,9 +65,19 @@ function getRevenuePayload() {
     endDate: document.getElementById("revenue-end-date")?.value || "",
     period: document.getElementById("revenue-period")?.value.trim() || null,
     roomCode: document.getElementById("revenue-room-code")?.value.trim() || null,
+    status: adminRevenueStatusFilter || null,
     page: state.page,
     pageSize: state.size,
   };
+}
+
+function updateRevenueStatusCards() {
+  document.querySelectorAll("[data-revenue-status-filter]").forEach((card) => {
+    const status = card.dataset.revenueStatusFilter || "";
+    const active = status === adminRevenueStatusFilter;
+    card.classList.toggle("is-filter-active", active);
+    card.setAttribute("aria-pressed", String(active));
+  });
 }
 
 function setRevenueError(message = "") {
@@ -104,6 +149,7 @@ async function loadRevenue() {
     data.unpaidInvoices ?? 0;
 
   adminRevenueDetails = applyServerPagination("revenue", data.details);
+  updateRevenueStatusCards();
   renderRevenueTable();
 }
 
@@ -118,9 +164,11 @@ function renderRevenueTable() {
   if (!adminRevenueDetails.length) {
     tbody.innerHTML =
       '<tr><td colspan="9" class="table-empty">Không có dữ liệu doanh thu phù hợp bộ lọc.</td></tr>';
+    updateRevenueStatusCards();
     return;
   }
 
+  updateRevenueStatusCards();
   tbody.innerHTML = adminRevenueDetails
     .map(
       (item) => `
@@ -132,7 +180,7 @@ function renderRevenueTable() {
             <td>${escapeHtml(formatCurrency(item.electricFee))}</td>
             <td>${escapeHtml(formatCurrency(item.waterFee))}</td>
             <td><strong>${escapeHtml(formatCurrency(item.totalAmount))}</strong></td>
-            <td>${adminBadge(item.status)}</td>
+            <td>${revenueStatusBadge(item.status)}</td>
             <td>${formatDate(item.issuedAt)}</td>
         </tr>
     `,
@@ -140,8 +188,33 @@ function renderRevenueTable() {
     .join("");
 }
 
+function revenueStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    draft: "Nháp",
+    unpaid: "Chưa thanh toán",
+    paid: "Đã thanh toán",
+    cancelled: "Đã hủy",
+    overdue: "Quá hạn",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function revenueStatusClass(status = "") {
+  const value = String(status || "").toLowerCase();
+  if (value === "paid") return "paid";
+  if (value === "unpaid" || value === "overdue") return "unpaid";
+  if (value === "cancelled") return "cancelled";
+  return "draft";
+}
+
+function revenueStatusBadge(status = "") {
+  return `<span class="invoice-status-badge ${revenueStatusClass(status)}">${escapeHtml(revenueStatusLabel(status))}</span>`;
+}
+
 function resetRevenueStats() {
   adminRevenueDetails = [];
+  updateRevenueStatusCards();
   [
     "revenue-room-fee",
     "revenue-electric-fee",

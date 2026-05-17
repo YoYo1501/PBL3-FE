@@ -20,3 +20,4 @@ let adminInvoices = [];
 let adminNotifications = [];
 let selectedNotificationId = null;
 let adminRevenueDetails = [];
+let adminRevenueStatusFilter = "";

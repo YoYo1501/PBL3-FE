@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -127,6 +127,19 @@
         .step.done {
             background: #f0fdf4;
             color: #16a34a;
+        }
+
+        body.returning-registration .page-body {
+            max-width: 980px;
+        }
+
+        body.returning-registration #step-indicator-1,
+        body.returning-registration #step-indicator-2 {
+            display: none;
+        }
+
+        body.returning-registration #step-indicator-3 {
+            border-right: 0;
         }
 
         .step-num {
@@ -654,10 +667,138 @@
 <script>
 (function () {
     const API_URL = 'http://localhost:5280/api';
+    const queryParams = new URLSearchParams(window.location.search);
+    const isReturningRegistration = queryParams.get('returning') === '1';
     let allRooms    = [];
     let selectedRoomId = null;
+    let roomHoldExpiresAt = null;
     let currentStep = 1;
     const totalSteps = 3;
+    const roomHoldToken = getRegistrationRoomHoldToken();
+
+    function getRegistrationRoomHoldToken() {
+        const key = 'registration-room-hold-token';
+        let token = sessionStorage.getItem(key);
+        if (!token) {
+            token = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            sessionStorage.setItem(key, token);
+        }
+        return token;
+    }
+
+    function getAuthToken() {
+        return localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+    }
+
+    function setFieldValue(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.value = value || '';
+    }
+
+    function fillReturningProfile(profile) {
+        setFieldValue('reg-fullname', profile.fullName);
+        setFieldValue('reg-citizenid', profile.citizenId);
+        setFieldValue('reg-gender', profile.gender);
+        setFieldValue('reg-phone', profile.phone);
+        setFieldValue('reg-email', profile.email);
+        setFieldValue('reg-address', profile.permanentAddress);
+        setFieldValue('reg-rel-name', profile.relativeName);
+        setFieldValue('reg-rel-phone', profile.relativePhone);
+        setFieldValue('reg-relationship', profile.relationship);
+    }
+
+    function configureReturningRegistrationUi() {
+        if (!isReturningRegistration) return;
+
+        document.body.classList.add('returning-registration');
+        const title = document.querySelector('.page-header h1');
+        const subtitle = document.querySelector('.page-header p');
+        const backLink = document.querySelector('.btn-back');
+        const cancelBtn = document.querySelector('.form-actions > .btn-secondary');
+        const stepTitle = document.querySelector('#step-3 h2');
+
+        if (title) title.textContent = 'Đăng ký ở lại Ký túc xá';
+        if (subtitle) subtitle.textContent = 'Thông tin tài khoản được lấy từ hồ sơ hiện có. Bạn chỉ cần chọn phòng và thời gian lưu trú.';
+        if (backLink) {
+            backLink.href = 'student.html';
+            backLink.textContent = '← Quay lại trang sinh viên';
+        }
+        if (cancelBtn) {
+            cancelBtn.textContent = 'Hủy';
+            cancelBtn.onclick = () => { window.location.href = 'student.html'; };
+        }
+        if (stepTitle) stepTitle.textContent = 'Chọn phòng & Thời gian lưu trú';
+    }
+
+    async function loadReturningProfile() {
+        const token = getAuthToken();
+        const errEl = document.getElementById('global-error');
+
+        if (!token) {
+            if (errEl) {
+                errEl.textContent = 'Bạn cần đăng nhập để đăng ký ở lại.';
+                errEl.style.display = 'block';
+            }
+            return false;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const payload = await res.json().catch(() => ({}));
+            if (!res.ok || !payload.data) {
+                throw new Error(payload.message || 'Không thể lấy thông tin hồ sơ.');
+            }
+
+            fillReturningProfile(payload.data);
+            return true;
+        } catch (err) {
+            if (errEl) {
+                errEl.textContent = err.message || 'Không thể lấy lại thông tin tài khoản. Vui lòng thử lại.';
+                errEl.style.display = 'block';
+            }
+            return false;
+        }
+    }
+
+    function getErrorMessage(payload, fallback) {
+        if (!payload) return fallback;
+        if (payload.message) return payload.message;
+        if (payload.error) return payload.error;
+        if (payload.errors && typeof payload.errors === 'object') {
+            const first = Object.values(payload.errors).flat().find(Boolean);
+            if (first) return first;
+        }
+        if (payload.title) return payload.title;
+        return fallback;
+    }
+
+    async function holdRegistrationRoom(roomId) {
+        const errEl = document.getElementById('err-room');
+        if (errEl) errEl.textContent = '';
+
+        try {
+            const res = await fetch(`${API_URL}/registrations/hold-room`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ roomId, holdToken: roomHoldToken })
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                clearSelectedRoom(data.message || 'Phòng đang được giữ chỗ bởi người khác. Vui lòng chọn phòng khác.');
+                await loadRooms();
+                return false;
+            }
+
+            roomHoldExpiresAt = data.expiresAtUtc || null;
+            return true;
+        } catch {
+            clearSelectedRoom('Không thể giữ chỗ phòng. Vui lòng kiểm tra kết nối và thử lại.');
+            return false;
+        }
+    }
 
     function getSelectedGender() {
         return (document.getElementById('reg-gender')?.value || '').trim().toLowerCase();
@@ -682,7 +823,7 @@
     }
 
     function showStep(step, shouldScroll = true) {
-        currentStep = Math.max(1, Math.min(totalSteps, step));
+        currentStep = isReturningRegistration ? totalSteps : Math.max(1, Math.min(totalSteps, step));
 
         document.querySelectorAll('.step-panel').forEach(panel => {
             panel.classList.toggle('active', Number(panel.dataset.step) === currentStep);
@@ -695,8 +836,8 @@
             indicator.classList.toggle('done', i < currentStep);
         }
 
-        document.getElementById('prev-step-btn').style.display = currentStep === 1 ? 'none' : 'inline-flex';
-        document.getElementById('next-step-btn').style.display = currentStep === totalSteps ? 'none' : 'inline-flex';
+        document.getElementById('prev-step-btn').style.display = currentStep === 1 || isReturningRegistration ? 'none' : 'inline-flex';
+        document.getElementById('next-step-btn').style.display = currentStep === totalSteps || isReturningRegistration ? 'none' : 'inline-flex';
         document.getElementById('submit-btn').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
 
         if (shouldScroll) {
@@ -746,7 +887,7 @@
     // ── Tải danh sách phòng trống
     async function loadRooms() {
         try {
-            const res  = await fetch(`${API_URL}/room/available`);
+            const res  = await fetch(`${API_URL}/room/available?registrationHoldToken=${encodeURIComponent(roomHoldToken)}`);
             const data = await res.json();
             allRooms = Array.isArray(data) ? data : [];
             refreshRoomList();
@@ -759,21 +900,10 @@
     function renderRooms(rooms, gender = '') {
         const grid = document.getElementById('room-grid');
         if (!rooms.length) {
-            const emptyMessageAscii = gender
-                ? 'Khong co phong nao phu hop voi gioi tinh da chon.'
-                : 'Khong co phong nao kha dung.';
-            grid.innerHTML = `<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">${emptyMessageAscii}</div>`;
-            return;
-        }
-        if (!rooms.length) {
             const emptyMessage = gender
-                ? 'KhÃ´ng cÃ³ phÃ²ng nÃ o phÃ¹ há»£p vá»›i giá»›i tÃ­nh Ä‘Ã£ chá»n.'
-                : 'KhÃ´ng cÃ³ phÃ²ng nÃ o kháº£ dá»¥ng.';
+                ? 'Không có phòng nào phù hợp với giới tính đã chọn.'
+                : 'Không có phòng nào khả dụng.';
             grid.innerHTML = `<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">${emptyMessage}</div>`;
-            return;
-        }
-        if (!rooms.length) {
-            grid.innerHTML = '<div style="grid-column:1/-1;color:#64748b;text-align:center;padding:20px">Không có phòng nào khả dụng.</div>';
             return;
         }
         grid.innerHTML = rooms.map(r => {
@@ -794,10 +924,14 @@
         }).join('');
 
         grid.querySelectorAll('.room-card:not(.disabled)').forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', async () => {
+                const nextRoomId = Number(card.dataset.id);
+                const holdOk = await holdRegistrationRoom(nextRoomId);
+                if (!holdOk) return;
+
                 grid.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
-                selectedRoomId = Number(card.dataset.id);
+                selectedRoomId = nextRoomId;
                 document.getElementById('reg-roomid').value              = selectedRoomId;
                 document.getElementById('selected-room-display').textContent = card.dataset.code;
                 document.getElementById('selected-room-preview').classList.add('show');
@@ -989,7 +1123,7 @@
             return;
         }
 
-        if (!validate()) {
+        if (!(isReturningRegistration ? validateStep(totalSteps) : validate())) {
             focusFirstError();
             return;
         }
@@ -998,7 +1132,12 @@
         submitBtn.disabled = true;
         submitBtn.textContent = '⏳ Đang gửi...';
 
-        const dto = {
+        const dto = isReturningRegistration ? {
+            roomId:           selectedRoomId,
+            roomHoldToken:    roomHoldToken,
+            startDate:        new Date(document.getElementById('reg-startdate').value).toISOString(),
+            endDate:          new Date(document.getElementById('reg-enddate').value).toISOString(),
+        } : {
             fullName:         document.getElementById('reg-fullname').value.trim(),
             citizenId:        document.getElementById('reg-citizenid').value.trim(),
             gender:           document.getElementById('reg-gender').value,
@@ -1009,14 +1148,22 @@
             relativePhone:    document.getElementById('reg-rel-phone').value.trim(),
             relationship:     document.getElementById('reg-relationship').value.trim(),
             roomId:           selectedRoomId,
+            roomHoldToken:    roomHoldToken,
             startDate:        new Date(document.getElementById('reg-startdate').value).toISOString(),
             endDate:          new Date(document.getElementById('reg-enddate').value).toISOString(),
         };
 
         try {
-            const res = await fetch(`${API_URL}/registrations`, {
+            const endpoint = isReturningRegistration ? `${API_URL}/registrations/returning` : `${API_URL}/registrations`;
+            const headers = { 'Content-Type': 'application/json' };
+            const token = getAuthToken();
+            if (isReturningRegistration && token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            const res = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 body: JSON.stringify(dto)
             });
             const data = await res.json();
@@ -1025,13 +1172,24 @@
                 document.getElementById('register-form').style.display = 'none';
                 document.getElementById('success-screen').style.display = 'block';
                 document.querySelectorAll('.steps').forEach(s => s.style.display = 'none');
+                if (isReturningRegistration) {
+                    const successTitle = document.querySelector('#success-screen h2');
+                    const successText = document.querySelector('#success-screen p');
+                    const successLink = document.querySelector('#success-screen a');
+                    if (successTitle) successTitle.textContent = 'Gửi yêu cầu ở lại thành công!';
+                    if (successText) successText.textContent = 'Đơn đăng ký ở lại của bạn đã được gửi. Admin sẽ xét duyệt và tạo hợp đồng mới khi được duyệt.';
+                    if (successLink) {
+                        successLink.href = 'student.html';
+                        successLink.textContent = 'Về trang sinh viên';
+                    }
+                }
                 document.getElementById('reg-success-code').textContent =
                     data.data?.registrationCode || data.registrationCode || '—';
                 document.querySelector('.page-body').scrollTop = 0;
                 window.scrollTo(0, 0);
             } else {
                 const errEl = document.getElementById('global-error');
-                errEl.textContent = data.message || 'Gửi đơn thất bại. Vui lòng kiểm tra lại thông tin.';
+                errEl.textContent = getErrorMessage(data, 'Không thể gửi đơn. Vui lòng thử lại.');
                 errEl.style.display = 'block';
                 errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -1046,9 +1204,26 @@
     });
 
     // ── INIT
-    showStep(1, false);
-    loadRooms();
+    async function initRegistrationPage() {
+        configureReturningRegistrationUi();
+
+        if (isReturningRegistration) {
+            showStep(totalSteps, false);
+            const profileLoaded = await loadReturningProfile();
+            if (!profileLoaded) return;
+            await loadRooms();
+            refreshRoomList();
+            return;
+        }
+
+        showStep(1, false);
+        loadRooms();
+    }
+
+    initRegistrationPage();
 })();
 </script>
 </body>
 </html>
+
+

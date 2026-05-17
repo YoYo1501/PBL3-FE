@@ -1,15 +1,22 @@
-// 11. YÊU CẦU – POST /api/studentrequests & GET /api/studentrequests/my
+﻿// 11. YÊU CẦU – POST /api/studentrequests & GET /api/studentrequests/my
 // ======================================================================
 const reqTitleMap = {
     'Checkout':     { title: 'Yêu cầu trả phòng',    desc: 'Gửi yêu cầu trả phòng khi bạn muốn chấm dứt hợp đồng và rời khỏi ký túc xá.' },
     'RoomTransfer': { title: 'Yêu cầu chuyển phòng', desc: 'Chọn phòng muốn chuyển đến và gửi yêu cầu. Admin sẽ xem xét và phản hồi trong thời gian sớm nhất.' },
     'Other':        { title: 'Yêu cầu khác',          desc: 'Gửi các yêu cầu khác tới ban quản lý ký túc xá.' },
 };
+const CHECKOUT_REQUEST_PAGE_SIZE = 3;
+const CHECKOUT_PENDING_MESSAGE = 'Bạn đang có yêu cầu trả phòng đang chờ duyệt. Vui lòng chờ xử lý hoặc hủy yêu cầu hiện tại trước khi tạo đơn mới.';
+const TRANSFER_PENDING_MESSAGE = 'Bạn đang có yêu cầu chuyển phòng đang chờ duyệt. Vui lòng chờ xử lý hoặc hủy yêu cầu hiện tại trước khi tạo đơn mới.';
+let requestHistoryPage = 1;
+let hasPendingCheckoutRequest = false;
+let hasPendingTransferRequest = false;
 
 function loadRequestSection(reqType) {
     currentReqType = reqType || 'Other';
     requestStatusFilter = '';
     transferStatusFilter = '';
+    requestHistoryPage = 1;
     const info = reqTitleMap[currentReqType] || reqTitleMap['Other'];
 
     const titleEl       = document.getElementById('request-section-title');
@@ -18,6 +25,8 @@ function loadRequestSection(reqType) {
     const requestWorkspace = document.getElementById('request-workspace');
     const transferTmpl  = document.getElementById('transfer-form-template');
     const sectionEl     = document.getElementById('section-request');
+    hasPendingCheckoutRequest = false;
+    hasPendingTransferRequest = false;
     if (sectionEl) sectionEl.classList.toggle('is-transfer-mode', currentReqType === 'RoomTransfer');
     if (sectionEl) sectionEl.classList.toggle('is-checkout-mode', currentReqType === 'Checkout');
     if (sectionEl) sectionEl.classList.toggle('is-other-mode', currentReqType === 'Other');
@@ -47,7 +56,6 @@ function loadRequestSection(reqType) {
         // Ẩn danh sách yêu cầu thông thường, hiện lịch sử chuyển phòng
         document.getElementById('my-requests-list')?.closest('.content-card')?.style.setProperty('display', 'none');
         bindTransferReasonCounter();
-        bindTransferFileInput();
         bindTransferFilters();
         loadTransferHistory();
         loadTransferRooms();
@@ -66,7 +74,6 @@ function loadRequestSection(reqType) {
         document.getElementById('request-status-filter')?.closest('.request-history-head')?.style.removeProperty('display');
         bindRequestCounters();
         bindRequestFilters();
-        bindCheckoutFileInput();
 
         // Bind nút submit (chỉ 1 lần)
         bindRequestSubmit();
@@ -83,10 +90,6 @@ function updateRequestCopy() {
     const titleInput = document.getElementById('req-title');
     const descInput = document.getElementById('req-desc');
     const descLabel = document.getElementById('req-desc-label');
-    const uploadTitle = document.getElementById('request-upload-title');
-    const fileName = document.getElementById('checkout-file-name');
-    const fileInput = document.getElementById('checkout-file');
-
     if (formTitle) formTitle.textContent = isCheckout ? 'TẠO YÊU CẦU TRẢ PHÒNG' : 'TẠO YÊU CẦU MỚI';
     if (historyTitle) historyTitle.textContent = isCheckout ? 'LỊCH SỬ YÊU CẦU TRẢ PHÒNG' : 'LỊCH SỬ YÊU CẦU';
     if (submitText) submitText.textContent = isCheckout ? 'Gửi yêu cầu trả phòng' : 'Gửi yêu cầu';
@@ -105,14 +108,8 @@ function updateRequestCopy() {
             ? 'Nội dung chi tiết <em class="checkout-optional">(nếu có)</em>'
             : 'Nội dung chi tiết <span>*</span>';
     }
-    if (uploadTitle) {
-        uploadTitle.innerHTML = isCheckout
-            ? 'Đính kèm minh chứng <em>(nếu có)</em>'
-            : 'Đính kèm tệp (nếu có)';
-    }
-    if (fileName && !fileInput?.files?.length) {
-        fileName.textContent = getRequestFileHint(isCheckout);
-    }
+    setupCheckoutDateRules();
+    updateCheckoutSubmitAvailability();
 }
 
 function bindRequestCounters() {
@@ -138,31 +135,47 @@ function bindRequestCounters() {
     if (descCounter && descInput) descCounter.textContent = `${descInput.value.length}/${descInput.maxLength || 1000}`;
 }
 
-function getRequestFileHint(isCheckout = currentReqType === 'Checkout') {
-    return isCheckout
-        ? 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)'
-        : 'Định dạng: PDF, JPG, PNG (Tối đa 5MB)';
-}
-
-function bindCheckoutFileInput() {
-    const input = document.getElementById('checkout-file');
-    const nameEl = document.getElementById('checkout-file-name');
-    if (!input || input._bound) return;
-    input._bound = true;
-    input.addEventListener('change', () => {
-        const file = input.files?.[0];
-        if (nameEl) nameEl.textContent = file ? file.name : getRequestFileHint();
-    });
-}
-
 function bindRequestFilters() {
     const statusFilter = document.getElementById('request-status-filter');
     if (!statusFilter || statusFilter._bound) return;
     statusFilter._bound = true;
     statusFilter.addEventListener('change', () => {
         requestStatusFilter = statusFilter.value || '';
+        requestHistoryPage = 1;
         loadMyRequests();
     });
+}
+
+function getTodayDateInputValue() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function setupCheckoutDateRules() {
+    const input = document.getElementById('checkout-date');
+    if (!input) return;
+    const today = getTodayDateInputValue();
+    input.min = today;
+    if (input.value && input.value < today) input.value = '';
+}
+
+function updateCheckoutSubmitAvailability() {
+    const btn = document.getElementById('req-submit-btn');
+    const errEl = document.getElementById('req-error');
+    if (!btn || currentReqType !== 'Checkout') return;
+
+    btn.disabled = hasPendingCheckoutRequest;
+    btn.title = hasPendingCheckoutRequest ? CHECKOUT_PENDING_MESSAGE : '';
+
+    if (!errEl) return;
+    if (hasPendingCheckoutRequest) {
+        errEl.textContent = CHECKOUT_PENDING_MESSAGE;
+    } else if (errEl.textContent === CHECKOUT_PENDING_MESSAGE) {
+        errEl.textContent = '';
+    }
 }
 
 function bindRequestSubmit() {
@@ -175,42 +188,32 @@ function bindRequestSubmit() {
         const isCheckout = currentReqType === 'Checkout';
         let title = document.getElementById('req-title')?.value.trim() || '';
         let desc  = document.getElementById('req-desc')?.value.trim() || '';
-        const requestFile = document.getElementById('checkout-file')?.files?.[0];
 
         if (isCheckout) {
             const checkoutDate = document.getElementById('checkout-date')?.value || '';
             const checkoutReason = document.getElementById('checkout-reason')?.value || '';
 
+            if (hasPendingCheckoutRequest) { errEl.textContent = CHECKOUT_PENDING_MESSAGE; return; }
             if (!checkoutDate) { errEl.textContent = 'Vui lòng chọn ngày dự kiến trả phòng.'; return; }
+            if (checkoutDate < getTodayDateInputValue()) { errEl.textContent = 'Ngày dự kiến trả phòng không được ở trong quá khứ.'; return; }
             if (!checkoutReason) { errEl.textContent = 'Vui lòng chọn lý do trả phòng.'; return; }
-            if (requestFile && requestFile.size > 5 * 1024 * 1024) {
-                errEl.textContent = 'Tệp đính kèm không được vượt quá 5MB.';
-                return;
-            }
-
             title = `Yêu cầu trả phòng ngày ${formatDate(checkoutDate)}`;
             desc = [
                 `Ngày dự kiến trả phòng: ${formatDate(checkoutDate)}`,
                 `Lý do trả phòng: ${checkoutReason}`,
-                desc ? `Nội dung chi tiết: ${desc}` : '',
-                requestFile ? `Đính kèm minh chứng: ${requestFile.name}` : ''
+                desc ? `Nội dung chi tiết: ${desc}` : ''
             ].filter(Boolean).join('\n');
         } else {
             if (!title) { errEl.textContent = 'Vui lòng nhập tiêu đề yêu cầu.'; return; }
             if (!desc)  { errEl.textContent = 'Vui lòng nhập nội dung yêu cầu.'; return; }
-            if (requestFile && requestFile.size > 5 * 1024 * 1024) {
-                errEl.textContent = 'Tệp đính kèm không được vượt quá 5MB.';
-                return;
-            }
-            if (requestFile) {
-                desc = `${desc}\nĐính kèm tệp: ${requestFile.name}`;
-            }
         }
 
         btn.disabled = true;
+        const payload = { requestType: currentReqType, title, description: desc };
+        if (isCheckout) payload.checkoutDate = document.getElementById('checkout-date')?.value || null;
         const res = await callApi('/studentrequests', {
             method: 'POST',
-            body: JSON.stringify({ requestType: currentReqType, title, description: desc })
+            body: JSON.stringify(payload)
         });
         btn.disabled = false;
 
@@ -220,10 +223,8 @@ function bindRequestSubmit() {
             if (document.getElementById('req-desc')) document.getElementById('req-desc').value = '';
             if (document.getElementById('checkout-date')) document.getElementById('checkout-date').value = '';
             if (document.getElementById('checkout-reason')) document.getElementById('checkout-reason').value = '';
-            if (document.getElementById('checkout-file')) document.getElementById('checkout-file').value = '';
-            const fileName = document.getElementById('checkout-file-name');
-            if (fileName) fileName.textContent = getRequestFileHint(isCheckout);
             bindRequestCounters();
+            requestHistoryPage = 1;
             loadMyRequests();
         } else {
             errEl.textContent = res?.data?.message || 'Gửi yêu cầu thất bại.';
@@ -234,19 +235,25 @@ function bindRequestSubmit() {
 async function loadMyRequests() {
     const listEl = document.getElementById('my-requests-list');
     if (!listEl) return;
+    listEl.classList.remove('is-empty');
     listEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
 
     const res = await callApi('/studentrequests/my');
     if (!res?.ok || !Array.isArray(res.data) || res.data.length === 0) {
         updateRequestStats([]);
         updateRequestHistoryFooter(0, 0);
-        listEl.innerHTML = '<div class="empty-state">Chưa có yêu cầu nào.</div>';
+        hasPendingCheckoutRequest = false;
+        updateCheckoutSubmitAvailability();
+        listEl.classList.add('is-empty');
+        listEl.innerHTML = renderRequestEmptyState();
         return;
     }
 
     // Lọc theo loại đang xem
-    const typeFiltered = res.data.filter(r => r.requestType === currentReqType);
+    const typeFiltered = getRequestTypeItems(res.data, currentReqType);
     updateRequestStats(typeFiltered);
+    hasPendingCheckoutRequest = currentReqType === 'Checkout' && typeFiltered.some(r => String(r.status || '') === 'Pending');
+    updateCheckoutSubmitAvailability();
 
     let filtered = typeFiltered;
     if (requestStatusFilter) {
@@ -254,18 +261,36 @@ async function loadMyRequests() {
     }
     if (!filtered.length) {
         updateRequestHistoryFooter(0, typeFiltered.length);
-        listEl.innerHTML = `<div class="empty-state">Chưa có yêu cầu "${reqTitleMap[currentReqType]?.title}" nào.</div>`;
+        listEl.classList.add('is-empty');
+        listEl.innerHTML = renderRequestEmptyState(requestStatusFilter
+            ? 'Không có yêu cầu phù hợp với trạng thái đã chọn.'
+            : `Chưa có yêu cầu "${reqTitleMap[currentReqType]?.title}" nào.`
+        );
         return;
     }
 
-    updateRequestHistoryFooter(filtered.length, typeFiltered.length);
-    listEl.innerHTML = filtered.map(renderRequestHistoryItem).join('');
+    const isCheckout = currentReqType === 'Checkout';
+    const pageSize = isCheckout ? CHECKOUT_REQUEST_PAGE_SIZE : Math.max(filtered.length, 1);
+    const totalPages = isCheckout ? Math.max(1, Math.ceil(filtered.length / pageSize)) : 1;
+    requestHistoryPage = Math.min(Math.max(requestHistoryPage, 1), totalPages);
+    const startIndex = isCheckout ? (requestHistoryPage - 1) * pageSize : 0;
+    const visibleItems = isCheckout ? filtered.slice(startIndex, startIndex + pageSize) : filtered;
+    const fromIndex = visibleItems.length ? startIndex + 1 : 0;
+    const toIndex = startIndex + visibleItems.length;
+
+    updateRequestHistoryFooter(visibleItems.length, filtered.length, fromIndex, toIndex, requestHistoryPage, totalPages);
+    listEl.classList.remove('is-empty');
+    listEl.innerHTML = visibleItems.map(renderRequestHistoryItem).join('');
 
     listEl.querySelectorAll('[data-req-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
             if (!confirm('Xác nhận hủy yêu cầu này?')) return;
             const res2 = await callApi(`/studentrequests/${btn.dataset.reqId}/cancel`, { method: 'PUT' });
-            if (res2?.ok) { showToast('Đã hủy yêu cầu.'); loadMyRequests(); }
+            if (res2?.ok) {
+                showToast('Đã hủy yêu cầu.');
+                requestHistoryPage = 1;
+                await loadMyRequests();
+            }
             else showToast(res2?.data?.message || 'Không thể hủy.', true);
         });
     });
@@ -285,6 +310,31 @@ async function loadMyRequests() {
             alert(detail);
         });
     });
+}
+
+function getRequestTypeItems(items, requestType) {
+    const filtered = items.filter(r => r.requestType === requestType);
+    if (requestType !== 'Checkout') return filtered;
+
+    return filtered.sort((a, b) => {
+        const aPending = String(a.status || '') === 'Pending';
+        const bPending = String(b.status || '') === 'Pending';
+        if (aPending !== bPending) return aPending ? -1 : 1;
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    });
+}
+
+function renderRequestEmptyState(message) {
+    if (currentReqType !== 'Checkout') {
+        return `<div class="empty-state">${escapeText(message || 'Chưa có yêu cầu nào.')}</div>`;
+    }
+
+    return `
+        <div class="checkout-empty-state">
+            <span class="checkout-empty-illustration" aria-hidden="true"></span>
+            <strong>${escapeText(message || 'Chưa có yêu cầu "Yêu cầu trả phòng" nào.')}</strong>
+            <p>Các yêu cầu của bạn sẽ hiển thị tại đây.</p>
+        </div>`;
 }
 
 function renderRequestHistoryItem(r) {
@@ -328,16 +378,20 @@ function renderCheckoutHistoryItem(r) {
     return `
         <article class="request-timeline-item checkout-history-item status-${status.toLowerCase()}">
             <span class="request-timeline-dot"></span>
-            <span class="request-row-icon"></span>
-            <div class="request-row-body">
-                <div class="request-row-main">
-                    <strong>${escapeText(code)}</strong>
-                    <p>Ngày dự kiến: ${escapeText(checkoutDate)}</p>
-                    <span>Gửi ngày: ${escapeText(formatDate(r.createdAt))}${time ? ` <b>•</b> ${escapeText(time)}` : ''}</span>
-                </div>
-                <div class="request-row-actions">
+            <div class="checkout-history-card">
+                <div class="checkout-history-main">
                     ${renderRequestStatusPill(status)}
-                    <button type="button" class="request-detail-btn" data-request-detail="${r.id}">Xem chi tiết</button>
+                    <strong class="checkout-history-code">${escapeText(code)}</strong>
+                    <div class="checkout-history-meta">
+                        <span class="checkout-meta-item checkout-meta-date"><i></i>Ngày dự kiến: ${escapeText(checkoutDate)}</span>
+                        <span class="checkout-meta-item checkout-meta-time"><i></i>Gửi ngày: ${escapeText(formatDate(r.createdAt))}${time ? ` ${escapeText(time)}` : ''}</span>
+                    </div>
+                </div>
+                <div class="checkout-history-actions">
+                    <button type="button" class="request-detail-btn checkout-detail-link" data-request-detail="${r.id}">Chi tiết <span></span></button>
+                    ${status === 'Pending'
+                        ? `<button type="button" class="request-cancel-btn checkout-cancel-link" data-req-id="${r.id}">Hủy yêu cầu</button>`
+                        : ''}
                 </div>
             </div>
         </article>`;
@@ -386,14 +440,30 @@ function setRequestStat(id, value) {
     if (el) el.textContent = String(value).padStart(2, '0');
 }
 
-function updateRequestHistoryFooter(shown, total) {
+function updateRequestHistoryFooter(shown, total, from = shown ? 1 : 0, to = shown, page = 1, totalPages = 1) {
     const footer = document.getElementById('request-history-footer');
     const label = document.getElementById('request-history-count');
     if (!footer || !label) return;
     footer.style.display = total ? 'flex' : 'none';
     label.textContent = shown
-        ? `Hiển thị 1 đến ${shown} trong tổng số ${total} yêu cầu`
+        ? `Hiển thị ${from} đến ${to} trong tổng số ${total} yêu cầu`
         : `Không có yêu cầu phù hợp trong tổng số ${total} yêu cầu`;
+
+    const pagination = footer.querySelector('.request-pagination');
+    if (!pagination) return;
+    pagination.innerHTML = `
+        <button type="button" class="request-page-btn" data-request-page="${page - 1}" ${page <= 1 ? 'disabled' : ''}>&#8249;</button>
+        <button type="button" class="request-page-btn active">${page}</button>
+        <button type="button" class="request-page-btn" data-request-page="${page + 1}" ${page >= totalPages ? 'disabled' : ''}>&#8250;</button>
+    `;
+    pagination.querySelectorAll('[data-request-page]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const nextPage = Number(btn.dataset.requestPage);
+            if (!nextPage || nextPage < 1 || nextPage > totalPages) return;
+            requestHistoryPage = nextPage;
+            loadMyRequests();
+        });
+    });
 }
 
 function renderRequestStatusPill(status) {
@@ -529,15 +599,21 @@ function bindTransferReasonCounter() {
     counterEl.textContent = `${reasonEl.value.length}/500`;
 }
 
-function bindTransferFileInput() {
-    const input = document.getElementById('transfer-file');
-    const nameEl = document.getElementById('transfer-file-name');
-    if (!input || input._bound) return;
-    input._bound = true;
-    input.addEventListener('change', () => {
-        const file = input.files?.[0];
-        if (nameEl) nameEl.textContent = file ? file.name : 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
-    });
+
+function updateTransferSubmitAvailability() {
+    const btn = document.getElementById('transfer-submit-btn');
+    const errEl = document.getElementById('transfer-error');
+    if (!btn) return;
+
+    btn.disabled = hasPendingTransferRequest;
+    btn.title = hasPendingTransferRequest ? TRANSFER_PENDING_MESSAGE : '';
+
+    if (!errEl) return;
+    if (hasPendingTransferRequest) {
+        errEl.textContent = TRANSFER_PENDING_MESSAGE;
+    } else if (errEl.textContent === TRANSFER_PENDING_MESSAGE) {
+        errEl.textContent = '';
+    }
 }
 
 function bindTransferFilters() {
@@ -631,15 +707,11 @@ function bindTransferSubmit() {
         errEl.textContent = '';
         const toRoomId = Number(document.getElementById('transfer-selected-id')?.value);
         const reason   = document.getElementById('transfer-reason')?.value.trim();
-        const proofFile = document.getElementById('transfer-file')?.files?.[0];
 
+        if (hasPendingTransferRequest) { errEl.textContent = TRANSFER_PENDING_MESSAGE; return; }
         if (!toRoomId)  { errEl.textContent = 'Vui lòng chọn phòng muốn chuyển đến.'; return; }
         if (!reason)    { errEl.textContent = 'Vui lòng nhập lý do chuyển phòng.'; return; }
         if (reason.length < 15) { errEl.textContent = 'Lý do cần ít nhất 15 ký tự.'; return; }
-        if (proofFile && proofFile.size > 5 * 1024 * 1024) {
-            errEl.textContent = 'Tệp minh chứng không được vượt quá 5MB.';
-            return;
-        }
 
         btn.disabled = true;
         // Buoc 1: Hold truoc 10 phut de tranh race condition
@@ -667,9 +739,6 @@ function bindTransferSubmit() {
             document.getElementById('transfer-selected-info').style.display = 'none';
             document.getElementById('transfer-selected-id').value = '';
             document.getElementById('transfer-selected-display').value = '';
-            if (document.getElementById('transfer-file')) document.getElementById('transfer-file').value = '';
-            const fileName = document.getElementById('transfer-file-name');
-            if (fileName) fileName.textContent = 'Định dạng: JPG, PNG, PDF (Tối đa 5MB)';
             const selectedText = document.getElementById('transfer-selected-display-text');
             if (selectedText) selectedText.textContent = '—';
             document.querySelectorAll('.room-item').forEach(i => i.classList.remove('selected'));
@@ -691,15 +760,22 @@ async function loadTransferHistory() {
     const res = await callApi('/roomtransfers/my');
     if (!res?.ok || !Array.isArray(res.data) || !res.data.length) {
         updateTransferHistoryStats([]);
+        hasPendingTransferRequest = false;
+        updateTransferSubmitAvailability();
         histEl.innerHTML = '<div class="empty-state">Chưa có yêu cầu chuyển phòng nào.</div>';
         updateTransferHistoryFooter(0, 0);
         return;
     }
 
-    const allItems = [...res.data].sort((a, b) =>
-        new Date(b.requestedAt || b.createdAt || 0) - new Date(a.requestedAt || a.createdAt || 0)
-    );
+    const allItems = [...res.data].sort((a, b) => {
+        const aPending = String(a.status || '') === 'Pending';
+        const bPending = String(b.status || '') === 'Pending';
+        if (aPending !== bPending) return aPending ? -1 : 1;
+        return new Date(b.requestedAt || b.createdAt || 0) - new Date(a.requestedAt || a.createdAt || 0);
+    });
     updateTransferHistoryStats(allItems);
+    hasPendingTransferRequest = allItems.some(item => String(item.status || '') === 'Pending');
+    updateTransferSubmitAvailability();
 
     const filtered = transferStatusFilter
         ? allItems.filter(t => String(t.status || '') === transferStatusFilter)
@@ -729,6 +805,20 @@ async function loadTransferHistory() {
                 item.rejectionReason ? `\nLý do từ chối: ${item.rejectionReason}` : ''
             ].join('\n');
             alert(detail);
+        });
+    });
+
+    histEl.querySelectorAll('[data-transfer-cancel]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Xác nhận hủy yêu cầu chuyển phòng này?')) return;
+            const res2 = await callApi(`/roomtransfers/${btn.dataset.transferCancel}/cancel`, { method: 'DELETE' });
+            if (res2?.ok) {
+                showToast('Đã hủy yêu cầu chuyển phòng.');
+                loadTransferHistory();
+                loadTransferRooms();
+            } else {
+                showToast(res2?.data?.message || 'Không thể hủy yêu cầu chuyển phòng.', true);
+            }
         });
     });
 }
@@ -763,6 +853,9 @@ function renderTransferHistoryItem(t) {
                 <div class="transfer-history-actions">
                     ${renderRequestStatusPill(status)}
                     <button type="button" class="request-detail-btn" data-transfer-detail="${t.id}">Xem chi tiết</button>
+                    ${status === 'Pending'
+                        ? `<button type="button" class="request-cancel-btn" data-transfer-cancel="${t.id}">Hủy yêu cầu</button>`
+                        : ''}
                 </div>
             </div>
         </article>`;

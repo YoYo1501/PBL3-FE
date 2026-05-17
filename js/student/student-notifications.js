@@ -37,19 +37,11 @@ function getNotifIconClass(notification) {
     return 'nicon-bell';
 }
 
-/* Badge loại thông báo */
+/* Badge trạng thái đọc/chưa đọc */
 function getNotifBadge(notification) {
-    const title = (notification.title || '').toLowerCase();
-    const msg   = (notification.message || '').toLowerCase();
-    if (title.includes('hạn') || title.includes('phạt') || title.includes('nhắc'))
-        return '<span class="notif-type-badge badge-warning">Quan trọng</span>';
-    if (title.includes('nhắc nợ') || msg.includes('chưa thanh toán'))
-        return '<span class="notif-type-badge badge-reminder">Nhắc nhở</span>';
-    if (title.includes('duyệt') || msg.includes('đã được duyệt'))
-        return '<span class="notif-type-badge badge-approved">Đã duyệt</span>';
-    if (title.includes('tiếp nhận') || msg.includes('tiếp nhận'))
-        return '<span class="notif-type-badge badge-received">Đã tiếp nhận</span>';
-    return '<span class="notif-type-badge badge-info">Thông tin</span>';
+    return notification.isRead
+        ? '<span class="notif-state-badge notif-state-read">Đã đọc</span>'
+        : '<span class="notif-state-badge notif-state-unread">Chưa đọc</span>';
 }
 
 function normalizeNotificationText(value) {
@@ -62,14 +54,21 @@ function normalizeNotificationText(value) {
 
 function parseNotificationDate(value) {
     if (!value) return null;
-    const direct = new Date(value);
-    if (!Number.isNaN(direct.getTime())) return direct;
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
 
-    const match = String(value).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
-    if (!match) return null;
+    const raw = String(value).trim();
 
-    const [, day, month, year, hour = '0', minute = '0', second = '0'] = match;
-    const parsed = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+    const vnMatch = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (vnMatch) {
+        const [, day, month, year, hour = '0', minute = '0', second = '0'] = vnMatch;
+        const parsed = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    const normalizedIso = raw.replace(/(\.\d{3})\d+/, '$1');
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(normalizedIso);
+    const isoWithoutTimezone = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(normalizedIso) && !hasTimezone;
+    const parsed = new Date(isoWithoutTimezone ? `${normalizedIso}Z` : normalizedIso);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
@@ -86,6 +85,18 @@ function timeAgo(dateStr) {
     if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
     if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
     return Math.floor(diff / 86400) + ' ngày trước';
+}
+
+function formatNotificationDateTime(value) {
+    const date = parseNotificationDate(value);
+    if (!date) return '';
+    return date.toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
 }
 
 function getNotifIconClass(notification) {
@@ -105,22 +116,9 @@ function getNotifIconClass(notification) {
 }
 
 function getNotifBadge(notification) {
-    const text = `${normalizeNotificationText(notification.title)} ${normalizeNotificationText(notification.message)}`;
-
-    if (text.includes('han') || text.includes('phat') || text.includes('qua han'))
-        return '<span class="notif-type-badge badge-warning">Quan trọng</span>';
-    if (text.includes('nhac no') || text.includes('chua thanh toan'))
-        return '<span class="notif-type-badge badge-reminder">Nhắc nhở</span>';
-    if (text.includes('duyet') || text.includes('da duoc duyet'))
-        return '<span class="notif-type-badge badge-approved">Đã duyệt</span>';
-    if (text.includes('tiep nhan'))
-        return '<span class="notif-type-badge badge-received">Đã tiếp nhận</span>';
-    return '<span class="notif-type-badge badge-info">Thông tin</span>';
-}
-
-function isImportantNotification(notification) {
-    const text = `${normalizeNotificationText(notification.title)} ${normalizeNotificationText(notification.message)}`;
-    return text.includes('han') || text.includes('phat') || text.includes('nhac') || text.includes('chua thanh toan');
+    return notification.isRead
+        ? '<span class="notif-state-badge notif-state-read">Đã đọc</span>'
+        : '<span class="notif-state-badge notif-state-unread">Chưa đọc</span>';
 }
 
 function showNotifModal({ title, date, message }) {
@@ -164,20 +162,19 @@ function renderNotificationBadges(notifications = currentNotifications) {
 function renderNotifSidebar(notifications) {
     const total     = notifications.length;
     const unread    = notifications.filter(n => !n.isRead).length;
-    const important = notifications.filter(n => {
-        const t = (n.title || '').toLowerCase();
-        return t.includes('hạn') || t.includes('phạt') || t.includes('nhắc');
-    }).length;
+    const read      = total - unread;
 
     const elTotal = document.getElementById('notify-total-count');
     const elUnread = document.getElementById('notify-unread-summary');
-    const elImp = document.getElementById('notify-important-summary');
+    const elRead = document.getElementById('notify-read-summary');
     const elUnreadCount = document.getElementById('notify-unread-count');
+    const elReadCount = document.getElementById('notify-read-count');
 
     if (elTotal) elTotal.textContent = total;
     if (elUnread) elUnread.textContent = unread;
-    if (elImp) elImp.textContent = important;
+    if (elRead) elRead.textContent = read;
     if (elUnreadCount) elUnreadCount.textContent = unread;
+    if (elReadCount) elReadCount.textContent = read;
 }
 
 function normalizeNotificationsResponse(responseData) {
@@ -191,33 +188,32 @@ function normalizeNotificationsResponse(responseData) {
 function getFilteredNotifications(filter) {
     const all = currentNotifications;
     if (filter === 'unread') return all.filter(n => !n.isRead);
-    if (filter === 'important') return all.filter(n => {
-        const t = (n.title || '').toLowerCase();
-        return t.includes('hạn') || t.includes('phạt') || t.includes('nhắc');
-    });
+    if (filter === 'read') return all.filter(n => n.isRead);
     return all;
 }
 
 function renderNotifSidebar(notifications) {
     const total = notifications.length;
     const unread = notifications.filter(n => !n.isRead).length;
-    const important = notifications.filter(isImportantNotification).length;
+    const read = total - unread;
 
     const elTotal = document.getElementById('notify-total-count');
     const elUnread = document.getElementById('notify-unread-summary');
-    const elImp = document.getElementById('notify-important-summary');
+    const elRead = document.getElementById('notify-read-summary');
     const elUnreadCount = document.getElementById('notify-unread-count');
+    const elReadCount = document.getElementById('notify-read-count');
 
     if (elTotal) elTotal.textContent = total;
     if (elUnread) elUnread.textContent = unread;
-    if (elImp) elImp.textContent = important;
+    if (elRead) elRead.textContent = read;
     if (elUnreadCount) elUnreadCount.textContent = unread;
+    if (elReadCount) elReadCount.textContent = read;
 }
 
 function getFilteredNotifications(filter) {
     const all = currentNotifications;
     if (filter === 'unread') return all.filter(n => !n.isRead);
-    if (filter === 'important') return all.filter(isImportantNotification);
+    if (filter === 'read') return all.filter(n => n.isRead);
     return all;
 }
 
@@ -265,7 +261,7 @@ function renderNotificationsList(notifications) {
                 <div class="notif-row-head">
                     <span class="notif-row-title">${escapeText(item.title)}</span>
                     ${getNotifBadge(item)}
-                    <span class="notif-row-time">${timeAgo(getNotificationCreatedAt(item))}</span>
+                    <span class="notif-row-time" title="${escapeText(formatNotificationDateTime(getNotificationCreatedAt(item)))}">${timeAgo(getNotificationCreatedAt(item))}</span>
                     <span class="notif-row-chevron">›</span>
                 </div>
                 <p class="notif-row-preview">${escapeText(truncateText(item.message, 140))}</p>
@@ -279,7 +275,7 @@ function renderNotificationsList(notifications) {
 
         showNotifModal({
             title:   notification.title,
-            date:    formatDate(getNotificationCreatedAt(notification)),
+            date:    formatNotificationDateTime(getNotificationCreatedAt(notification)),
             message: notification.message
         });
 
@@ -297,11 +293,21 @@ function renderNotificationsList(notifications) {
                 row.classList.add('notif-read');
                 const dot = row.querySelector('.notif-unread-dot');
                 if (dot) dot.classList.add('invisible');
+                const stateBadge = row.querySelector('.notif-state-badge');
+                if (stateBadge) {
+                    stateBadge.textContent = 'Đã đọc';
+                    stateBadge.classList.remove('notif-state-unread');
+                    stateBadge.classList.add('notif-state-read');
+                }
             }
             // Update unread count in tab
             const unread = currentNotifications.filter(n => !n.isRead).length;
+            const read = currentNotifications.length - unread;
             const el2 = document.getElementById('notify-unread-count');
             if (el2) el2.textContent = unread;
+            const el3 = document.getElementById('notify-read-count');
+            if (el3) el3.textContent = read;
+            if (notificationFilter !== 'all') renderNotificationsList(currentNotifications);
         }
     };
 

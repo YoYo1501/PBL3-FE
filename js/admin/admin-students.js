@@ -1,4 +1,3 @@
-
 function getStudentFilters() {
   return {
     keyword:
@@ -18,6 +17,7 @@ function bindStudentControls() {
     resetPage("students");
     loadStudents();
   };
+
   document
     .getElementById("student-search")
     ?.addEventListener("input", rerenderStudents);
@@ -57,7 +57,9 @@ function bindStudentControls() {
         await loadStudents();
         if (selectedStudentId) await selectStudent(selectedStudentId);
       } else {
-        setStudentError(res?.data?.message || "Không thể cập nhật sinh viên.");
+        setStudentError(
+          res?.data?.message || "Không thể cập nhật sinh viên.",
+        );
       }
     });
 
@@ -142,13 +144,13 @@ function renderStudentsTable() {
   tbody.innerHTML = adminStudents
     .map(
       (student) => `
-        <tr class="${selectedStudentId === student.id ? "is-selected" : ""}" style="cursor: pointer;" data-student-view="${student.id}">
-            <td><strong>${escapeHtml(student.fullName)}</strong></td>
-            <td>${escapeHtml(student.citizenId)}</td>
-            <td>${escapeHtml(student.gender)}</td>
-            <td>${escapeHtml(student.roomCode || "-")}</td>
-            <td>${escapeHtml(student.phone || "-")}</td>
-            <td>${student.isActive ? '<span class="pill">Hoạt động</span>' : '<span class="pill neutral">Ngừng hoạt động</span>'}</td>
+        <tr class="${selectedStudentId === student.id ? "is-selected" : ""}" data-student-view="${student.id}">
+            <td class="student-name-cell"><span class="student-row-icon">${studentIconSvg()}</span><strong>${escapeHtml(student.fullName || "-")}</strong></td>
+            <td>${escapeHtml(student.citizenId || "-")}</td>
+            <td class="student-gender-cell"><span class="student-gender-icon ${isFemaleGender(student.gender) ? "female" : "male"}">${genderIconSvg(student.gender)}</span>${escapeHtml(normalizeGenderLabel(student.gender))}</td>
+            <td>${escapeHtml(student.roomCode || "Chưa có phòng")}</td>
+            <td class="student-phone-cell">${phoneIconSvg()}${escapeHtml(student.phone || "-")}</td>
+            <td>${student.isActive ? '<span class="student-status-pill">Hoạt động</span>' : '<span class="student-status-pill inactive">Ngừng hoạt động</span>'}</td>
         </tr>
     `,
     )
@@ -165,7 +167,10 @@ async function selectStudent(studentId) {
   const res = await callApi(`/students/${studentId}`);
   const student = res?.data?.data || res?.data;
   if (!res?.ok || !student) {
-    adminToast(res?.data?.message || "Không thể lấy chi tiết sinh viên.", true);
+    adminToast(
+      res?.data?.message || "Không thể lấy chi tiết sinh viên.",
+      true,
+    );
     return;
   }
 
@@ -195,4 +200,30 @@ function clearStudentDetail() {
   document.getElementById("student-address").value = "";
   document.getElementById("student-is-active").value = "true";
   setStudentError("");
+}
+
+function isFemaleGender(gender = "") {
+  const value = String(gender).trim().toLowerCase();
+  return value === "nữ" || value === "nu" || value === "female";
+}
+
+function normalizeGenderLabel(gender = "") {
+  if (isFemaleGender(gender)) return "Nữ";
+  const value = String(gender).trim().toLowerCase();
+  if (value === "nam" || value === "male") return "Nam";
+  return gender || "-";
+}
+
+function studentIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+}
+
+function genderIconSvg(gender = "") {
+  return isFemaleGender(gender)
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v8M8 17h8"></path></svg>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="14" r="5"></circle><path d="M14 10l6-6M15 4h5v5"></path></svg>';
+}
+
+function phoneIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.16 8.81 19.8 19.8 0 0 1 2 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.35 1.89.66 2.78a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.3-1.23a2 2 0 0 1 2.11-.45c.89.31 1.82.53 2.78.66A2 2 0 0 1 22 16.92z"></path></svg>';
 }

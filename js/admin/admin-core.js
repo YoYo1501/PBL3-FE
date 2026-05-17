@@ -16,18 +16,20 @@ function adminBadge(status) {
   const labels = {
     pending: "Chờ duyệt",
     approved: "Đã duyệt",
+    inprogress: "\u0110ang s\u1eeda",
     rejected: "Từ chối",
     active: "Đang hiệu lực",
     inactive: "Vô hiệu",
-    completed: "Đã duyệt",
+    completed: "Ho\u00e0n th\u00e0nh",
     cancelled: "Đã hủy",
     terminated: "Đã thanh lý",
     draft: "Nháp",
     expired: "Hết hạn",
     paid: "Đã thanh toán",
     unpaid: "Chưa thanh toán",
-    damaged: "Hư hỏng",
-    undermaintenance: "Đang bảo trì",
+    good: "Ho\u1ea1t \u0111\u1ed9ng t\u1ed1t",
+    damaged: "H\u01b0 h\u1ecfng",
+    undermaintenance: "\u0110ang b\u1ea3o tr\u00ec",
   };
   return `<span class="status-badge ${value}">${labels[value] || status || "Không rõ"}</span>`;
 }

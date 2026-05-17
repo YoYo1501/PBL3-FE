@@ -179,13 +179,13 @@ function renderContractsTable() {
   tbody.innerHTML = adminContracts
     .map(
       (contract) => `
-        <tr class="${selectedContractId === contract.id ? "is-selected" : ""}" style="cursor: pointer;" data-contract-view="${contract.id}">
-            <td><strong>${escapeHtml(contract.contractCode)}</strong></td>
-            <td>${escapeHtml(contract.studentName || "-")}</td>
-            <td>${escapeHtml(contract.roomCode || "-")} (${escapeHtml(contract.roomType || "-")})</td>
-            <td>${formatDate(contract.startDate)} - ${formatDate(contract.endDate)}</td>
-            <td>${escapeHtml(formatCurrency(contract.price))}</td>
-            <td>${adminBadge(contract.status)}</td>
+        <tr class="${selectedContractId === contract.id ? "is-selected" : ""}" data-contract-view="${contract.id}">
+            <td class="contract-code-cell"><span class="contract-code-link">${escapeHtml(contract.contractCode || "-")}</span></td>
+            <td><span class="contract-row-icon purple">${contractUserIconSvg()}</span>${escapeHtml(contract.studentName || "-")}</td>
+            <td><span class="contract-row-icon cyan">${contractRoomIconSvg()}</span>${escapeHtml(contract.roomCode || "-")} (${escapeHtml(contract.roomType || "-")})</td>
+            <td class="contract-period-cell">${formatDate(contract.startDate)} -<br>${formatDate(contract.endDate)}</td>
+            <td class="contract-price-cell"><span class="contract-row-icon amber">${contractPriceIconSvg()}</span>${escapeHtml(formatCurrency(contract.price))}</td>
+            <td>${contractStatusBadge(contract.status)}</td>
         </tr>
     `,
     )
@@ -208,15 +208,15 @@ async function selectContract(contractId) {
 
   selectedContractId = contract.id;
   document.getElementById("contract-detail-code").textContent =
-    contract.contractCode || "Da chon";
+    contract.contractCode || "Đã chọn";
   document.getElementById("contract-detail-student").textContent =
     contract.studentName || "-";
   document.getElementById("contract-detail-room").textContent =
     `${contract.roomCode || "-"} (${contract.roomType || "-"})`;
   document.getElementById("contract-detail-days").textContent =
-    `${contract.daysRemaining ?? 0} ngay`;
+    `${contract.daysRemaining ?? 0} ngày`;
   document.getElementById("contract-detail-renew").textContent =
-    contract.canRenew ? "Co the gia han" : "Chua den han gia han";
+    contract.canRenew ? "Có thể gia hạn" : "Chưa đến hạn gia hạn";
 
   document.getElementById("contract-start-date").value = toDateInputValue(
     contract.startDate,
@@ -231,7 +231,7 @@ async function selectContract(contractId) {
 }
 
 function clearContractDetail() {
-  document.getElementById("contract-detail-code").textContent = "Chua chon";
+  document.getElementById("contract-detail-code").textContent = "Chưa chọn";
   document.getElementById("contract-detail-student").textContent = "-";
   document.getElementById("contract-detail-room").textContent = "-";
   document.getElementById("contract-detail-days").textContent = "-";
@@ -249,5 +249,49 @@ function toDateInputValue(value) {
     typeof parseDateValue === "function" ? parseDateValue(value) : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return date.toISOString().slice(0, 10);
+}
+
+function contractStatusBadge(status = "") {
+  const normalized = String(status || "").toLowerCase();
+  const className =
+    normalized === "active"
+      ? "active"
+      : normalized === "expired"
+        ? "expired"
+        : normalized === "terminated"
+          ? "terminated"
+          : normalized === "cancelled"
+            ? "cancelled"
+            : "inactive";
+  return `<span class="contract-status-pill ${className}">${escapeHtml(normalizeContractStatusLabel(status))}</span>`;
+}
+
+function normalizeContractStatusLabel(status = "") {
+  switch (status) {
+    case "Active":
+      return "Đang hiệu lực";
+    case "Expired":
+      return "Hết hạn";
+    case "Terminated":
+      return "Đã thanh lý";
+    case "Inactive":
+      return "Vô hiệu";
+    case "Cancelled":
+      return "Đã hủy";
+    default:
+      return status || "-";
+  }
+}
+
+function contractUserIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>';
+}
+
+function contractRoomIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>';
+}
+
+function contractPriceIconSvg() {
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg>';
 }
 

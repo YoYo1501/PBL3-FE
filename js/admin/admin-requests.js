@@ -48,23 +48,10 @@ function renderRequestsList() {
                     </span>
                     <span class="request-type-badge ${getRequestTypeClass(item.requestType)}">${escapeHtml(getRequestTypeLabel(item.requestType))}</span>
                 </div>
-                ${
-                  item.status === "Pending"
-                    ? `<div class="request-inline-actions">
-                        <button type="button" class="primary-btn" data-request-approve="${item.id}">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Duyệt
-                        </button>
-                        <button type="button" class="danger-btn" data-request-reject="${item.id}">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            Từ chối
-                        </button>
-                    </div>`
-                    : ""
-                }
+                ${renderRequestActions(item)}
             </div>
             <div class="queue-item-actions">
-                ${adminBadge(item.status)}
+                ${requestListStatusBadge(item.status)}
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
         </article>
@@ -87,6 +74,74 @@ function renderRequestsList() {
     "Nhập lý do từ chối yêu cầu:",
     "Đã từ chối yêu cầu.",
   );
+  bindRequestStatusAction(
+    container,
+    "[data-request-start]",
+    "InProgress",
+    "Nh\u1eadp ghi ch\u00fa b\u1eaft \u0111\u1ea7u s\u1eeda:",
+    "\u0110\u00e3 chuy\u1ec3n sang \u0111ang s\u1eeda.",
+  );
+  bindRequestStatusAction(
+    container,
+    "[data-request-complete]",
+    "Completed",
+    "Nh\u1eadp ghi ch\u00fa ho\u00e0n th\u00e0nh s\u1eeda ch\u1eefa:",
+    "\u0110\u00e3 ho\u00e0n th\u00e0nh s\u1eeda ch\u1eefa.",
+  );
+}
+
+function renderRequestActions(item) {
+  if (item.status === "Pending") {
+    return `<div class="request-inline-actions">
+        <button type="button" class="primary-btn" data-request-approve="${item.id}">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Duyệt
+        </button>
+        <button type="button" class="danger-btn" data-request-reject="${item.id}">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            Từ chối
+        </button>
+    </div>`;
+  }
+
+  if (item.requestType === "Maintenance" && item.status === "Approved") {
+    return `<div class="request-inline-actions">
+        <button type="button" class="primary-btn" data-request-start="${item.id}">\u0110ang s\u1eeda</button>
+    </div>`;
+  }
+
+  if (item.requestType === "Maintenance" && item.status === "InProgress") {
+    return `<div class="request-inline-actions">
+        <button type="button" class="primary-btn" data-request-complete="${item.id}">Ho\u00e0n th\u00e0nh</button>
+    </div>`;
+  }
+
+  return "";
+}
+
+function requestStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    pending: "Chờ duyệt",
+    approved: "Đã duyệt",
+    rejected: "Từ chối",
+    inprogress: "Đang sửa",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function requestStatusClass(status = "") {
+  const value = String(status || "").toLowerCase();
+  if (value === "approved" || value === "completed") return "approved";
+  if (value === "rejected" || value === "cancelled") return "rejected";
+  if (value === "inprogress") return "progress";
+  return "pending";
+}
+
+function requestListStatusBadge(status = "") {
+  return `<span class="request-status-badge ${requestStatusClass(status)}">${escapeHtml(requestStatusLabel(status))}</span>`;
 }
 
 function bindRequestDetail(container) {
@@ -247,8 +302,10 @@ function requestStatusPill(status) {
   const labels = {
     pending: "Chờ duyệt",
     approved: "Đã duyệt",
+    inprogress: "\u0110ang s\u1eeda",
     rejected: "Từ chối",
     cancelled: "Đã hủy",
+    completed: "Ho\u00e0n th\u00e0nh",
   };
   return `
     <strong class="registration-status-pill ${value}">
@@ -300,7 +357,7 @@ function bindRequestStatusAction(
         const resolutionNote = await promptNote(promptMessage);
         if (resolutionNote == null) return;
         const requestId =
-          button.dataset.requestApprove || button.dataset.requestReject;
+          button.dataset.requestApprove || button.dataset.requestReject || button.dataset.requestStart || button.dataset.requestComplete;
         const res = await callApi(`/studentrequests/${requestId}/status`, {
           method: "PUT",
           body: JSON.stringify({
