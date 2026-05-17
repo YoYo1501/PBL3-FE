@@ -8,6 +8,19 @@ function getInvoiceRecordId(item) {
     return Number(item?.invoiceId ?? item?.id);
 }
 
+function getInvoiceDisplayCode(item) {
+    if (item?.invoiceCode) return String(item.invoiceCode);
+    const raw = String(item?.period || '').trim();
+    let period = '';
+    let match = raw.match(/^(\d{4})[-/](\d{1,2})$/);
+    if (match) period = `${match[1]}${String(Number(match[2])).padStart(2, '0')}`;
+    match = period ? null : raw.match(/^(\d{1,2})[-/](\d{4})$/);
+    if (match) period = `${match[2]}${String(Number(match[1])).padStart(2, '0')}`;
+    if (!period) period = raw.replace(/[^\d]+/g, '') || '000000';
+    const id = getInvoiceRecordId(item);
+    return `HD-${period}-${String(id || 0).padStart(6, '0')}`;
+}
+
 function isInvoicePaid(inv) {
     return normalizeInvoiceStatus(inv?.status) === 'Paid';
 }
@@ -36,6 +49,9 @@ function parseInvoicePeriod(period) {
 }
 
 function getInvoiceDueDate(inv) {
+    const dueFromApi = parseDateValue(inv?.dueDate);
+    if (!isNaN(dueFromApi)) return dueFromApi;
+
     const period = parseInvoicePeriod(inv?.period);
     if (period) return new Date(period.year, period.month - 1, 15);
     const issued = parseDateValue(inv?.issuedAt);
@@ -45,7 +61,7 @@ function getInvoiceDueDate(inv) {
 
 function invoiceDueDateText(inv) {
     const dueDate = getInvoiceDueDate(inv);
-    return dueDate ? formatDate(dueDate.toISOString()) : '—';
+    return dueDate && !isNaN(dueDate) ? dueDate.toLocaleDateString('vi-VN') : '—';
 }
 
 function invoiceDueDateSubText(inv) {
@@ -86,6 +102,7 @@ function invoiceDueDateHtml(inv) {
 function getInvoiceSearchText(inv) {
     return [
         inv.period,
+        getInvoiceDisplayCode(inv),
         formatReceiptPeriod(inv.period),
         inv.roomCode,
         inv.status,
@@ -282,6 +299,8 @@ function downloadInvoice(inv) {
     if (!inv) return;
     const content = [
         'HOA DON KY TUC XA',
+        `Ma hoa don: ${getInvoiceDisplayCode(inv)}`,
+        `Sinh vien: ${inv.studentName || ''}`,
         `Ky thanh toan: ${inv.period || ''}`,
         `Phong: ${inv.roomCode || ''}`,
         `Ngay phat hanh: ${formatDate(inv.issuedAt)}`,
@@ -375,6 +394,8 @@ function renderInvoiceDetail(inv) {
     const amount = inv.paidAmount ?? inv.totalAmount;
 
     const invoiceMeta = `
+        <div class="inv-detail-row"><span>Ma hoa don</span><strong>${escapeText(getInvoiceDisplayCode(inv))}</strong></div>
+        <div class="inv-detail-row"><span>Sinh viên</span><strong>${escapeText(inv.studentName || '—')}</strong></div>
         <div class="inv-detail-row"><span>Ngày phát hành</span><strong>${escapeText(formatDate(inv.issuedAt))}</strong></div>
         <div class="inv-detail-row"><span>Hạn thanh toán</span><strong class="${isInvoiceUnpaid(inv) ? 'is-danger' : ''}">${escapeText(invoiceDueDateText(inv))}</strong></div>
         <div class="inv-detail-row"><span>Trạng thái</span><strong>${invoiceStatusPill(inv.status)}</strong></div>`;
@@ -584,8 +605,8 @@ function renderInvoiceCards(filtered) {
                 <div class="invoice-card-period">
                     <span class="invoice-card-doc-icon"></span>
                     <div>
-                        <strong>Kỳ ${escapeText(formatInvoicePeriodShort(inv.period))}</strong>
-                        <span>Tháng ${escapeText(formatInvoicePeriodShort(inv.period))}</span>
+                        <strong>${escapeText(getInvoiceDisplayCode(inv))}</strong>
+                        <span>Kỳ ${escapeText(formatInvoicePeriodShort(inv.period))}</span>
                         <em>${escapeText(inv.roomCode || '—')} - Phòng</em>
                     </div>
                 </div>
@@ -946,7 +967,18 @@ async function loadMyInvoices(options = {}) {
 }
 
 async function payInvoice(invoiceId) {
-    if (!confirm('Bạn muốn thanh toán hóa đơn này qua VNPAY?')) return;
+    const confirmed = typeof showAppConfirm === 'function'
+        ? await showAppConfirm({
+            title: 'Thanh toán qua VNPAY',
+            message: 'Bạn sẽ được chuyển sang cổng VNPAY để hoàn tất thanh toán hóa đơn này.',
+            confirmText: 'Tiếp tục thanh toán',
+            cancelText: 'Để sau',
+            tone: 'payment'
+        })
+        : confirm('Bạn muốn thanh toán hóa đơn này qua VNPAY?');
+
+    if (!confirmed) return;
+
     const returnPage = window.location.href.split('#')[0];
     const res = await callApi(`/payments/create-payment-url/${invoiceId}?returnPage=${encodeURIComponent(returnPage)}`, { method: 'POST' });
     if (res?.ok && res.data?.url) {

@@ -196,7 +196,7 @@ async function loadInvoices() {
   if (!tbody) return;
 
   tbody.innerHTML =
-    '<tr><td colspan="8" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
+    '<tr><td colspan="11" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
   setInvoiceActionError("");
 
   const filters = getInvoiceFilters();
@@ -223,7 +223,7 @@ function renderInvoicesTable() {
 
   if (!adminInvoices.length) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="11" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
@@ -231,14 +231,17 @@ function renderInvoicesTable() {
     .map(
       (invoice) => `
         <tr data-invoice-view="${invoice.id}" style="cursor: pointer;">
-            <td>${escapeHtml(invoice.id)}</td>
-            <td>${escapeHtml(invoice.studentName || "-")}</td>
-            <td>${escapeHtml(invoice.roomCode || "-")}</td>
+            <td>${escapeHtml(getInvoiceDisplayCode(invoice))}</td>
             <td>${escapeHtml(invoice.period || "-")}</td>
+            <td>${escapeHtml(invoice.roomCode || "-")}</td>
+            <td>${escapeHtml(invoice.studentName || "-")}</td>
+            <td>${escapeHtml(formatCurrency(invoice.roomFee))}</td>
             <td>${escapeHtml(formatCurrency(invoice.electricFee))}</td>
             <td>${escapeHtml(formatCurrency(invoice.waterFee))}</td>
             <td><strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong></td>
             <td>${invoiceStatusBadge(invoice.status)}</td>
+            <td>${escapeHtml(formatDate(invoice.issuedAt))}</td>
+            <td><button type="button" class="secondary-btn" data-invoice-view-btn="${invoice.id}">Xem</button></td>
         </tr>
     `,
     )
@@ -259,16 +262,17 @@ function renderInvoicesTable() {
       }
 
       const details = [
-        `Hóa đơn #${invoice.id}`,
+        `Ma hoa don: ${getInvoiceDisplayCode(invoice)}`,
         `Kỳ: ${invoice.period || "-"}`,
         `Phòng: ${invoice.roomCode || "-"}`,
-        `Sinh viên: ${invoice.studentName || "-"}`,
+        `Ten sinh vien: ${invoice.studentName || "-"}`,
         `Tiền phòng: ${formatCurrency(invoice.roomFee)}`,
         `Tiền điện: ${formatCurrency(invoice.electricFee)}`,
         `Tiền nước: ${formatCurrency(invoice.waterFee)}`,
         `Tổng tiền: ${formatCurrency(invoice.totalAmount)}`,
         `Trạng thái: ${invoiceStatusLabel(invoice.status)}`,
         `Ngày phát hành: ${formatDate(invoice.issuedAt)}`,
+        `Han thanh toan: ${formatDate(invoice.dueDate)}`,
       ].join("\n");
 
       // We should probably allow the user to mark it as paid if it's unpaid.
@@ -327,6 +331,19 @@ function invoiceStatusLabel(status = "") {
     overdue: "Quá hạn",
   };
   return labels[value] || status || "Không rõ";
+}
+
+function getInvoiceDisplayCode(invoice) {
+  if (invoice?.invoiceCode) return invoice.invoiceCode;
+  const raw = String(invoice?.period || "").trim();
+  let period = "";
+  let match = raw.match(/^(\d{4})[-/](\d{1,2})$/);
+  if (match) period = `${match[1]}${String(Number(match[2])).padStart(2, "0")}`;
+  match = period ? null : raw.match(/^(\d{1,2})[-/](\d{4})$/);
+  if (match) period = `${match[2]}${String(Number(match[1])).padStart(2, "0")}`;
+  if (!period) period = raw.replace(/[^\d]+/g, "") || "000000";
+  const id = Number(invoice?.id || 0);
+  return `HD-${period}-${String(id).padStart(6, "0")}`;
 }
 
 function invoiceStatusClass(status = "") {
