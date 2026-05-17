@@ -280,23 +280,26 @@
             </section>
 
             <section class="panel" id="section-requests">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="content-card request-admin-card">
+                    <div class="request-admin-head">
                         <div>
-                            <p class="section-kicker">Student Requests</p>
+                            <p class="request-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path><path d="M8 9h8M8 13h5"></path></svg>
+                                <span>Yêu cầu sinh viên</span>
+                            </p>
                             <h2 class="page-heading">Xử lý yêu cầu sinh viên</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-requests-btn">Tải lại</button>
+                        <button type="button" class="primary-btn request-reload-btn" id="reload-requests-btn">Tải lại</button>
                     </div>
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
                             <select id="request-filter-status">
-                                <option value="InProgress">&#272;ang s&#7917;a</option>
-                                <option value="Completed">Ho&#224;n th&#224;nh</option>
-                                <option value="Pending" selected>Chờ duyệt</option>
-                                <option value="">Tất cả</option>
+                                <option value="" selected>Tất cả</option>
+                                <option value="Pending">Chờ duyệt</option>
                                 <option value="Approved">Đã duyệt</option>
+                                <option value="InProgress">Đang sửa</option>
+                                <option value="Completed">Hoàn thành</option>
                                 <option value="Rejected">Từ chối</option>
                             </select>
                         </label>
@@ -313,20 +316,23 @@
             </section>
 
             <section class="panel" id="section-transfers">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="content-card transfer-admin-card">
+                    <div class="transfer-admin-head">
                         <div>
-                            <p class="section-kicker">Room Transfers</p>
+                            <p class="transfer-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"></path><path d="M4 20 21 3"></path><path d="M21 16v5h-5"></path><path d="m15 15 6 6"></path><path d="M4 4l5 5"></path></svg>
+                                <span>Chuyển phòng</span>
+                            </p>
                             <h2 class="page-heading">Duyệt yêu cầu chuyển phòng</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-transfers-btn">Tải lại</button>
+                        <button type="button" class="primary-btn transfer-reload-btn" id="reload-transfers-btn">Tải lại</button>
                     </div>
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
                             <select id="transfer-filter-status">
-                                <option value="Pending" selected>Chờ duyệt</option>
-                                <option value="">Tất cả</option>
+                                <option value="" selected>Tất cả</option>
+                                <option value="Pending">Chờ duyệt</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
                             </select>
@@ -344,20 +350,23 @@
             </section>
 
             <section class="panel" id="section-renewals">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="content-card renewal-admin-card">
+                    <div class="renewal-admin-head">
                         <div>
-                            <p class="section-kicker">Renewals</p>
+                            <p class="renewal-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><path d="M8 15h5"></path><path d="M15 15h1"></path><path d="m15 18 2 2 4-5"></path></svg>
+                                <span>Gia hạn hợp đồng</span>
+                            </p>
                             <h2 class="page-heading">Duyệt gia hạn hợp đồng</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-renewals-btn">Tải lại</button>
+                        <button type="button" class="primary-btn renewal-reload-btn" id="reload-renewals-btn">Tải lại</button>
                     </div>
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
                             <select id="renewal-filter-status">
-                                <option value="Pending" selected>Chờ duyệt</option>
-                                <option value="">Tất cả</option>
+                                <option value="" selected>Tất cả</option>
+                                <option value="Pending">Chờ duyệt</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
                             </select>
@@ -375,111 +384,163 @@
             </section>
 
             <section class="panel" id="section-contracts">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="contract-admin-shell">
+                    <div class="contract-admin-head">
                         <div>
-                            <p class="section-kicker">Contracts</p>
+                            <p class="contract-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 15h6M9 11h3"></path></svg>
+                                <span>Contracts</span>
+                            </p>
                             <h2 class="page-heading">Quản lý hợp đồng lưu trú</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-contracts-btn">Tải lại</button>
+                        <button type="button" class="primary-btn contract-reload-btn" id="reload-contracts-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Tải lại
+                        </button>
                     </div>
 
-                    <div class="contract-filter-grid">
-                        <label>
-                            <span>Tìm theo mã / sinh viên / phòng</span>
-                            <input type="text" id="contract-search" placeholder="Ví dụ: HD, Nguyễn Văn A, A101">
+                    <div class="contract-admin-filter-row">
+                        <label class="contract-search-field">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                            <span>
+                                <strong>Tìm theo mã / sinh viên / phòng</strong>
+                                <input type="text" id="contract-search" placeholder="Ví dụ: HD, Nguyễn Văn A, A101">
+                            </span>
                         </label>
-                        <label>
+                        <label class="contract-select-field">
                             <span>Trạng thái</span>
-                            <select id="contract-filter-status">
-                                <option value="">Tất cả</option>
-                                <option value="Active">Đang hiệu lực</option>
-                                <option value="Expired">Hết hạn</option>
-                                <option value="Terminated">Đã thanh lý</option>
-                                <option value="Inactive">Vô hiệu</option>
-                            </select>
+                            <span class="contract-select-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                                <select id="contract-filter-status">
+                                    <option value="">Tất cả</option>
+                                    <option value="Active">Đang hiệu lực</option>
+                                    <option value="Expired">Hết hạn</option>
+                                    <option value="Terminated">Đã thanh lý</option>
+                                    <option value="Inactive">Vô hiệu</option>
+                                </select>
+                            </span>
                         </label>
                     </div>
 
-                    <div class="contract-layout">
-                        <div class="table-wrap">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Mã hợp đồng</th>
-                                        <th>Sinh viên</th>
-                                        <th>Phòng</th>
-                                        <th>Thời hạn</th>
-                                        <th>Giá</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="contracts-table-body">
-                                    <tr>
-                                        <td colspan="6" class="table-empty">Đang tải danh sách hợp đồng...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="list-pagination" id="contracts-pagination">
-                                <button type="button" class="secondary-btn" id="contracts-prev-btn">Trang trước</button>
+                    <div class="contract-admin-layout">
+                        <div class="contract-table-card">
+                            <div class="table-wrap contract-table-wrap">
+                                <table class="data-table contract-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span class="contract-th-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></span>Mã hợp đồng</th>
+                                            <th><span class="contract-th-icon purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span>Sinh viên</th>
+                                            <th><span class="contract-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg></span>Phòng</th>
+                                            <th><span class="contract-th-icon orange"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Thời hạn</th>
+                                            <th><span class="contract-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg></span>Giá</th>
+                                            <th><span class="contract-th-icon green"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="contracts-table-body">
+                                        <tr>
+                                            <td colspan="6" class="table-empty">Đang tải danh sách hợp đồng...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="list-pagination contract-pagination" id="contracts-pagination">
+                                <button type="button" class="secondary-btn" id="contracts-prev-btn">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                                    Trang trước
+                                </button>
                                 <span class="pagination-summary" id="contracts-page-info">Trang 1 / 1</span>
-                                <button type="button" class="secondary-btn" id="contracts-next-btn">Trang sau</button>
+                                <button type="button" class="secondary-btn" id="contracts-next-btn">
+                                    Trang sau
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                                </button>
                             </div>
                         </div>
 
-                        <aside class="contract-detail-card">
-                            <div class="card-head">
+                        <aside class="contract-admin-detail-panel">
+                            <div class="contract-detail-title">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
                                 <h3>Chi tiết hợp đồng</h3>
-                                <span class="pill neutral" id="contract-detail-code">Chưa chọn</span>
+                            </div>
+                            <span class="contract-selected-chip" id="contract-detail-code">Chưa chọn</span>
+                            <p class="contract-detail-note">Chọn phòng</p>
+
+                            <div class="contract-admin-detail-grid">
+                                <div class="contract-info-box">
+                                    <svg class="purple" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+                                    <span>
+                                        <em>Sinh viên</em>
+                                        <strong id="contract-detail-student">—</strong>
+                                    </span>
+                                </div>
+                                <div class="contract-info-box">
+                                    <svg class="cyan" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>
+                                    <span>
+                                        <em>Phòng</em>
+                                        <strong id="contract-detail-room">—</strong>
+                                    </span>
+                                </div>
+                                <div class="contract-info-box">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                                    <span>
+                                        <em>Số ngày còn lại</em>
+                                        <strong id="contract-detail-days">—</strong>
+                                    </span>
+                                </div>
+                                <div class="contract-info-box">
+                                    <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><path d="m9 16 2 2 4-5"></path></svg>
+                                    <span>
+                                        <em>Khả năng gia hạn</em>
+                                        <strong id="contract-detail-renew">—</strong>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="contract-detail-grid">
-                                <div class="contract-detail-item">
-                                    <span>Sinh viên</span>
-                                    <strong id="contract-detail-student">—</strong>
-                                </div>
-                                <div class="contract-detail-item">
-                                    <span>Phòng</span>
-                                    <strong id="contract-detail-room">—</strong>
-                                </div>
-                                <div class="contract-detail-item">
-                                    <span>Số ngày còn lại</span>
-                                    <strong id="contract-detail-days">—</strong>
-                                </div>
-                                <div class="contract-detail-item">
-                                    <span>Khả năng gia hạn</span>
-                                    <strong id="contract-detail-renew">—</strong>
-                                </div>
-                            </div>
-
-                            <form id="contract-edit-form" class="form-stack">
-                                <label>
+                            <form id="contract-edit-form" class="contract-admin-form">
+                                <label class="contract-input-shell">
                                     <span>Ngày bắt đầu</span>
-                                    <input type="date" id="contract-start-date">
+                                    <span>
+                                        <svg class="purple" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                                        <input type="date" id="contract-start-date">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="contract-input-shell">
                                     <span>Ngày kết thúc</span>
-                                    <input type="date" id="contract-end-date">
+                                    <span>
+                                        <svg class="purple" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                                        <input type="date" id="contract-end-date">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="contract-input-shell">
                                     <span>Giá hợp đồng</span>
-                                    <input type="number" id="contract-price" min="0" step="1000" placeholder="450000">
+                                    <span>
+                                        <svg class="amber" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg>
+                                        <input type="number" id="contract-price" min="0" step="1000" placeholder="450000">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="contract-editor-field">
                                     <span>Trạng thái</span>
-                                    <select id="contract-status">
-                                        <option value="">Chọn trạng thái</option>
-                                        <option value="Active">Active</option>
-                                        <option value="Expired">Expired</option>
-                                        <option value="Terminated">Terminated</option>
-                                        <option value="Inactive">Inactive</option>
-                                        <option value="Cancelled">Cancelled</option>
-                                    </select>
+                                    <span class="contract-select-shell">
+                                        <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
+                                        <select id="contract-status">
+                                            <option value="">Chọn trạng thái</option>
+                                            <option value="Active">Đang hiệu lực</option>
+                                            <option value="Expired">Hết hạn</option>
+                                            <option value="Terminated">Đã thanh lý</option>
+                                            <option value="Inactive">Vô hiệu</option>
+                                            <option value="Cancelled">Đã hủy</option>
+                                        </select>
+                                    </span>
                                 </label>
                                 <p class="form-error" id="contract-form-error"></p>
-                                <div class="contract-actions">
-                                    <button type="submit" class="primary-btn" id="save-contract-btn">Lưu cập nhật</button>
-                                    <button type="button" class="danger-btn" id="deactivate-contract-btn">Vô hiệu hóa</button>
+                                <div class="contract-admin-actions">
+                                    <button type="submit" class="primary-btn" id="save-contract-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                        Lưu cập nhật
+                                    </button>
+                                    <button type="button" class="danger-btn" id="deactivate-contract-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path></svg>
+                                        Vô hiệu hóa
+                                    </button>
                                 </div>
                             </form>
                         </aside>
@@ -492,7 +553,10 @@
                     <article class="content-card">
                         <div class="section-head">
                             <div>
-                                <p class="section-kicker">Invoices</p>
+                                <p class="invoice-admin-kicker">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
+                                    <span>Hóa đơn</span>
+                                </p>
                                 <h2 class="page-heading">Import điện nước</h2>
                             </div>
                         </div>
@@ -513,7 +577,10 @@
                     <article class="content-card">
                         <div class="section-head">
                             <div>
-                                <p class="section-kicker">Invoices</p>
+                                <p class="invoice-admin-kicker">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
+                                    <span>Hóa đơn</span>
+                                </p>
                                 <h2 class="page-heading">Tạo hóa đơn nháp</h2>
                             </div>
                         </div>
@@ -539,7 +606,10 @@
                 <div class="content-card">
                     <div class="section-head">
                         <div>
-                            <p class="section-kicker">Invoices</p>
+                            <p class="invoice-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
+                                <span>Hóa đơn</span>
+                            </p>
                             <h2 class="page-heading">Quản lý hóa đơn</h2>
                         </div>
                         <div class="toolbar-actions">
@@ -601,27 +671,39 @@
             </section>
 
             <section class="panel" id="section-rooms">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="room-admin-shell">
+                    <div class="room-admin-head">
                         <div>
-                            <p class="section-kicker">Rooms</p>
+                            <p class="room-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>
+                                <span>Rooms</span>
+                            </p>
                             <h2 class="page-heading">Quản lý phòng</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-rooms-btn">Tải lại</button>
+                        <button type="button" class="primary-btn room-reload-btn" id="reload-rooms-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Tải lại
+                        </button>
                     </div>
-                    <div class="contract-filter-grid room-filter-grid">
-                        <label>
-                            <span>Tìm theo mã phòng / tòa / loại</span>
-                            <input type="text" id="room-search" placeholder="Ví dụ: A101, Tòa A, Phòng 4 người">
+                    <div class="room-admin-filter-row">
+                        <label class="room-search-field">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                            <span>
+                                <strong>Tìm theo mã phòng / tòa / loại</strong>
+                                <input type="text" id="room-search" placeholder="Ví dụ: A101, Tòa A, Phòng 4 người">
+                            </span>
                         </label>
-                        <label>
+                        <label class="room-select-field">
                             <span>Trạng thái</span>
-                            <select id="room-filter-status">
-                                <option value="">Tất cả</option>
-                                <option value="Available">Available</option>
-                                <option value="Full">Full</option>
-                                <option value="Locked">Locked</option>
-                            </select>
+                            <span class="room-select-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                                <select id="room-filter-status">
+                                    <option value="">Tất cả</option>
+                                    <option value="Available">Available</option>
+                                    <option value="Full">Full</option>
+                                    <option value="Locked">Locked</option>
+                                </select>
+                            </span>
                         </label>
                     </div>
                     <div class="room-overview-filter-note" id="room-overview-filter-note" hidden>
@@ -629,133 +711,188 @@
                         <button type="button" class="secondary-btn" id="room-overview-filter-clear">Bỏ lọc</button>
                     </div>
 
-                    <div class="contract-layout room-layout">
-                        <div class="table-wrap">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Phòng</th>
-                                        <th>Tòa nhà</th>
-                                        <th>Loại</th>
-                                        <th>Giới tính</th>
-                                        <th>Sức chứa</th>
-                                        <th>Giá</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rooms-table-body">
-                                    <tr>
-                                        <td colspan="7" class="table-empty">Đang tải danh sách phòng...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="list-pagination" id="rooms-pagination">
-                                <button type="button" class="secondary-btn" id="rooms-prev-btn">Trang trước</button>
+                    <div class="room-admin-layout">
+                        <div class="room-table-card">
+                            <div class="table-wrap room-table-wrap">
+                                <table class="data-table room-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span class="room-th-icon"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg></span>Phòng</th>
+                                            <th><span class="room-th-icon orange"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"></path><path d="M9 7h1M14 7h1M9 12h1M14 12h1M9 17h1M14 17h1"></path></svg></span>Tòa nhà</th>
+                                            <th><span class="room-th-icon green"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M2 21v-2a4 4 0 0 1 3-3.87"></path></svg></span>Loại</th>
+                                            <th><span class="room-th-icon purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v8M8 17h8"></path></svg></span>Giới tính</th>
+                                            <th><span class="room-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path></svg></span>Sức chứa</th>
+                                            <th><span class="room-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8 4 4 0 0 1 0 0"></path></svg></span>Giá</th>
+                                            <th><span class="room-th-icon green"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rooms-table-body">
+                                        <tr>
+                                            <td colspan="7" class="table-empty">Đang tải danh sách phòng...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="list-pagination room-pagination" id="rooms-pagination">
+                                <button type="button" class="secondary-btn" id="rooms-prev-btn">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                                    Trang trước
+                                </button>
                                 <span class="pagination-summary" id="rooms-page-info">Trang 1 / 1</span>
-                                <button type="button" class="secondary-btn" id="rooms-next-btn">Trang sau</button>
+                                <button type="button" class="secondary-btn" id="rooms-next-btn">
+                                    Trang sau
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                                </button>
                             </div>
                         </div>
 
-                        <aside class="contract-detail-card">
-                            <div class="card-head">
+                        <aside class="room-detail-panel">
+                            <div class="room-detail-title">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>
                                 <h3>Phòng đang chọn</h3>
-                                <span class="pill neutral" id="room-detail-code">Chưa chọn</span>
+                            </div>
+                            <div class="room-detail-grid">
+                                <div class="room-info-box">
+                                    <svg class="orange" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"></path><path d="M9 7h1M14 7h1M9 12h1M14 12h1"></path></svg>
+                                    <span>
+                                        <em>Tòa nhà</em>
+                                        <strong id="room-detail-building">—</strong>
+                                    </span>
+                                </div>
+                                <div class="room-info-box">
+                                    <svg class="purple" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v8M8 17h8"></path></svg>
+                                    <span>
+                                        <em>Giới tính</em>
+                                        <strong id="room-detail-gender">—</strong>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="contract-detail-grid">
-                                <div class="contract-detail-item">
-                                    <span>Tòa nhà</span>
-                                    <strong id="room-detail-building">—</strong>
-                                </div>
-                                <div class="contract-detail-item">
-                                    <span>Giới tính</span>
-                                    <strong id="room-detail-gender">—</strong>
-                                </div>
-                            </div>
-
-                            <form id="room-form" class="form-stack">
-                                <label>
-                                    <span>Tòa nhà</span>
-                                    <select id="room-building-id"></select>
+                            <form id="room-form" class="room-form">
+                                <label class="room-editor-field">
+                                    <span>Tòa (khu)</span>
+                                    <span class="room-select-shell">
+                                        <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>
+                                        <select id="room-building-id"></select>
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-input-shell">
                                     <span>Mã phòng</span>
-                                    <input type="text" id="room-code" placeholder="Ví dụ: A103">
+                                    <span>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 12-8 8-8-8 8-8 8 8Z"></path><path d="M12 8v.01"></path></svg>
+                                        <input type="text" id="room-code" placeholder="Ví dụ: A103">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-input-shell">
                                     <span>Loại phòng</span>
-                                    <input type="text" id="room-type" placeholder="Ví dụ: Phòng 4 người">
+                                    <span>
+                                        <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        <input type="text" id="room-type" placeholder="Ví dụ: Phòng 4 người">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-input-shell">
                                     <span>Sức chứa</span>
-                                    <input type="number" id="room-capacity" min="1" max="20">
+                                    <span>
+                                        <svg class="cyan" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path></svg>
+                                        <input type="number" id="room-capacity" min="1" max="20">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-input-shell">
                                     <span>Số người hiện tại</span>
-                                    <input type="number" id="room-occupancy" min="0" max="20">
+                                    <span>
+                                        <svg class="purple" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+                                        <input type="number" id="room-occupancy" min="0" max="20">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-input-shell">
                                     <span>Giá phòng</span>
-                                    <input type="number" id="room-price" min="0" step="1000">
+                                    <span>
+                                        <svg class="amber" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg>
+                                        <input type="number" id="room-price" min="0" step="1000">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="room-editor-field">
                                     <span>Trạng thái</span>
-                                    <select id="room-status">
-                                        <option value="Available">Available</option>
-                                        <option value="Full">Full</option>
-                                        <option value="Locked">Locked</option>
-                                    </select>
+                                    <span class="room-select-shell">
+                                        <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
+                                        <select id="room-status">
+                                            <option value="Available">Available</option>
+                                            <option value="Full">Full</option>
+                                            <option value="Locked">Locked</option>
+                                        </select>
+                                    </span>
                                 </label>
                                 <p class="form-error" id="room-form-error"></p>
-                                <div class="contract-actions">
-                                    <button type="submit" class="primary-btn" id="save-room-btn">Lưu phòng</button>
-                                    <button type="button" class="secondary-btn" id="new-room-btn">Tạo mới</button>
-                                    <button type="button" class="danger-btn" id="delete-room-btn">Xóa phòng</button>
+                                <div class="room-actions">
+                                    <button type="submit" class="primary-btn" id="save-room-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                        Lưu phòng
+                                    </button>
+                                    <button type="button" class="secondary-btn" id="new-room-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 3v6h-6"></path></svg>
+                                        Tạo mới
+                                    </button>
+                                    <button type="button" class="danger-btn" id="delete-room-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Xóa phòng
+                                    </button>
                                 </div>
                             </form>
-
+                            <span class="room-selected-chip" id="room-detail-code">Chưa chọn</span>
                         </aside>
                     </div>
                 </div>
             </section>
 
             <section class="panel" id="section-facilities">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="facility-admin-shell">
+                    <div class="facility-admin-head">
                         <div>
-                            <p class="section-kicker">Facilities</p>
+                            <p class="facility-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V7"></path><path d="M20 21V7"></path><path d="M4 7l8-4 8 4"></path><path d="M8 21v-8h8v8"></path><path d="M9 10h.01M15 10h.01"></path></svg>
+                                <span>Facilities</span>
+                            </p>
                             <h2 class="page-heading">Quản lý thiết bị</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-facilities-btn">Tải lại</button>
+                        <button type="button" class="primary-btn facility-reload-btn" id="reload-facilities-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Tải lại
+                        </button>
                     </div>
 
-                    <div class="facility-filter-grid">
-                        <label>
-                            <span>Tìm theo thiết bị / phòng</span>
-                            <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
+                    <div class="facility-admin-filter-row">
+                        <label class="facility-search-field">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                            <span>
+                                <strong>Tìm theo thiết bị / phòng</strong>
+                                <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
+                            </span>
                         </label>
-                        <label>
+                        <label class="facility-select-field">
                             <span>Tình trạng</span>
-                            <select id="facility-inventory-status">
-                                <option value="">Tất cả</option>
-                                <option value="Good">Hoạt động tốt</option>
-                                <option value="Damaged">Hư hỏng</option>
-                                <option value="UnderMaintenance">Đang bảo trì</option>
-                            </select>
+                            <span class="facility-select-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                                <select id="facility-inventory-status">
+                                    <option value="">Tất cả</option>
+                                    <option value="Good">Hoạt động tốt</option>
+                                    <option value="Damaged">Hư hỏng</option>
+                                    <option value="UnderMaintenance">Đang bảo trì</option>
+                                </select>
+                            </span>
                         </label>
                     </div>
 
-                    <div class="contract-layout facility-layout">
-                        <div>
-                            <div class="table-wrap">
-                                <table class="data-table">
+                    <div class="facility-admin-layout">
+                        <div class="facility-table-card">
+                            <div class="table-wrap facility-table-wrap">
+                                <table class="data-table facility-data-table">
                                     <thead>
                                         <tr>
-                                            <th>Phòng</th>
-                                            <th>Thiết bị</th>
-                                            <th>Số lượng</th>
-                                            <th>Tình trạng</th>
-                                            <th>Ngày tạo</th>
+                                            <th><span class="facility-th-icon"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg></span>Phòng</th>
+                                            <th><span class="facility-th-icon green"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"></rect><path d="M7 21h10M12 17v4"></path></svg></span>Thiết bị</th>
+                                            <th><span class="facility-th-icon orange"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"></path><path d="M3 6h.01M3 12h.01M3 18h.01"></path></svg></span>Số lượng</th>
+                                            <th><span class="facility-th-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Tình trạng</th>
+                                            <th><span class="facility-th-icon purple"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Ngày tạo</th>
                                         </tr>
                                     </thead>
                                     <tbody id="facilities-table-body">
@@ -765,44 +902,75 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="list-pagination" id="facilities-pagination">
-                                <button type="button" class="secondary-btn" id="facilities-prev-btn">Trang trước</button>
+                            <div class="list-pagination facility-pagination" id="facilities-pagination">
+                                <button type="button" class="secondary-btn" id="facilities-prev-btn">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                                    Trang trước
+                                </button>
                                 <span class="pagination-summary" id="facilities-page-info">Trang 1 / 1</span>
-                                <button type="button" class="secondary-btn" id="facilities-next-btn">Trang sau</button>
+                                <button type="button" class="secondary-btn" id="facilities-next-btn">
+                                    Trang sau
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                                </button>
                             </div>
                         </div>
 
-                        <aside class="contract-detail-card">
-                            <div class="card-head">
+                        <aside class="facility-detail-panel">
+                            <div class="facility-detail-title">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>
                                 <h3>Thiết bị đang chọn</h3>
-                                <span class="pill neutral" id="facility-detail-name">Chưa chọn</span>
                             </div>
-                            <form id="facility-form" class="form-stack">
-                                <label>
+                            <div class="facility-selected-chip">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M19.78 4.22l-2.12 2.12M6.34 17.66l-2.12 2.12"></path></svg>
+                                <strong id="facility-detail-name">Chưa chọn</strong>
+                            </div>
+                            <form id="facility-form" class="facility-form">
+                                <label class="facility-editor-field">
                                     <span>Phòng</span>
-                                    <select id="facility-room-id"></select>
+                                    <span class="facility-select-shell">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg>
+                                        <select id="facility-room-id"></select>
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="facility-input-shell">
                                     <span>Tên thiết bị</span>
-                                    <input type="text" id="facility-name" placeholder="Ví dụ: Giường tầng">
+                                    <span>
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 12-8 8-8-8 8-8 8 8Z"></path><path d="M12 8v.01"></path></svg>
+                                        <input type="text" id="facility-name" placeholder="Ví dụ: Giường tầng">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="facility-input-shell">
                                     <span>Số lượng</span>
-                                    <input type="number" id="facility-quantity" min="1" step="1" value="1">
+                                    <span>
+                                        <svg class="orange" viewBox="0 0 24 24" aria-hidden="true"><path d="m21 16-9 5-9-5V8l9-5 9 5v8Z"></path><path d="M3.27 6.96 12 12.01l8.73-5.05M12 22V12"></path></svg>
+                                        <input type="number" id="facility-quantity" min="1" step="1" value="1">
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="facility-editor-field">
                                     <span>Tình trạng</span>
-                                    <select id="facility-status">
-                                        <option value="Good">Hoạt động tốt</option>
-                                        <option value="Damaged">Hư hỏng</option>
-                                        <option value="UnderMaintenance">Đang bảo trì</option>
-                                    </select>
+                                    <span class="facility-select-shell">
+                                        <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
+                                        <select id="facility-status">
+                                            <option value="Good">Hoạt động tốt</option>
+                                            <option value="Damaged">Hư hỏng</option>
+                                            <option value="UnderMaintenance">Đang bảo trì</option>
+                                        </select>
+                                    </span>
                                 </label>
                                 <p class="form-error" id="facility-form-error"></p>
-                                <div class="contract-actions">
-                                    <button type="submit" class="primary-btn" id="save-facility-btn">Lưu thiết bị</button>
-                                    <button type="button" class="secondary-btn" id="new-facility-btn">Thiết bị mới</button>
-                                    <button type="button" class="danger-btn" id="delete-facility-btn">Xóa thiết bị</button>
+                                <div class="facility-actions">
+                                    <button type="submit" class="primary-btn" id="save-facility-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                        Lưu thiết bị
+                                    </button>
+                                    <button type="button" class="secondary-btn" id="new-facility-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                                        Thiết bị mới
+                                    </button>
+                                    <button type="button" class="danger-btn" id="delete-facility-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Xóa thiết bị
+                                    </button>
                                 </div>
                             </form>
                         </aside>
@@ -811,93 +979,138 @@
             </section>
 
             <section class="panel" id="section-students">
-                <div class="content-card">
-                    <div class="section-head">
+                <div class="student-admin-shell">
+                    <div class="student-admin-head">
                         <div>
-                            <p class="section-kicker">Students</p>
+                            <p class="student-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                <span>Students</span>
+                            </p>
                             <h2 class="page-heading">Quản lý sinh viên</h2>
                         </div>
-                        <button type="button" class="primary-btn" id="reload-students-btn">Tải lại</button>
+                        <button type="button" class="primary-btn student-reload-btn" id="reload-students-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            Tải lại
+                        </button>
                     </div>
 
-                    <div class="contract-filter-grid student-filter-grid">
-                        <label>
-                            <span>Tìm theo tên / CCCD / phòng</span>
-                            <input type="text" id="student-search" placeholder="Ví dụ: Nguyễn Văn A, 048..., A101">
+                    <div class="student-admin-filter-row">
+                        <label class="student-search-field">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+                            <span>
+                                <strong>Tìm theo tên / CCCD / phòng</strong>
+                                <input type="text" id="student-search" placeholder="Ví dụ: Nguyễn Văn A, 048..., A101">
+                            </span>
                         </label>
-                        <label>
+                        <label class="student-select-field">
                             <span>Trạng thái tài khoản</span>
-                            <select id="student-filter-active">
-                                <option value="">Tất cả</option>
-                                <option value="true">Đang hoạt động</option>
-                                <option value="false">Ngừng hoạt động</option>
-                            </select>
+                            <span class="student-select-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                                <select id="student-filter-active">
+                                    <option value="">Tất cả</option>
+                                    <option value="true">Đang hoạt động</option>
+                                    <option value="false">Ngừng hoạt động</option>
+                                </select>
+                            </span>
                         </label>
                     </div>
 
-                    <div class="contract-layout student-layout">
-                        <div class="table-wrap">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Họ tên</th>
-                                        <th>CCCD</th>
-                                        <th>Giới tính</th>
-                                        <th>Phòng</th>
-                                        <th>Điện thoại</th>
-                                        <th>Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="students-table-body">
-                                    <tr>
-                                        <td colspan="6" class="table-empty">Đang tải danh sách sinh viên...</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="list-pagination" id="students-pagination">
-                                <button type="button" class="secondary-btn" id="students-prev-btn">Trang trước</button>
+                    <div class="student-admin-layout">
+                        <div class="student-table-card">
+                            <div class="table-wrap student-table-wrap">
+                                <table class="data-table student-data-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>Họ tên</th>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M7 10h4M7 14h7M16 10h1"></path></svg></span>CCCD</th>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M12 11v10M8 17h8"></path><path d="M17 4h4v4M16 9l5-5"></path></svg></span>Giới tính</th>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg></span>Phòng</th>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.16 8.81 19.8 19.8 0 0 1 2 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.35 1.89.66 2.78a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.3-1.23a2 2 0 0 1 2.11-.45c.89.31 1.82.53 2.78.66A2 2 0 0 1 22 16.92z"></path></svg></span>Điện thoại</th>
+                                            <th><span class="student-th-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="students-table-body">
+                                        <tr>
+                                            <td colspan="6" class="table-empty">Đang tải danh sách sinh viên...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="list-pagination student-pagination" id="students-pagination">
+                                <button type="button" class="secondary-btn" id="students-prev-btn">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                                    Trang trước
+                                </button>
                                 <span class="pagination-summary" id="students-page-info">Trang 1 / 1</span>
-                                <button type="button" class="secondary-btn" id="students-next-btn">Trang sau</button>
+                                <button type="button" class="secondary-btn" id="students-next-btn">
+                                    Trang sau
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                                </button>
                             </div>
                         </div>
 
-                        <aside class="contract-detail-card">
-                            <div class="card-head">
+                        <aside class="student-detail-panel">
+                            <div class="student-detail-title">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                                 <h3>Sinh viên đang chọn</h3>
-                                <span class="pill neutral" id="student-detail-name">Chưa chọn</span>
+                            </div>
+                            <div class="student-selected-chip">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+                                <strong id="student-detail-name">Chưa chọn</strong>
                             </div>
 
-                            <div class="contract-detail-grid">
-                                <div class="contract-detail-item">
-                                    <span>Email</span>
-                                    <strong id="student-detail-email">—</strong>
+                            <div class="student-detail-grid">
+                                <div class="student-info-box">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+                                    <span>
+                                        <em>Email</em>
+                                        <strong id="student-detail-email">—</strong>
+                                    </span>
                                 </div>
-                                <div class="contract-detail-item">
-                                    <span>Ngày tạo</span>
-                                    <strong id="student-detail-created">—</strong>
+                                <div class="student-info-box">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+                                    <span>
+                                        <em>Ngày tạo</em>
+                                        <strong id="student-detail-created">—</strong>
+                                    </span>
                                 </div>
                             </div>
 
-                            <form id="student-form" class="form-stack">
-                                <label>
-                                    <span>Điện thoại</span>
-                                    <input type="text" id="student-phone" placeholder="Nhập số điện thoại">
+                            <form id="student-form" class="student-form">
+                                <label class="student-info-box student-full-box">
+                                    <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.16 8.81 19.8 19.8 0 0 1 2 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.35 1.89.66 2.78a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.3-1.23a2 2 0 0 1 2.11-.45c.89.31 1.82.53 2.78.66A2 2 0 0 1 22 16.92z"></path></svg>
+                                    <span>
+                                        <em>Điện thoại</em>
+                                        <input type="text" id="student-phone" placeholder="Nhập số điện thoại">
+                                    </span>
                                 </label>
-                                <label>
-                                    <span>Địa chỉ thường trú</span>
-                                    <textarea id="student-address" rows="4" placeholder="Nhập địa chỉ thường trú"></textarea>
+                                <label class="student-info-box student-address-box">
+                                    <svg class="orange" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                    <span>
+                                        <em>Địa chỉ thường trú</em>
+                                        <textarea id="student-address" rows="3" placeholder="Nhập địa chỉ thường trú"></textarea>
+                                    </span>
                                 </label>
-                                <label>
+                                <label class="student-status-editor">
                                     <span>Trạng thái tài khoản</span>
-                                    <select id="student-is-active">
-                                        <option value="true">Đang hoạt động</option>
-                                        <option value="false">Ngừng hoạt động</option>
-                                    </select>
+                                    <span class="student-select-shell">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
+                                        <select id="student-is-active">
+                                            <option value="true">Đang hoạt động</option>
+                                            <option value="false">Ngừng hoạt động</option>
+                                        </select>
+                                    </span>
                                 </label>
                                 <p class="form-error" id="student-form-error"></p>
-                                <div class="contract-actions">
-                                    <button type="submit" class="primary-btn" id="save-student-btn">Lưu sinh viên</button>
-                                    <button type="button" class="danger-btn" id="delete-student-btn">Xóa sinh viên</button>
+                                <div class="student-actions">
+                                    <button type="submit" class="primary-btn" id="save-student-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                        Lưu sinh viên
+                                    </button>
+                                    <button type="button" class="danger-btn" id="delete-student-btn">
+                                        <svg viewBox="0 0 24 24" width="17" height="17" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M10 11v6M14 11v6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                        Xóa sinh viên
+                                    </button>
                                 </div>
                             </form>
                         </aside>
@@ -909,7 +1122,10 @@
                 <div class="content-card">
                     <div class="section-head">
                         <div>
-                            <p class="section-kicker">Revenue</p>
+                            <p class="revenue-admin-kicker">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                <span>Doanh thu</span>
+                            </p>
                             <h2 class="page-heading">Báo cáo doanh thu</h2>
                         </div>
                         <div class="toolbar-actions">

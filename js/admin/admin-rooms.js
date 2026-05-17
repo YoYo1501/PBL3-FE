@@ -321,14 +321,14 @@ function renderRoomsTable() {
   tbody.innerHTML = adminRooms
     .map(
       (room) => `
-        <tr class="${selectedRoomId === room.id ? "is-selected" : ""}" style="cursor: pointer;" data-room-view="${room.id}">
-            <td><strong>${escapeHtml(room.roomCode)}</strong></td>
+        <tr class="${selectedRoomId === room.id ? "is-selected" : ""}" data-room-view="${room.id}">
+            <td class="room-code-cell"><span class="room-code-pill">${escapeHtml(room.roomCode || "-")}</span></td>
             <td>${escapeHtml(room.buildingName || room.buildingCode || "-")}</td>
             <td>${escapeHtml(room.roomType || "-")}</td>
-            <td>${escapeHtml(room.genderAllowed || "-")}</td>
-            <td>${escapeHtml(room.currentOccupancy)}/${escapeHtml(room.capacity)} (${escapeHtml(room.availableSlots)} chỗ trống)</td>
-            <td>${escapeHtml(formatCurrency(room.price))}</td>
-            <td>${adminBadge(room.status)}</td>
+            <td>${escapeHtml(normalizeRoomGender(room.genderAllowed))}</td>
+            <td class="room-capacity-cell">${escapeHtml(room.currentOccupancy ?? 0)}/${escapeHtml(room.capacity ?? 0)} (${escapeHtml(room.availableSlots ?? Math.max((room.capacity ?? 0) - (room.currentOccupancy ?? 0), 0))} chỗ trống)</td>
+            <td class="room-price-cell">${escapeHtml(formatCurrency(room.price))}</td>
+            <td>${roomStatusBadge(room.status)}</td>
         </tr>
     `,
     )
@@ -383,4 +383,18 @@ function clearRoomDetail() {
   document.getElementById("room-price").value = "";
   document.getElementById("room-status").value = "Available";
   setRoomError("");
+}
+
+function normalizeRoomGender(gender = "") {
+  const value = String(gender).trim().toLowerCase();
+  if (value === "nu" || value === "nữ" || value === "female") return "Nữ";
+  if (value === "nam" || value === "male") return "Nam";
+  return gender || "-";
+}
+
+function roomStatusBadge(status = "") {
+  const normalized = String(status || "").toLowerCase();
+  const className =
+    normalized === "locked" ? "locked" : normalized === "full" ? "full" : "available";
+  return `<span class="room-status-pill ${className}">${escapeHtml(status || "-")}</span>`;
 }

@@ -72,7 +72,7 @@ function renderTransfersList() {
                 }
             </div>
             <div class="queue-item-actions">
-                ${adminBadge(item.status)}
+                ${transferListStatusBadge(item.status)}
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
         </article>
@@ -138,6 +138,28 @@ function renderTransfersList() {
       }),
     );
   });
+}
+
+function transferStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    pending: "Chờ duyệt",
+    approved: "Đã duyệt",
+    rejected: "Từ chối",
+    cancelled: "Đã hủy",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function transferStatusClass(status = "") {
+  const value = String(status || "").toLowerCase();
+  if (value === "approved") return "approved";
+  if (value === "rejected" || value === "cancelled") return "rejected";
+  return "pending";
+}
+
+function transferListStatusBadge(status = "") {
+  return `<span class="transfer-status-badge ${transferStatusClass(status)}">${escapeHtml(transferStatusLabel(status))}</span>`;
 }
 
 function bindTransferDetail(container) {

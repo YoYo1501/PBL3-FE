@@ -51,7 +51,7 @@ function renderRequestsList() {
                 ${renderRequestActions(item)}
             </div>
             <div class="queue-item-actions">
-                ${adminBadge(item.status)}
+                ${requestListStatusBadge(item.status)}
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
         </article>
@@ -118,6 +118,32 @@ function renderRequestActions(item) {
 
   return "";
 }
+
+function requestStatusLabel(status = "") {
+  const value = String(status || "").toLowerCase();
+  const labels = {
+    pending: "Chờ duyệt",
+    approved: "Đã duyệt",
+    rejected: "Từ chối",
+    inprogress: "Đang sửa",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy",
+  };
+  return labels[value] || status || "Không rõ";
+}
+
+function requestStatusClass(status = "") {
+  const value = String(status || "").toLowerCase();
+  if (value === "approved" || value === "completed") return "approved";
+  if (value === "rejected" || value === "cancelled") return "rejected";
+  if (value === "inprogress") return "progress";
+  return "pending";
+}
+
+function requestListStatusBadge(status = "") {
+  return `<span class="request-status-badge ${requestStatusClass(status)}">${escapeHtml(requestStatusLabel(status))}</span>`;
+}
+
 function bindRequestDetail(container) {
   container.querySelectorAll("[data-request-id]").forEach((itemEl) => {
     const openDetail = (event) => {
