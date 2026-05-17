@@ -38,7 +38,7 @@ function parseInvoicePeriod(period) {
 function getInvoiceDueDate(inv) {
     const period = parseInvoicePeriod(inv?.period);
     if (period) return new Date(period.year, period.month - 1, 15);
-    const issued = new Date(inv?.issuedAt);
+    const issued = parseDateValue(inv?.issuedAt);
     if (isNaN(issued)) return null;
     return new Date(issued.getFullYear(), issued.getMonth(), 15);
 }
@@ -125,7 +125,7 @@ function getReceiptMethodBadge(receipt) {
     const cls = getReceiptMethodKey(method);
     return `
         <span class="receipt-method-display ${cls}">
-            <span class="receipt-method-logo ${cls}">VN</span>
+            <img class="receipt-method-logo ${cls}" src="../assets/images/vn%20pay.png" alt="VNPAY">
             <strong>${escapeText(method)}</strong>
         </span>`;
 }
@@ -145,7 +145,7 @@ function formatReceiptPeriod(period) {
 }
 
 function getDateTimeParts(value) {
-    const d = new Date(value);
+    const d = parseDateValue(value);
     if (isNaN(d)) return { date: '—', time: '—' };
     return {
         date: d.toLocaleDateString('vi-VN'),
@@ -158,6 +158,26 @@ function formatReceiptDateTime(value) {
     return parts.date === '—' ? '—' : `${parts.date} - ${parts.time}`;
 }
 
+function getReceiptMonthKey(receipt) {
+    const paidAt = parseDateValue(receipt?.paidAt || receipt?.issuedAt);
+    if (isNaN(paidAt)) return '';
+    return `${paidAt.getFullYear()}-${String(paidAt.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function getReceiptMonthLabel(key) {
+    const match = String(key || '').match(/^(\d{4})-(\d{2})$/);
+    return match ? `${match[2]}/${match[1]}` : key;
+}
+
+function getReceiptMonthOptions() {
+    const keys = new Set(currentReceipts.map(getReceiptMonthKey).filter(Boolean));
+    return [...keys].sort((a, b) => b.localeCompare(a));
+}
+
+function receiptSuccessBadge() {
+    return '<span class="receipt-card-status">Thanh toán thành công</span>';
+}
+
 function getActiveInvoiceItems() {
     return invoiceActiveTab === 'receipt' ? currentReceipts : currentInvoices;
 }
@@ -168,22 +188,46 @@ function getFilteredInvoices() {
     return getActiveInvoiceItems().filter(inv => {
         if (invoiceActiveTab === 'invoice' && status && normalizeInvoiceStatus(inv.status) !== status) return false;
         if (invoiceActiveTab === 'receipt') {
-            const method = receiptMethodFilter.trim().toLowerCase();
-            const normalizedMethod = getReceiptPaymentMethod(inv).toLowerCase();
-            if (method && normalizedMethod !== method) return false;
-
-            const paidAt = new Date(inv.paidAt || inv.issuedAt);
-            const fromDate = receiptDateFrom ? new Date(receiptDateFrom) : null;
-            const toDate = receiptDateTo ? new Date(receiptDateTo) : null;
-            if (fromDate && !isNaN(fromDate) && !isNaN(paidAt) && paidAt < fromDate) return false;
-            if (toDate && !isNaN(toDate) && !isNaN(paidAt)) {
-                const inclusiveTo = new Date(toDate);
-                inclusiveTo.setHours(23, 59, 59, 999);
-                if (paidAt > inclusiveTo) return false;
-            }
+            if (receiptMonthFilter && getReceiptMonthKey(inv) !== receiptMonthFilter) return false;
         }
         return !q || getInvoiceSearchText(inv).includes(q);
     });
+}
+
+function renderInvoiceDashboardWithSearchFocus(selectionStart, selectionEnd) {
+    renderInvoiceDashboard({
+        focusSearch: true,
+        searchSelectionStart: selectionStart,
+        searchSelectionEnd: selectionEnd
+    });
+}
+
+function queueInvoiceSearchRender(input) {
+    const selectionStart = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+    const selectionEnd = typeof input.selectionEnd === 'number' ? input.selectionEnd : selectionStart;
+    const activeTab = invoiceActiveTab;
+
+    if (invoiceSearchDebounceTimer) {
+        clearTimeout(invoiceSearchDebounceTimer);
+    }
+
+    invoiceSearchDebounceTimer = setTimeout(() => {
+        invoiceSearchDebounceTimer = null;
+        if (invoiceActiveTab !== activeTab || document.activeElement !== input) {
+            renderInvoiceDashboard();
+            return;
+        }
+        renderInvoiceDashboardWithSearchFocus(selectionStart, selectionEnd);
+    }, 350);
+}
+
+function flushInvoiceSearchRender(input) {
+    if (invoiceSearchDebounceTimer) {
+        clearTimeout(invoiceSearchDebounceTimer);
+        invoiceSearchDebounceTimer = null;
+    }
+    const position = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+    renderInvoiceDashboardWithSearchFocus(position, position);
 }
 
 function getSelectedInvoice(list = getActiveInvoiceItems()) {
@@ -450,7 +494,238 @@ function renderInvoiceTableHead() {
         </tr>`;
 }
 
-function renderInvoiceDashboard() {
+function renderReceiptMonthOptions() {
+    return [
+        '<option value="">Tất cả tháng</option>',
+        ...getReceiptMonthOptions().map(key => `<option value="${escapeText(key)}">${escapeText(getReceiptMonthLabel(key))}</option>`)
+    ].join('');
+}
+
+function renderReceiptCardDetail(receipt) {
+    const amount = receipt.paidAmount ?? receipt.totalAmount;
+    return `
+        <div class="receipt-card-detail">
+            <div><span>Phòng</span><strong>${escapeText(receipt.roomCode || '—')}</strong></div>
+            <div><span>Tiền phòng</span><strong>${escapeText(formatCurrency(receipt.roomFee))}</strong></div>
+            <div><span>Tiền điện</span><strong>${escapeText(formatCurrency(receipt.electricFee))}</strong></div>
+            <div><span>Tiền nước</span><strong>${escapeText(formatCurrency(receipt.waterFee))}</strong></div>
+            <div><span>Tổng cộng</span><strong>${escapeText(formatCurrency(amount))}</strong></div>
+        </div>`;
+}
+
+function renderReceiptCards(filtered) {
+    if (!filtered.length) {
+        return '<div class="receipt-card-empty">Chưa có biên lai phù hợp.</div>';
+    }
+
+    return filtered.map(receipt => {
+        const id = getInvoiceRecordId(receipt);
+        const selected = id === Number(selectedInvoiceId);
+        const paidAt = getDateTimeParts(receipt.paidAt);
+        const amount = receipt.paidAmount ?? receipt.totalAmount;
+        return `
+            <article class="receipt-card-item ${selected ? 'is-selected' : ''}" data-receipt-card="${id}">
+                <div class="receipt-card-period">
+                    <span class="receipt-doc-icon"></span>
+                    <div>
+                        <strong>${escapeText(formatReceiptPeriod(receipt.period))}</strong>
+                        <span>Kỳ thanh toán</span>
+                    </div>
+                </div>
+                <div class="receipt-card-code">
+                    <strong>${escapeText(getReceiptDisplayCode(receipt))}</strong>
+                    <span><i class="receipt-calendar-icon"></i>${escapeText(paidAt.date)}<b>•</b>${escapeText(paidAt.time)}</span>
+                    ${getReceiptMethodBadge(receipt)}
+                </div>
+                <div class="receipt-card-payment">
+                    <strong>${escapeText(formatCurrency(amount))}</strong>
+                    ${receiptSuccessBadge()}
+                    <span>Mã giao dịch: <b>${escapeText(receipt.transactionCode || '—')}</b></span>
+                </div>
+                <div class="receipt-card-actions">
+                    <button type="button" class="receipt-view-btn" data-receipt-view="${id}" title="Xem chi tiết"><span class="receipt-eye-icon"></span>Xem</button>
+                    <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải biên lai PDF"><span class="inv-dl-icon"></span>Tải PDF</button>
+                </div>
+            </article>`;
+    }).join('');
+}
+
+function formatInvoicePeriodShort(period) {
+    const parsed = parseInvoicePeriod(period);
+    if (!parsed) return String(period || '—');
+    return `${String(parsed.month).padStart(2, '0')}/${parsed.year}`;
+}
+
+function renderInvoiceInfoNote() {
+    return `
+        <div class="invoice-info-note">
+            <span class="invoice-info-icon">i</span>
+            <div>
+                <strong>Thông tin</strong>
+                <p>Hóa đơn sẽ được tạo vào ngày 15 hằng tháng và có hiệu lực trong 30 ngày kể từ ngày phát hành.</p>
+            </div>
+            <span class="invoice-info-calendar"></span>
+        </div>`;
+}
+
+function renderInvoiceCards(filtered) {
+    if (!filtered.length) {
+        return '<div class="receipt-card-empty">Không có hóa đơn phù hợp.</div>';
+    }
+
+    return filtered.map(inv => {
+        const id = getInvoiceRecordId(inv);
+        const selected = id === Number(selectedInvoiceId);
+        const issuedAt = getDateTimeParts(inv.issuedAt);
+        const dueSubText = invoiceDueDateSubText(inv);
+        const dueDanger = dueSubText.startsWith('Quá hạn') || dueSubText.startsWith('Đến hạn');
+        return `
+            <article class="invoice-card-item ${selected ? 'is-selected' : ''}" data-invoice-row="${id}">
+                <div class="invoice-card-period">
+                    <span class="invoice-card-doc-icon"></span>
+                    <div>
+                        <strong>Kỳ ${escapeText(formatInvoicePeriodShort(inv.period))}</strong>
+                        <span>Tháng ${escapeText(formatInvoicePeriodShort(inv.period))}</span>
+                        <em>${escapeText(inv.roomCode || '—')} - Phòng</em>
+                    </div>
+                </div>
+                <div class="invoice-card-meta">
+                    <span class="invoice-card-title"><i class="invoice-card-calendar-icon"></i>Ngày phát hành</span>
+                    <strong>${escapeText(issuedAt.date)}</strong>
+                    <small>${escapeText(issuedAt.time)}</small>
+                </div>
+                <div class="invoice-card-meta">
+                    <span class="invoice-card-title"><i class="invoice-card-clock-icon"></i>Hạn thanh toán</span>
+                    <strong class="${dueDanger ? 'is-danger' : ''}">${escapeText(invoiceDueDateText(inv))}</strong>
+                    ${dueSubText ? `<small class="${dueDanger ? 'is-danger' : ''}">${escapeText(dueSubText)}</small>` : ''}
+                </div>
+                <div class="invoice-card-amount">
+                    <span>Số tiền</span>
+                    <strong>${escapeText(formatCurrency(inv.totalAmount))}</strong>
+                </div>
+                <div class="invoice-card-status">
+                    ${invoiceStatusPill(inv.status)}
+                </div>
+                <div class="invoice-card-actions">
+                    <button type="button" class="invoice-pay-btn" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán ngay</button>
+                    <button type="button" class="invoice-dl-btn" data-invoice-download="${id}" title="Tải hóa đơn"><span class="inv-dl-icon"></span>Tải hóa đơn</button>
+                </div>
+            </article>`;
+    }).join('');
+}
+
+function bindInvoiceTabs(el) {
+    el.querySelectorAll('[data-invoice-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            invoiceActiveTab = btn.dataset.invoiceTab || 'invoice';
+            invoiceStatusFilter = '';
+            invoiceSearchTerm = '';
+            if (invoiceSearchDebounceTimer) {
+                clearTimeout(invoiceSearchDebounceTimer);
+                invoiceSearchDebounceTimer = null;
+            }
+            receiptMethodFilter = '';
+            receiptDateFrom = '';
+            receiptDateTo = '';
+            receiptMonthFilter = '';
+            selectedInvoiceId = getActiveInvoiceItems()[0]
+                ? getInvoiceRecordId(getActiveInvoiceItems()[0])
+                : null;
+            renderInvoiceDashboard();
+        });
+    });
+}
+
+function unusedRenderReceiptDashboard(el, filtered, activeItems) {
+    selectedInvoiceId = filtered.some(item => getInvoiceRecordId(item) === Number(selectedInvoiceId)) ? selectedInvoiceId : null;
+
+    el.innerHTML = `
+        <div class="invoice-dashboard receipt-card-dashboard">
+            <section class="invoice-list-card receipt-list-card">
+                <div class="invoice-tabs">
+                    <button type="button" class="${invoiceActiveTab === 'invoice' ? 'active' : ''}" data-invoice-tab="invoice">Hóa đơn</button>
+                    <button type="button" class="${invoiceActiveTab === 'receipt' ? 'active' : ''}" data-invoice-tab="receipt">Biên lai</button>
+                </div>
+                <div class="receipt-page-head">
+                    <div>
+                        <h2>Biên lai thanh toán</h2>
+                        <p>Lịch sử các giao dịch thanh toán thành công</p>
+                    </div>
+                    <div class="receipt-page-tools">
+                        <label class="invoice-search receipt-search">
+                            <input id="invoice-search" type="search" placeholder="Tìm kiếm mã biên lai, mã giao dịch..." value="${escapeText(invoiceSearchTerm)}">
+                            <span></span>
+                        </label>
+                        <label class="receipt-month-select">
+                            <span class="receipt-calendar-icon"></span>
+                            <select id="receipt-month-filter" aria-label="Lọc theo tháng">${renderReceiptMonthOptions()}</select>
+                        </label>
+                        ${invoiceActiveTab === 'receipt'
+                            ? `<label class="receipt-month-select">
+                                <span class="receipt-calendar-icon"></span>
+                                <select id="receipt-month-filter" aria-label="Lọc theo tháng">${renderReceiptMonthOptions()}</select>
+                            </label>`
+                            : ''}
+                    </div>
+                </div>
+                <div class="receipt-count-summary">
+                    <span class="receipt-count-icon"></span>
+                    <div>
+                        <span>Tổng số biên lai</span>
+                        <strong>${escapeText(String(activeItems.length))} biên lai</strong>
+                    </div>
+                </div>
+                <div class="receipt-card-list">${renderReceiptCards(filtered)}</div>
+                <div class="invoice-footer receipt-card-footer">
+                    <span>${escapeText(invoiceFooterText(filtered.length, activeItems.length, 'biên lai'))}</span>
+                </div>
+            </section>
+        </div>`;
+
+    const monthFilter = document.getElementById('receipt-month-filter');
+    if (monthFilter) monthFilter.value = '';
+    const searchInput = document.getElementById('invoice-search');
+    searchInput?.addEventListener('input', event => {
+        invoiceSearchTerm = event.target.value || '';
+        queueInvoiceSearchRender(event.target);
+    });
+    searchInput?.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        invoiceSearchTerm = event.target.value || '';
+        flushInvoiceSearchRender(event.target);
+    });
+    monthFilter?.addEventListener('change', event => {
+        const ignoredReceiptMonthFilter = event.target.value || '';
+        selectedInvoiceId = null;
+        renderInvoiceDashboard();
+    });
+    bindInvoiceTabs(el);
+    el.querySelectorAll('[data-receipt-view]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            event.stopPropagation();
+            const id = Number(btn.dataset.receiptView);
+            selectedInvoiceId = selectedInvoiceId === id ? null : id;
+            renderInvoiceDashboard();
+        });
+    });
+    el.querySelectorAll('[data-receipt-card]').forEach(card => {
+        card.addEventListener('click', event => {
+            if (event.target.closest('button')) return;
+            selectedInvoiceId = Number(card.dataset.receiptCard);
+            renderInvoiceDashboard();
+        });
+    });
+    el.querySelectorAll('[data-receipt-download]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            event.stopPropagation();
+            const receipt = currentReceipts.find(item => getInvoiceRecordId(item) === Number(btn.dataset.receiptDownload));
+            downloadReceipt(receipt);
+        });
+    });
+}
+
+function renderInvoiceDashboard(options = {}) {
     const el = document.getElementById('invoice-content');
     if (!el) return;
 
@@ -461,6 +736,7 @@ function renderInvoiceDashboard() {
     const totalPeriods = getInvoicePeriodTotal(currentInvoices, currentReceipts);
     const activeItems = getActiveInvoiceItems();
     const filtered = getFilteredInvoices();
+
     const selectedInvoice = getSelectedInvoice(filtered);
     selectedInvoiceId = selectedInvoice ? getInvoiceRecordId(selectedInvoice) : null;
 
@@ -470,7 +746,7 @@ function renderInvoiceDashboard() {
     const summaryCountHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${Math.max(totalPeriods, 0)} kỳ`;
     const summaryCountIcon = invoiceActiveTab === 'receipt' ? 'invoice-icon-receipt' : 'invoice-icon-count';
     const paidHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${currentReceipts.length} giao dịch`;
-    const rows = renderInvoiceRows(filtered);
+    const rows = invoiceActiveTab === 'receipt' ? renderReceiptCards(filtered) : renderInvoiceCards(filtered);
     const emptyLabel = invoiceActiveTab === 'receipt' ? 'Chưa có biên lai nào.' : 'Không có hóa đơn chưa thanh toán.';
     const activeLabel = invoiceActiveTab === 'receipt' ? 'biên lai' : 'hóa đơn';
     const alertMessage = invoiceActiveTab === 'receipt'
@@ -497,37 +773,26 @@ function renderInvoiceDashboard() {
                     ${invoiceActiveTab === 'invoice'
                         ? `<div class="invoice-alert"><strong>i</strong><span>${escapeText(alertMessage)}</span></div>`
                         : ''}
-                    <div class="invoice-toolbar">
-                        ${invoiceActiveTab === 'invoice'
-                            ? `<select id="invoice-status-filter">
-                                <option value="">Tất cả trạng thái</option>
-                                <option value="Unpaid">Chưa thanh toán</option>
-                            </select>`
-                            : `<div class="receipt-toolbar-group">
-                                <div class="receipt-date-range">
-                                    <input id="receipt-date-from" type="date" value="${escapeText(receiptDateFrom)}" aria-label="Từ ngày">
-                                    <span> - </span>
-                                    <input id="receipt-date-to" type="date" value="${escapeText(receiptDateTo)}" aria-label="Đến ngày">
-                                </div>
-                                <select id="receipt-method-filter" aria-label="Lọc phương thức thanh toán">
-                                    <option value="">Tất cả phương thức</option>
-                                    <option value="vnpay">VNPAY</option>
-                                </select>
-                            </div>`}
-                        <label class="invoice-search">
-                            <input id="invoice-search" type="search" placeholder="${invoiceActiveTab === 'receipt' ? 'Tìm kiếm biên lai, mã giao dịch...' : 'Tìm kiếm hóa đơn...'}" value="${escapeText(invoiceSearchTerm)}">
-                            <span></span>
-                        </label>
-                    </div>
-                    <div class="invoice-table-wrap">
-                        <table class="invoice-table">
-                            <thead>${renderInvoiceTableHead()}</thead>
-                            <tbody>${rows || `<tr><td colspan="7" class="invoice-empty-cell">${emptyLabel}</td></tr>`}</tbody>
-                        </table>
+                    ${invoiceActiveTab === 'receipt'
+                        ? `<div class="invoice-toolbar">
+                            <label class="invoice-search">
+                                <input id="invoice-search" type="search" placeholder="Tìm kiếm biên lai, mã giao dịch..." value="${escapeText(invoiceSearchTerm)}">
+                                <span></span>
+                            </label>
+                            <label class="receipt-month-select">
+                                <span class="receipt-calendar-icon"></span>
+                                <select id="receipt-month-filter" aria-label="Lọc theo tháng">${renderReceiptMonthOptions()}</select>
+                            </label>
+                        </div>`
+                        : ''}
+                    <div class="invoice-table-wrap ${invoiceActiveTab === 'receipt' ? 'receipt-table-card-wrap' : 'invoice-card-wrap'}">
+                        ${invoiceActiveTab === 'receipt'
+                            ? `<div class="receipt-table-card-list">${rows || `<div class="receipt-card-empty">${emptyLabel}</div>`}</div>`
+                            : `<div class="invoice-card-list">${rows || `<div class="receipt-card-empty">${emptyLabel}</div>`}</div>
+                               ${renderInvoiceInfoNote()}`}
                     </div>
                     <div class="invoice-footer">
                         <span>${escapeText(invoiceFooterText(filtered.length, activeItems.length, activeLabel))}</span>
-                        <div class="invoice-pager"><button type="button" disabled>‹</button><strong>1</strong><button type="button" disabled>›</button></div>
                     </div>
                 </section>
             </div>
@@ -536,45 +801,58 @@ function renderInvoiceDashboard() {
 
     const statusFilter = document.getElementById('invoice-status-filter');
     if (statusFilter) statusFilter.value = invoiceStatusFilter;
-    const methodFilter = document.getElementById('receipt-method-filter');
-    if (methodFilter) methodFilter.value = receiptMethodFilter;
-    document.getElementById('invoice-search')?.addEventListener('input', event => {
+    const monthFilter = document.getElementById('receipt-month-filter');
+    if (monthFilter) monthFilter.value = receiptMonthFilter;
+    const searchInput = document.getElementById('invoice-search');
+    searchInput?.addEventListener('input', event => {
         invoiceSearchTerm = event.target.value || '';
-        renderInvoiceDashboard();
+        queueInvoiceSearchRender(event.target);
+    });
+    searchInput?.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        invoiceSearchTerm = event.target.value || '';
+        flushInvoiceSearchRender(event.target);
     });
     statusFilter?.addEventListener('change', event => {
+        if (invoiceSearchDebounceTimer) {
+            clearTimeout(invoiceSearchDebounceTimer);
+            invoiceSearchDebounceTimer = null;
+        }
         invoiceStatusFilter = event.target.value || '';
         renderInvoiceDashboard();
     });
-    methodFilter?.addEventListener('change', event => {
-        receiptMethodFilter = event.target.value || '';
+    monthFilter?.addEventListener('change', event => {
+        if (invoiceSearchDebounceTimer) {
+            clearTimeout(invoiceSearchDebounceTimer);
+            invoiceSearchDebounceTimer = null;
+        }
+        receiptMonthFilter = event.target.value || '';
         renderInvoiceDashboard();
     });
-    document.getElementById('receipt-date-from')?.addEventListener('change', event => {
-        receiptDateFrom = event.target.value || '';
-        renderInvoiceDashboard();
-    });
-    document.getElementById('receipt-date-to')?.addEventListener('change', event => {
-        receiptDateTo = event.target.value || '';
-        renderInvoiceDashboard();
-    });
-    el.querySelectorAll('[data-invoice-tab]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            invoiceActiveTab = btn.dataset.invoiceTab || 'invoice';
-            invoiceStatusFilter = '';
-            invoiceSearchTerm = '';
-            if (invoiceActiveTab === 'invoice') {
-                receiptMethodFilter = '';
-                receiptDateFrom = '';
-                receiptDateTo = '';
-            }
-            selectedInvoiceId = getActiveInvoiceItems()[0] ? getInvoiceRecordId(getActiveInvoiceItems()[0]) : null;
-            renderInvoiceDashboard();
-        });
-    });
+    if (options.focusSearch && searchInput) {
+        searchInput.focus({ preventScroll: true });
+        const start = Math.min(searchInput.value.length, Number(options.searchSelectionStart ?? searchInput.value.length));
+        const end = Math.min(searchInput.value.length, Number(options.searchSelectionEnd ?? start));
+        try {
+            searchInput.setSelectionRange(start, end);
+        } catch (_) {
+            // Some browsers can ignore selection on search inputs.
+        }
+    }
+    bindInvoiceTabs(el);
     el.querySelectorAll('[data-invoice-row], [data-invoice-select]').forEach(node => {
         node.addEventListener('click', event => {
             const id = node.dataset.invoiceRow || node.dataset.invoiceSelect;
+            if (!id) return;
+            event.stopPropagation();
+            selectedInvoiceId = Number(id);
+            renderInvoiceDashboard();
+        });
+    });
+    el.querySelectorAll('[data-receipt-card], [data-receipt-view]').forEach(node => {
+        node.addEventListener('click', event => {
+            const id = node.dataset.receiptCard || node.dataset.receiptView;
             if (!id) return;
             event.stopPropagation();
             selectedInvoiceId = Number(id);
@@ -617,8 +895,8 @@ function sortInvoicesByDueDateAsc(items) {
 
 function sortReceiptsDesc(items) {
     return [...items].sort((a, b) => {
-        const paidA = new Date(a.paidAt || a.issuedAt || 0).getTime();
-        const paidB = new Date(b.paidAt || b.issuedAt || 0).getTime();
+        const paidA = parseDateValue(a.paidAt || a.issuedAt).getTime() || 0;
+        const paidB = parseDateValue(b.paidAt || b.issuedAt).getTime() || 0;
         if (paidB !== paidA) return paidB - paidA;
         return getInvoiceRecordId(b) - getInvoiceRecordId(a);
     });
@@ -647,9 +925,14 @@ async function loadMyInvoices(options = {}) {
     invoiceActiveTab = options.initialTab || 'invoice';
     invoiceStatusFilter = '';
     invoiceSearchTerm = '';
+    if (invoiceSearchDebounceTimer) {
+        clearTimeout(invoiceSearchDebounceTimer);
+        invoiceSearchDebounceTimer = null;
+    }
     receiptMethodFilter = '';
     receiptDateFrom = '';
     receiptDateTo = '';
+    receiptMonthFilter = '';
 
     const selectedId = Number(options.selectedId);
     if (selectedId) {

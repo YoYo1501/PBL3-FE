@@ -1,5 +1,7 @@
-// 8. PHÒNG Ở – GET /api/room/my-room
+﻿// 8. PHÒNG Ở – GET /api/room/my-room
 // ======================================================================
+let residenceHistoryExpanded = false;
+
 function getRoomStatusMeta(status) {
     const normalized = String(status || '').trim();
     const map = {
@@ -32,6 +34,27 @@ function contractDetailRow(icon, label, valueHtml) {
         </div>`;
 }
 
+function renderRegisterAgainCard(message, detail) {
+    return `
+        <div class="empty-state residence-empty residence-register-again">
+            <strong>${escapeText(message)}</strong>
+            <p>${escapeText(detail)}</p>
+            <button type="button" class="btn-primary residence-register-again-btn" data-register-again>
+                Đăng ký ở lại
+            </button>
+        </div>`;
+}
+
+function bindRegisterAgainButtons(root = document) {
+    root.querySelectorAll('[data-register-again]').forEach(button => {
+        if (button.dataset.bound === 'true') return;
+        button.dataset.bound = 'true';
+        button.addEventListener('click', () => {
+            window.location.href = 'register.html?returning=1';
+        });
+    });
+}
+
 function getDaysRemainingLabel(contract) {
     const rawDays = Number(contract?.daysRemaining);
     if (Number.isFinite(rawDays)) {
@@ -48,47 +71,184 @@ function getDaysRemainingLabel(contract) {
 }
 
 function renderResidenceHistory(contract) {
-    const latestRenewal = contract?.latestRenewalDate || contract?.renewedAt || contract?.renewalDate;
     return `
-        <article class="content-card residence-history-card">
+        <article class="content-card residence-history-card residence-history-modern">
             <div class="residence-panel-head">
-                <div class="residence-panel-title">
-                    <span class="residence-panel-icon icon-calendar"></span>
+                <div class="residence-history-title-block">
                     <h3>Lịch sử lưu trú</h3>
+                    <p>Các hoạt động và thay đổi trong quá trình lưu trú</p>
                 </div>
-                <button type="button" class="residence-download-btn" id="download-stay-record-btn">
-                    <span></span>
-                    Tải biên bản
-                </button>
             </div>
             <div class="residence-history-body">
-                <div class="residence-timeline">
-                    <div class="timeline-item">
-                        <span class="timeline-check"></span>
-                        <strong>Nhận phòng</strong>
-                        <time>${formatDate(contract.startDate)}</time>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-check"></span>
-                        <strong>Gia hạn gần nhất</strong>
-                        <time>${latestRenewal ? formatDate(latestRenewal) : '—'}</time>
-                    </div>
-                    <div class="timeline-item">
-                        <span class="timeline-check"></span>
-                        <strong>Dự kiến kết thúc</strong>
-                        <time>${formatDate(contract.endDate)}</time>
-                    </div>
+                <div class="stay-history-timeline" id="stay-history-events">
+                    ${renderResidenceHistoryTimeline(contract)}
                 </div>
-                <div class="residence-illustration" aria-hidden="true">
-                    <span class="illustration-shadow"></span>
-                    <span class="illustration-building"></span>
-                    <span class="illustration-pin"></span>
-                    <span class="illustration-calendar"></span>
-                    <span class="illustration-tree tree-one"></span>
-                    <span class="illustration-tree tree-two"></span>
-                </div>
+                <button type="button" class="stay-history-more-btn" id="view-stay-history-btn">
+                    <span></span>
+                    Xem tất cả lịch sử
+                    <i></i>
+                </button>
             </div>
         </article>`;
+}
+
+function renderResidenceHistoryTimeline(contract, renewals = [], transfers = [], showAll = false) {
+    return getResidenceHistoryEvents(contract, renewals, transfers, showAll)
+        .map(renderResidenceHistoryEvent)
+        .join('');
+}
+
+function getResidenceHistoryEvents(contract, renewals = [], transfers = [], showAll = false) {
+    const latestTransfer = getLatestApprovedTransfer(transfers);
+    const allApprovedTransfers = getApprovedTransfers(transfers);
+    const initialRoom = allApprovedTransfers[0]?.fromRoomCode || contract?.roomCode || '—';
+    const middleEvents = [];
+    const latestRenewal = getLatestApprovedRenewal(renewals);
+    const approvedRenewals = showAll
+        ? getApprovedRenewals(renewals)
+        : latestRenewal ? [latestRenewal] : [];
+    const approvedTransfers = showAll
+        ? allApprovedTransfers
+        : latestTransfer ? [latestTransfer] : [];
+
+    approvedRenewals.forEach(renewal => {
+        const months = Number(renewal.durationMonths);
+        const renewalName = getResidenceRenewalName(renewal);
+        middleEvents.push({
+            tone: 'renewal',
+            date: renewal.requestedAt || renewal.contractEndDateBeforeRenewal,
+            title: 'Gia hạn hợp đồng',
+            desc: `Gia hạn thêm ${renewalName}`,
+            badge: Number.isFinite(months) && months > 0 ? `${months} tháng` : 'Đã duyệt'
+        });
+    });
+
+    approvedTransfers.forEach(transfer => {
+        const fromRoom = transfer.fromRoomCode || 'Phòng cũ';
+        const toRoom = transfer.toRoomCode || 'Phòng mới';
+        middleEvents.push({
+            tone: 'transfer',
+            date: transfer.requestedAt || transfer.createdAt,
+            title: 'Chuyển phòng',
+            desc: `Chuyển từ ${fromRoom} sang ${toRoom}`,
+            badge: `${fromRoom} → ${toRoom}`
+        });
+    });
+
+    middleEvents.sort((a, b) => getResidenceEventTime(a.date) - getResidenceEventTime(b.date));
+
+    return [
+        {
+            tone: 'start',
+            date: contract?.startDate,
+            title: 'Nhận phòng',
+            desc: `Nhận phòng ${formatResidenceRoomLine(initialRoom)}`,
+            badge: 'Bắt đầu'
+        },
+        ...middleEvents,
+        {
+            tone: 'end',
+            date: contract?.endDate,
+            title: 'Kết thúc hợp đồng dự kiến',
+            desc: 'Hợp đồng kết thúc theo thời hạn',
+            badge: 'Dự kiến'
+        }
+    ];
+}
+function renderResidenceHistoryEvent(event) {
+    return `
+        <div class="stay-history-item stay-tone-${escapeText(event.tone)}">
+            <span class="stay-history-marker"></span>
+            <time>${escapeText(formatDate(event.date))}</time>
+            <div class="stay-history-copy">
+                <strong>${escapeText(event.title)}</strong>
+                <p>${escapeText(event.desc)}</p>
+            </div>
+            <span class="stay-history-badge">${escapeText(event.badge)}</span>
+        </div>`;
+}
+
+function getApprovedRenewals(renewals = []) {
+    return renewals
+        .filter(item => String(item.status || '').toLowerCase() === 'approved')
+        .sort((a, b) => {
+            const dateA = getResidenceEventTime(a.requestedAt || a.contractEndDateAfterRenewal);
+            const dateB = getResidenceEventTime(b.requestedAt || b.contractEndDateAfterRenewal);
+            if (dateA !== dateB) return dateA - dateB;
+            return Number(a.id || 0) - Number(b.id || 0);
+        });
+}
+
+function getLatestApprovedRenewal(renewals = []) {
+    return getApprovedRenewals(renewals)
+        .sort((a, b) => {
+            const dateA = getResidenceEventTime(a.requestedAt || a.contractEndDateAfterRenewal);
+            const dateB = getResidenceEventTime(b.requestedAt || b.contractEndDateAfterRenewal);
+            if (dateB !== dateA) return dateB - dateA;
+            return Number(b.id || 0) - Number(a.id || 0);
+        })[0] || null;
+}
+
+function getApprovedTransfers(transfers = []) {
+    return transfers
+        .filter(item => {
+            const status = String(item.status || '').toLowerCase();
+            return status === 'approved' || status === 'completed';
+        })
+        .sort((a, b) => {
+            const dateA = getResidenceEventTime(a.requestedAt || a.createdAt);
+            const dateB = getResidenceEventTime(b.requestedAt || b.createdAt);
+            if (dateA !== dateB) return dateA - dateB;
+            return Number(a.id || 0) - Number(b.id || 0);
+        });
+}
+
+function getLatestApprovedTransfer(transfers = []) {
+    return getApprovedTransfers(transfers)
+        .sort((a, b) => {
+            const dateA = getResidenceEventTime(a.requestedAt || a.createdAt);
+            const dateB = getResidenceEventTime(b.requestedAt || b.createdAt);
+            if (dateB !== dateA) return dateB - dateA;
+            return Number(b.id || 0) - Number(a.id || 0);
+        })[0] || null;
+}
+
+function getResidenceRenewalName(item) {
+    const name = item?.packageName || 'kỳ gia hạn';
+    const months = Number(item?.durationMonths);
+    if (!Number.isFinite(months) || months <= 0 || String(name).includes(`${months}`)) return name;
+    return `${name} (${months} tháng)`;
+}
+
+function formatResidenceRoomLine(roomCode) {
+    if (!roomCode || roomCode === '—') return '—';
+    const building = String(roomCode).trim().match(/^[A-Za-zÀ-Ỵ]/)?.[0]?.toUpperCase();
+    return building ? `${roomCode}, Tòa ${building}` : roomCode;
+}
+
+function getResidenceEventTime(value) {
+    const date = typeof parseDateValue === 'function' ? parseDateValue(value) : new Date(value);
+    return date && !Number.isNaN(date.getTime()) ? date.getTime() : 0;
+}
+
+function bindResidenceHistoryViewAll() {
+    const btn = document.getElementById('view-stay-history-btn');
+    if (!btn || btn.dataset.bound === 'true') return;
+
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', () => {
+        residenceHistoryExpanded = true;
+        const timelineEl = document.getElementById('stay-history-events');
+        if (timelineEl) {
+            timelineEl.innerHTML = renderResidenceHistoryTimeline(
+                currentResidenceContract,
+                currentRenewalHistory,
+                currentResidenceTransfers,
+                true
+            );
+        }
+        btn.hidden = true;
+    });
 }
 
 function bindResidenceRecordDownload(contract) {
@@ -130,7 +290,11 @@ async function loadMyRoom() {
     const res = await callApi('/room/my-room');
     const el = document.getElementById('room-content');
     if (!res || !res.ok || !res.data) {
-        el.innerHTML = `<div class="empty-state residence-empty">Bạn hiện không có phòng đang hoạt động.<br><small>Điều này có nghĩa chưa có hợp đồng Active.</small></div>`;
+        el.innerHTML = renderRegisterAgainCard(
+            'Bạn hiện chưa có phòng đang hoạt động.',
+            'Nếu muốn tiếp tục ở ký túc xá, hãy gửi đơn đăng ký ở lại theo luồng đăng ký bình thường.'
+        );
+        bindRegisterAgainButtons(el);
         return;
     }
 

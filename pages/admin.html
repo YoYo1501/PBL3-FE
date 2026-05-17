@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -261,7 +261,7 @@
                         <label>
                             <span>Trạng thái</span>
                             <select id="registration-filter-status">
-                                <option value="Pending">Chờ duyệt</option>
+                                <option value="Pending" selected>Chờ duyệt</option>
                                 <option value="">Tất cả</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
@@ -292,7 +292,9 @@
                         <label>
                             <span>Trạng thái</span>
                             <select id="request-filter-status">
-                                <option value="Pending">Chờ duyệt</option>
+                                <option value="InProgress">&#272;ang s&#7917;a</option>
+                                <option value="Completed">Ho&#224;n th&#224;nh</option>
+                                <option value="Pending" selected>Chờ duyệt</option>
                                 <option value="">Tất cả</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
@@ -323,7 +325,7 @@
                         <label>
                             <span>Trạng thái</span>
                             <select id="transfer-filter-status">
-                                <option value="Pending">Chờ duyệt</option>
+                                <option value="Pending" selected>Chờ duyệt</option>
                                 <option value="">Tất cả</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
@@ -354,7 +356,7 @@
                         <label>
                             <span>Trạng thái</span>
                             <select id="renewal-filter-status">
-                                <option value="Pending">Chờ duyệt</option>
+                                <option value="Pending" selected>Chờ duyệt</option>
                                 <option value="">Tất cả</option>
                                 <option value="Approved">Đã duyệt</option>
                                 <option value="Rejected">Từ chối</option>
@@ -736,9 +738,9 @@
                             <span>Tình trạng</span>
                             <select id="facility-inventory-status">
                                 <option value="">Tất cả</option>
-                                <option value="Good">Good</option>
-                                <option value="Damaged">Damaged</option>
-                                <option value="UnderMaintenance">UnderMaintenance</option>
+                                <option value="Good">Hoạt động tốt</option>
+                                <option value="Damaged">Hư hỏng</option>
+                                <option value="UnderMaintenance">Đang bảo trì</option>
                             </select>
                         </label>
                     </div>
@@ -791,9 +793,9 @@
                                 <label>
                                     <span>Tình trạng</span>
                                     <select id="facility-status">
-                                        <option value="Good">Good</option>
-                                        <option value="Damaged">Damaged</option>
-                                        <option value="UnderMaintenance">UnderMaintenance</option>
+                                        <option value="Good">Hoạt động tốt</option>
+                                        <option value="Damaged">Hư hỏng</option>
+                                        <option value="UnderMaintenance">Đang bảo trì</option>
                                     </select>
                                 </label>
                                 <p class="form-error" id="facility-form-error"></p>
@@ -1136,18 +1138,21 @@
     <script src="../js/admin/admin-main.js"></script>
 
     <!-- Modal chi tiết thông báo -->
-    <div class="notif-modal-overlay" id="notif-detail-modal" style="display:none;" role="dialog" aria-modal="true">
-        <div class="notif-modal-card">
+    <div class="notif-modal-overlay admin-notif-detail-overlay" id="notif-detail-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="notif-modal-card admin-notif-detail-card">
             <div class="notif-modal-header">
-                <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
-                <button type="button" class="notif-modal-close" id="notif-modal-close-btn" aria-label="Đóng">✕</button>
+                <span class="admin-notif-modal-icon"></span>
+                <div class="admin-notif-modal-heading">
+                    <h3 id="notif-modal-title">Tiêu đề thông báo</h3>
+                    <p class="notif-modal-meta" id="notif-modal-date"></p>
+                </div>
+                <button type="button" class="notif-modal-close" id="notif-modal-close-btn" aria-label="Đóng">×</button>
             </div>
-            <p class="notif-modal-meta" id="notif-modal-date"></p>
             <hr class="notif-modal-divider">
+            <h4 class="admin-notif-modal-section-title">Nội dung thông báo</h4>
             <div class="notif-modal-body" id="notif-modal-body"></div>
         </div>
     </div>
-
     <div class="notif-modal-overlay" id="request-detail-modal" style="display:none;" role="dialog" aria-modal="true">
         <div class="notif-modal-card request-modal-card">
             <div class="notif-modal-header">

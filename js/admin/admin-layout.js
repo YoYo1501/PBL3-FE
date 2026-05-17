@@ -61,6 +61,10 @@ function bindNavigation() {
       }
     });
   });
+
+  document.getElementById("sidebar-collapse-btn")?.addEventListener("click", () => {
+    document.body.classList.toggle("sidebar-collapsed");
+  });
 }
 
 function showAdminSection(sectionId) {

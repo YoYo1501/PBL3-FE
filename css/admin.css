@@ -798,6 +798,7 @@ select {
 .status-badge.approved,
 .status-badge.active,
 .status-badge.completed,
+.status-badge.good,
 .status-badge.paid {
     background: #5cb85c;
     color: #fff;
@@ -815,6 +816,7 @@ select {
 .status-badge.expired,
 .status-badge.inactive,
 .status-badge.unpaid,
+.status-badge.inprogress,
 .status-badge.undermaintenance {
     background: #9aa4ad;
     color: #fff;
@@ -1791,6 +1793,142 @@ label span {
     white-space: pre-wrap;
     word-break: break-word;
 }
+
+.admin-notif-detail-overlay {
+    padding: 28px;
+    background: rgba(16, 32, 55, 0.46);
+    backdrop-filter: blur(7px);
+    z-index: 1300;
+}
+
+.admin-notif-detail-card {
+    width: min(720px, 100%);
+    max-height: min(76vh, 640px);
+    overflow: hidden;
+    border: 1px solid #d7e2f0;
+    border-radius: 16px;
+    box-shadow: 0 26px 70px rgba(20, 44, 77, 0.28);
+}
+
+.admin-notif-detail-card .notif-modal-header {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr) 38px;
+    align-items: center;
+    gap: 18px;
+    padding: 38px 34px 30px;
+    border-bottom: 0;
+}
+
+.admin-notif-modal-icon {
+    width: 74px;
+    height: 74px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #eef5ff, #e6effb);
+    color: #0d6cdf;
+}
+
+.admin-notif-modal-icon::before,
+.admin-notif-detail-card .notif-modal-meta::before {
+    content: "";
+    display: block;
+    background: currentColor;
+    mask-position: center;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+}
+
+.admin-notif-modal-icon::before {
+    width: 34px;
+    height: 34px;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a2.6 2.6 0 0 0 2.45-1.75h-4.9A2.6 2.6 0 0 0 12 22Zm7.25-5.35-1.6-1.65V10a5.65 5.65 0 0 0-4.4-5.5V3a1.25 1.25 0 1 0-2.5 0v1.5A5.65 5.65 0 0 0 6.35 10v5l-1.6 1.65A1.4 1.4 0 0 0 5.75 19h12.5a1.4 1.4 0 0 0 1-2.35Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M12 22a2.6 2.6 0 0 0 2.45-1.75h-4.9A2.6 2.6 0 0 0 12 22Zm7.25-5.35-1.6-1.65V10a5.65 5.65 0 0 0-4.4-5.5V3a1.25 1.25 0 1 0-2.5 0v1.5A5.65 5.65 0 0 0 6.35 10v5l-1.6 1.65A1.4 1.4 0 0 0 5.75 19h12.5a1.4 1.4 0 0 0 1-2.35Z'/%3E%3C/svg%3E");
+}
+
+.admin-notif-modal-heading {
+    min-width: 0;
+}
+
+.admin-notif-detail-card .notif-modal-header h3 {
+    color: #10284a;
+    font-size: 27px;
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.admin-notif-detail-card .notif-modal-close {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: transparent;
+    color: #4f6383;
+    font-size: 30px;
+}
+
+.admin-notif-detail-card .notif-modal-close:hover {
+    background: #eef4fb;
+}
+
+.admin-notif-detail-card .notif-modal-meta {
+    margin: 10px 0 0;
+    padding: 0;
+    color: #5e7190;
+    background: transparent;
+    border-bottom: 0;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.admin-notif-detail-card .notif-modal-meta::before {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: -3px;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 .01 0H12Zm1 5v5.2l3.3 3.3-1.4 1.4L11 13V7h2Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 .01 0H12Zm1 5v5.2l3.3 3.3-1.4 1.4L11 13V7h2Z'/%3E%3C/svg%3E");
+}
+
+.admin-notif-detail-card .notif-modal-divider {
+    display: block;
+    height: 1px;
+    margin: 0 34px;
+    border: 0;
+    background: #dce6f2;
+}
+
+.admin-notif-modal-section-title {
+    flex-shrink: 0;
+    margin: 30px 34px 18px;
+    color: #0d6cdf;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.admin-notif-detail-card .notif-modal-body {
+    min-height: 160px;
+    margin: 0 18px 30px 34px;
+    padding: 0 22px 0 0;
+    color: #34445d;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.85;
+}
+
+.admin-notif-detail-card .notif-modal-body::-webkit-scrollbar {
+    width: 7px;
+}
+
+.admin-notif-detail-card .notif-modal-body::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #b7c2d1;
+}
 .queue-expand-hint {
     display: inline-block;
     margin-top: 6px;
@@ -2406,6 +2544,54 @@ label span {
 }
 
 @media (max-width: 640px) {
+    .admin-notif-detail-overlay {
+        padding: 12px;
+    }
+
+    .admin-notif-detail-card {
+        max-height: calc(100vh - 24px);
+        border-radius: 14px;
+    }
+
+    .admin-notif-detail-card .notif-modal-header {
+        grid-template-columns: 56px minmax(0, 1fr) 34px;
+        gap: 14px;
+        padding: 24px 18px 20px;
+    }
+
+    .admin-notif-modal-icon {
+        width: 54px;
+        height: 54px;
+    }
+
+    .admin-notif-modal-icon::before {
+        width: 26px;
+        height: 26px;
+    }
+
+    .admin-notif-detail-card .notif-modal-header h3 {
+        font-size: 22px;
+    }
+
+    .admin-notif-detail-card .notif-modal-meta {
+        font-size: 14px;
+    }
+
+    .admin-notif-detail-card .notif-modal-divider {
+        margin: 0 18px;
+    }
+
+    .admin-notif-modal-section-title {
+        margin: 22px 18px 14px;
+        font-size: 16px;
+    }
+
+    .admin-notif-detail-card .notif-modal-body {
+        margin: 0 10px 22px 18px;
+        padding-right: 12px;
+        font-size: 15px;
+    }
+
     .notification-inbox-item {
         grid-template-columns: 42px minmax(0, 1fr) 8px;
     }
