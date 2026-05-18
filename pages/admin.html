@@ -107,7 +107,6 @@
                     <div class="section-head page-head-section">
                         <div>
                             <h2 class="page-heading">Tổng quan vận hành</h2>
-                            <p class="section-kicker">Theo dõi và quản lý toàn bộ hoạt động ký túc xá</p>
                         </div>
                         <button type="button" class="primary-btn btn-refresh" id="refresh-dashboard-btn">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
@@ -179,54 +178,63 @@
             </section>
 
             <section class="panel" id="section-admin-profile">
-                <div class="page-head-section">
+                <div class="admin-account-hero">
                     <div>
                         <h2 class="page-heading">Thông tin tài khoản</h2>
                         <p class="section-kicker">Quản lý thông tin tài khoản và bảo mật hệ thống</p>
                     </div>
+                    <div class="admin-security-art" aria-hidden="true">
+                        <img src="../assets/images/icon đẹp.png" alt="">
+                    </div>
                 </div>
-                <div class="dual-grid">
-                    <article class="content-card">
-                        <div class="card-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                            <h3 style="display: flex; align-items: center; gap: 8px; color: #10B981; margin: 0; font-size: 16px;">
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #3b82f6;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                <span style="color: #10B981;">Thông tin tài khoản</span>
-                            </h3>
-                            <button type="button" class="secondary-btn" id="reload-admin-profile-btn" style="background: #fff; color: var(--portal-blue); border: 1px solid var(--portal-blue); padding: 6px 12px; font-size: 13px;"><svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Tải lại</button>
+                <div class="admin-account-grid">
+                    <article class="content-card admin-account-card admin-profile-card">
+                        <div class="admin-account-card-head">
+                            <span class="admin-account-head-icon icon-account"></span>
+                            <h3>Thông tin tài khoản</h3>
+                            <button type="button" class="secondary-btn admin-refresh-btn" id="reload-admin-profile-btn">
+                                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                                Làm mới
+                            </button>
                         </div>
-                        <form id="admin-profile-form" class="form-stack">
-                            <label>
+                        <form id="admin-profile-form" class="form-stack admin-account-form">
+                            <label class="admin-field admin-field-user">
                                 <span>Họ tên</span>
                                 <input type="text" id="admin-profile-name">
                             </label>
-                            <label>
+                            <label class="admin-field admin-field-mail">
                                 <span>Email</span>
                                 <input type="email" id="admin-profile-email">
                             </label>
-                            <label>
+                            <label class="admin-field admin-field-phone">
                                 <span>Số điện thoại</span>
                                 <input type="text" id="admin-profile-phone" placeholder="Ví dụ: 0912345678">
                             </label>
                             <p class="form-error" id="admin-profile-error"></p>
-                            <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Lưu thông tin</button>
+                            <button type="submit" class="primary-btn admin-save-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                                Lưu thông tin
+                            </button>
+                            <div class="admin-account-note">
+                                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
+                                Thông tin của bạn được bảo mật tuyệt đối
+                            </div>
                         </form>
                     </article>
 
-                    <article class="content-card">
-                        <div class="card-head" style="margin-bottom: 24px;">
-                            <h3 style="display: flex; align-items: center; gap: 8px; color: #10B981; margin: 0; font-size: 16px;">
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color: #10B981;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                <span>Đổi mật khẩu</span>
-                            </h3>
+                    <article class="content-card admin-account-card admin-password-card">
+                        <div class="admin-account-card-head">
+                            <span class="admin-account-head-icon icon-lock"></span>
+                            <h3>Đổi mật khẩu</h3>
                         </div>
-                        <form id="admin-password-form" class="form-stack">
-                            <label>
+                        <form id="admin-password-form" class="form-stack admin-account-form">
+                            <label class="admin-field admin-field-lock">
                                 <span>Mật khẩu hiện tại</span>
-                                <input type="password" id="admin-current-password">
+                                <input type="password" id="admin-current-password" placeholder="Nhập mật khẩu hiện tại">
                             </label>
-                            <label>
+                            <label class="admin-field admin-field-key">
                                 <span>Mật khẩu mới</span>
-                                <input type="password" id="admin-new-password">
+                                <input type="password" id="admin-new-password" placeholder="Nhập mật khẩu mới">
                             </label>
                             <div class="password-strength-row admin-password-strength empty" id="admin-password-strength-row">
                                 <span>Độ mạnh mật khẩu:</span>
@@ -237,15 +245,25 @@
                                 </div>
                                 <strong id="admin-password-strength-label"></strong>
                             </div>
-                            <label>
+                            <label class="admin-field admin-field-shield">
                                 <span>Xác nhận mật khẩu mới</span>
-                                <input type="password" id="admin-confirm-password">
+                                <input type="password" id="admin-confirm-password" placeholder="Nhập lại mật khẩu mới">
                             </label>
                             <p class="form-error" id="admin-password-error"></p>
-                            <button type="submit" class="primary-btn" style="width: 100%; justify-content: center;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Đổi mật khẩu</button>
+                            <button type="submit" class="primary-btn admin-password-btn">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                Đổi mật khẩu
+                            </button>
                         </form>
                     </article>
                 </div>
+                <aside class="admin-security-banner">
+                    <span class="admin-security-banner-icon"></span>
+                    <div>
+                        <strong>Bảo mật tài khoản</strong>
+                        <p>Hãy đảm bảo thông tin tài khoản luôn được cập nhật và sử dụng mật khẩu mạnh để bảo vệ tài khoản của bạn.</p>
+                    </div>
+                </aside>
             </section>
 
             <section class="panel" id="section-registrations">
@@ -283,11 +301,7 @@
                 <div class="content-card request-admin-card">
                     <div class="request-admin-head">
                         <div>
-                            <p class="request-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path><path d="M8 9h8M8 13h5"></path></svg>
-                                <span>Yêu cầu sinh viên</span>
-                            </p>
-                            <h2 class="page-heading">Xử lý yêu cầu sinh viên</h2>
+                            <h2 class="page-heading">Yêu cầu sinh viên</h2>
                         </div>
                         <button type="button" class="primary-btn request-reload-btn" id="reload-requests-btn">Tải lại</button>
                     </div>
@@ -319,11 +333,7 @@
                 <div class="content-card transfer-admin-card">
                     <div class="transfer-admin-head">
                         <div>
-                            <p class="transfer-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"></path><path d="M4 20 21 3"></path><path d="M21 16v5h-5"></path><path d="m15 15 6 6"></path><path d="M4 4l5 5"></path></svg>
-                                <span>Chuyển phòng</span>
-                            </p>
-                            <h2 class="page-heading">Duyệt yêu cầu chuyển phòng</h2>
+                            <h2 class="page-heading">Chuyển phòng</h2>
                         </div>
                         <button type="button" class="primary-btn transfer-reload-btn" id="reload-transfers-btn">Tải lại</button>
                     </div>
@@ -353,11 +363,7 @@
                 <div class="content-card renewal-admin-card">
                     <div class="renewal-admin-head">
                         <div>
-                            <p class="renewal-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><path d="M8 15h5"></path><path d="M15 15h1"></path><path d="m15 18 2 2 4-5"></path></svg>
-                                <span>Gia hạn hợp đồng</span>
-                            </p>
-                            <h2 class="page-heading">Duyệt gia hạn hợp đồng</h2>
+                            <h2 class="page-heading">Gia hạn hợp đồng</h2>
                         </div>
                         <button type="button" class="primary-btn renewal-reload-btn" id="reload-renewals-btn">Tải lại</button>
                     </div>
