@@ -18,6 +18,41 @@ function getActiveInvoicePeriod() {
   );
 }
 
+function bindInvoiceUploadDrop() {
+  const fileInput = document.getElementById("invoice-import-file");
+  const dropZone = document.querySelector(".invoice-upload-drop");
+  const fileNameEl = dropZone?.querySelector("strong");
+  if (!fileInput || !dropZone || !fileNameEl) return;
+
+  const defaultText = fileNameEl.textContent;
+  const updateFileName = () => {
+    fileNameEl.textContent =
+      fileInput.files?.[0]?.name || defaultText || "Chọn hoặc kéo thả file Excel vào đây";
+  };
+
+  fileInput.addEventListener("change", updateFileName);
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.add("is-dragging");
+    });
+  });
+  ["dragleave", "drop"].forEach((eventName) => {
+    dropZone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.remove("is-dragging");
+    });
+  });
+  dropZone.addEventListener("drop", (event) => {
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    fileInput.files = transfer.files;
+    updateFileName();
+  });
+}
+
 function setInvoiceActionError(message = "") {
   const el = document.getElementById("invoice-action-error");
   if (el) el.textContent = message;
@@ -26,6 +61,7 @@ function setInvoiceActionError(message = "") {
 function bindInvoiceControls() {
   const importForm = document.getElementById("invoice-import-form");
   const generateForm = document.getElementById("invoice-generate-form");
+  bindInvoiceUploadDrop();
 
   if (!document.getElementById("invoice-filter-period")?.value) {
     const now = new Date();
@@ -196,7 +232,7 @@ async function loadInvoices() {
   if (!tbody) return;
 
   tbody.innerHTML =
-    '<tr><td colspan="11" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
+    '<tr><td colspan="10" class="table-empty">Đang tải danh sách hóa đơn...</td></tr>';
   setInvoiceActionError("");
 
   const filters = getInvoiceFilters();
@@ -223,7 +259,7 @@ function renderInvoicesTable() {
 
   if (!adminInvoices.length) {
     tbody.innerHTML =
-      '<tr><td colspan="11" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
+      '<tr><td colspan="10" class="table-empty">Không có hóa đơn phù hợp bộ lọc hiện tại.</td></tr>';
     return;
   }
 
@@ -231,17 +267,21 @@ function renderInvoicesTable() {
     .map(
       (invoice) => `
         <tr data-invoice-view="${invoice.id}" style="cursor: pointer;">
-            <td>${escapeHtml(getInvoiceDisplayCode(invoice))}</td>
+            <td class="invoice-code-cell">
+              <span class="invoice-code-content">
+                <span class="invoice-row-icon">${invoiceCodeIconSvg()}</span>
+                <span class="invoice-code-text">${escapeHtml(getInvoiceDisplayCode(invoice))}</span>
+              </span>
+            </td>
             <td>${escapeHtml(invoice.period || "-")}</td>
             <td>${escapeHtml(invoice.roomCode || "-")}</td>
             <td>${escapeHtml(invoice.studentName || "-")}</td>
-            <td>${escapeHtml(formatCurrency(invoice.roomFee))}</td>
-            <td>${escapeHtml(formatCurrency(invoice.electricFee))}</td>
-            <td>${escapeHtml(formatCurrency(invoice.waterFee))}</td>
-            <td><strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong></td>
+            <td class="invoice-money-cell">${escapeHtml(formatCurrency(invoice.electricFee))}</td>
+            <td class="invoice-money-cell">${escapeHtml(formatCurrency(invoice.waterFee))}</td>
+            <td class="invoice-money-cell">${escapeHtml(formatCurrency(invoice.roomFee))}</td>
+            <td class="invoice-total-cell"><strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong></td>
             <td>${invoiceStatusBadge(invoice.status)}</td>
             <td>${escapeHtml(formatDate(invoice.issuedAt))}</td>
-            <td><button type="button" class="secondary-btn" data-invoice-view-btn="${invoice.id}">Xem</button></td>
         </tr>
     `,
     )
@@ -260,43 +300,7 @@ function renderInvoicesTable() {
         );
         return;
       }
-
-      const details = [
-        `Ma hoa don: ${getInvoiceDisplayCode(invoice)}`,
-        `Kỳ: ${invoice.period || "-"}`,
-        `Phòng: ${invoice.roomCode || "-"}`,
-        `Ten sinh vien: ${invoice.studentName || "-"}`,
-        `Tiền phòng: ${formatCurrency(invoice.roomFee)}`,
-        `Tiền điện: ${formatCurrency(invoice.electricFee)}`,
-        `Tiền nước: ${formatCurrency(invoice.waterFee)}`,
-        `Tổng tiền: ${formatCurrency(invoice.totalAmount)}`,
-        `Trạng thái: ${invoiceStatusLabel(invoice.status)}`,
-        `Ngày phát hành: ${formatDate(invoice.issuedAt)}`,
-        `Han thanh toan: ${formatDate(invoice.dueDate)}`,
-      ].join("\n");
-
-      // We should probably allow the user to mark it as paid if it's unpaid.
-      // But since we removed the button, let's use a confirm dialog if it's Unpaid.
-      if (invoice.status === "Unpaid") {
-          const confirmed = confirm(details + "\n\nBạn có muốn đánh dấu hóa đơn này là đã thu tiền không?");
-          if (confirmed) {
-            const resPay = await callApi(
-              `/invoices/${invoice.id}/pay`,
-              { method: "PUT" },
-            );
-            if (resPay?.ok) {
-              adminToast(resPay.data?.message || "Đã cập nhật hóa đơn đã thanh toán.");
-              loadInvoices();
-            } else {
-              adminToast(
-                resPay?.data?.message || "Không thể cập nhật hóa đơn.",
-                true,
-              );
-            }
-          }
-      } else {
-          window.alert(details);
-      }
+      showInvoiceDetailModal(invoice);
     });
   });
 
@@ -356,5 +360,130 @@ function invoiceStatusClass(status = "") {
 
 function invoiceStatusBadge(status = "") {
   return `<span class="invoice-status-badge ${invoiceStatusClass(status)}">${escapeHtml(invoiceStatusLabel(status))}</span>`;
+}
+
+function invoiceCodeIconSvg() {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"></path><path d="M14 2v5h5"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg>`;
+}
+
+function showInvoiceDetailModal(invoice) {
+  const overlay = ensureInvoiceDetailModal();
+  const content = overlay.querySelector(".invoice-detail-card");
+  const isPaid = String(invoice.status || "").toLowerCase() === "paid";
+  const note = isPaid
+    ? "Hóa đơn đã được thanh toán đầy đủ."
+    : "Hóa đơn chưa được thanh toán. Vui lòng theo dõi hạn thanh toán.";
+
+  content.innerHTML = `
+    <button type="button" class="invoice-detail-close" aria-label="Dong">×</button>
+    <header class="invoice-detail-head">
+      <span class="invoice-detail-main-icon">${invoiceCodeIconSvg()}</span>
+      <div>
+        <h3>Chi tiết hóa đơn</h3>
+        <p>${escapeHtml(getInvoiceDisplayCode(invoice))}</p>
+      </div>
+    </header>
+
+    <section class="invoice-detail-summary">
+      ${invoiceInfoTile("calendar", "Kỳ hóa đơn", invoice.period || "-")}
+      ${invoiceInfoTile("room", "Phòng", invoice.roomCode || "-")}
+      ${invoiceInfoTile("student", "Sinh viên", invoice.studentName || "-")}
+      ${invoiceInfoTile("issued", "Ngày phát hành", formatDate(invoice.issuedAt))}
+      ${invoiceInfoTile("due", "Hạn thanh toán", formatDate(invoice.dueDate))}
+      ${invoiceInfoTile("status", "Trạng thái", invoiceStatusBadge(invoice.status), true)}
+    </section>
+
+    <section class="invoice-detail-section">
+      <h4><span>${invoiceCodeIconSvg()}</span>Chi tiết thanh toán</h4>
+      <div class="invoice-detail-lines">
+        <div class="invoice-detail-line invoice-detail-line-head">
+          <span>Nội dung</span>
+          <span>Đơn giá</span>
+          <span>Số lượng</span>
+          <span>Thành tiền</span>
+        </div>
+        ${invoicePaymentLine("roomFee", "Tiền phòng", `Phí phòng tháng ${escapeHtml(invoice.period || "-")}`, invoice.roomFee, "1", invoice.roomFee)}
+        ${invoicePaymentLine("electric", "Tiền điện", "Theo dữ liệu điện nước đã nhập", invoice.electricFee, "1", invoice.electricFee)}
+        ${invoicePaymentLine("water", "Tiền nước", "Theo dữ liệu điện nước đã nhập", invoice.waterFee, "1", invoice.waterFee)}
+        <div class="invoice-detail-total">
+          <strong>Tổng tiền</strong>
+          <strong>${escapeHtml(formatCurrency(invoice.totalAmount))}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="invoice-detail-note">
+      <h4><span>▣</span>Ghi chú</h4>
+      <p>${escapeHtml(note)}</p>
+    </section>
+
+  `;
+
+  overlay.style.display = "flex";
+  document.body.classList.add("modal-open");
+
+  const close = () => {
+    overlay.style.display = "none";
+    document.body.classList.remove("modal-open");
+  };
+  overlay.querySelector(".invoice-detail-close").onclick = close;
+  overlay.onclick = (event) => {
+    if (event.target === overlay) close();
+  };
+}
+
+function ensureInvoiceDetailModal() {
+  let overlay = document.getElementById("invoice-detail-modal");
+  if (overlay) return overlay;
+  overlay = document.createElement("div");
+  overlay.id = "invoice-detail-modal";
+  overlay.className = "invoice-detail-overlay";
+  overlay.style.display = "none";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.innerHTML = '<article class="invoice-detail-card"></article>';
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function invoiceInfoTile(type, label, value, allowHtml = false) {
+  return `
+    <article class="invoice-info-tile ${type}">
+      <span class="invoice-info-icon">${invoiceInfoIconSvg(type)}</span>
+      <div>
+        <span>${escapeHtml(label)}</span>
+        <strong>${allowHtml ? value : escapeHtml(value)}</strong>
+      </div>
+    </article>
+  `;
+}
+
+function invoicePaymentLine(type, title, desc, unitPrice, quantity, amount) {
+  return `
+    <div class="invoice-detail-line">
+      <span class="invoice-line-title">
+        <span class="invoice-line-icon ${type}">${invoiceInfoIconSvg(type)}</span>
+        <span><strong>${escapeHtml(title)}</strong><em>${escapeHtml(desc)}</em></span>
+      </span>
+      <strong>${escapeHtml(formatCurrency(unitPrice))}</strong>
+      <strong>${escapeHtml(quantity)}</strong>
+      <strong>${escapeHtml(formatCurrency(amount))}</strong>
+    </div>
+  `;
+}
+
+function invoiceInfoIconSvg(type) {
+  const icons = {
+    calendar: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>',
+    issued: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>',
+    room: '<svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>',
+    student: '<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>',
+    due: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    status: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
+    electric: '<svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"></path></svg>',
+    water: '<svg viewBox="0 0 24 24"><path d="M12 2.69 5.6 9.09a9 9 0 1 0 12.8 0L12 2.69z"></path></svg>',
+    roomFee: '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path></svg>'
+  };
+  return icons[type] || icons.roomFee;
 }
 
