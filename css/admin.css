@@ -512,10 +512,19 @@ select {
     cursor: pointer;
 }
 
+.stat-card[data-revenue-status-filter].is-disabled {
+    cursor: default;
+}
+
 .stat-card[data-revenue-status-filter]:hover,
 .stat-card[data-revenue-status-filter].is-filter-active {
     border-color: rgba(8, 117, 239, 0.38);
     box-shadow: 0 18px 36px rgba(8, 117, 239, 0.12);
+}
+
+.stat-card[data-revenue-status-filter].is-disabled:hover {
+    border-color: var(--portal-line);
+    box-shadow: 0 10px 30px rgba(18, 49, 85, 0.05);
 }
 
 .stat-card[data-revenue-status-filter].is-filter-active {
@@ -742,6 +751,10 @@ select {
     background: #f5f9ff;
 }
 
+#section-overview .stack-list .queue-item:last-child {
+    padding-bottom: 16px;
+}
+
 .overview-link-item:focus-visible {
     outline: 3px solid rgba(8, 117, 239, 0.2);
     outline-offset: -3px;
@@ -875,6 +888,59 @@ select {
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
+}
+
+.admin-th-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+    border-radius: 7px;
+    background: #EEF6FF;
+    color: #0F6BFF;
+    vertical-align: middle;
+}
+
+.admin-th-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.admin-th-icon.purple {
+    background: #F3EEFF;
+    color: #6D4AFF;
+}
+
+.admin-th-icon.cyan {
+    background: #EAFBFF;
+    color: #06A7D8;
+}
+
+.admin-th-icon.green {
+    background: #EAFBF0;
+    color: #09A84F;
+}
+
+.admin-th-icon.amber {
+    background: #FFF7E8;
+    color: #F59E0B;
+}
+
+.admin-th-icon.orange {
+    background: #FFF1E8;
+    color: #FF6B1A;
+}
+
+.admin-th-icon.red {
+    background: #FFF1F2;
+    color: #E5484D;
 }
 
 .data-table tr.is-selected td {
@@ -1826,7 +1892,7 @@ label span {
 
 .contract-admin-kicker svg,
 .contract-detail-title svg,
-.contract-search-field > svg,
+.contract-search-shell svg,
 .contract-select-shell svg,
 .contract-th-icon svg,
 .contract-row-icon svg,
@@ -1873,23 +1939,7 @@ label span {
     gap: 8px;
 }
 
-.contract-search-field {
-    grid-template-columns: 34px minmax(0, 1fr);
-    align-items: center;
-    height: 58px;
-    padding: 0 18px;
-    border: 1px solid var(--contract-line);
-    border-radius: 8px;
-    color: var(--contract-muted);
-    background: #fff;
-}
-
-.contract-search-field span {
-    display: grid;
-    gap: 4px;
-}
-
-.contract-search-field strong,
+.contract-search-field > span:first-child,
 .contract-select-field > span,
 .contract-editor-field > span:first-child,
 .contract-input-shell > span:first-child,
@@ -1915,6 +1965,7 @@ label span {
     font-weight: 700;
 }
 
+.contract-search-shell,
 .contract-select-shell,
 .contract-input-shell > span:nth-child(2) {
     display: grid;
@@ -1928,6 +1979,7 @@ label span {
     background: #fff;
 }
 
+.contract-search-shell,
 .contract-select-shell {
     min-height: 50px;
 }
@@ -2265,7 +2317,7 @@ label span {
 
 .room-admin-kicker svg,
 .room-detail-title svg,
-.room-search-field > svg,
+.room-search-shell svg,
 .room-select-shell svg,
 .room-th-icon svg,
 .room-row-icon svg,
@@ -2312,23 +2364,7 @@ label span {
     gap: 8px;
 }
 
-.room-search-field {
-    grid-template-columns: 34px minmax(0, 1fr);
-    align-items: center;
-    height: 58px;
-    padding: 0 18px;
-    border: 1px solid var(--room-line);
-    border-radius: 8px;
-    color: var(--room-muted);
-    background: #fff;
-}
-
-.room-search-field span {
-    display: grid;
-    gap: 4px;
-}
-
-.room-search-field strong,
+.room-search-field > span:first-child,
 .room-select-field > span,
 .room-editor-field > span:first-child,
 .room-input-shell > span:first-child {
@@ -2353,6 +2389,7 @@ label span {
     font-weight: 700;
 }
 
+.room-search-shell,
 .room-select-shell,
 .room-input-shell > span:nth-child(2) {
     display: grid;
@@ -2366,6 +2403,7 @@ label span {
     background: #fff;
 }
 
+.room-search-shell,
 .room-select-shell {
     min-height: 50px;
 }
@@ -2711,7 +2749,7 @@ label span {
 
 .facility-admin-kicker svg,
 .facility-detail-title svg,
-.facility-search-field > svg,
+.facility-search-shell svg,
 .facility-select-shell svg,
 .facility-th-icon svg,
 .facility-row-icon svg,
@@ -2758,23 +2796,7 @@ label span {
     gap: 8px;
 }
 
-.facility-search-field {
-    grid-template-columns: 34px minmax(0, 1fr);
-    align-items: center;
-    height: 58px;
-    padding: 0 18px;
-    border: 1px solid var(--facility-line);
-    border-radius: 8px;
-    color: var(--facility-muted);
-    background: #fff;
-}
-
-.facility-search-field span {
-    display: grid;
-    gap: 4px;
-}
-
-.facility-search-field strong,
+.facility-search-field > span:first-child,
 .facility-select-field > span,
 .facility-editor-field > span:first-child,
 .facility-input-shell > span:first-child {
@@ -2799,6 +2821,7 @@ label span {
     font-weight: 700;
 }
 
+.facility-search-shell,
 .facility-select-shell,
 .facility-input-shell > span:nth-child(2) {
     display: grid;
@@ -2810,6 +2833,10 @@ label span {
     border-radius: 8px;
     color: var(--facility-blue);
     background: #fff;
+}
+
+.facility-search-shell {
+    min-height: 50px;
 }
 
 .facility-select-shell select {
@@ -3109,7 +3136,7 @@ label span {
 
 .student-admin-kicker svg,
 .student-detail-title svg,
-.student-search-field > svg,
+.student-search-shell svg,
 .student-select-shell svg,
 .student-th-icon svg,
 .student-row-icon svg,
@@ -3155,23 +3182,7 @@ label span {
     gap: 8px;
 }
 
-.student-search-field {
-    grid-template-columns: 34px minmax(0, 1fr);
-    align-items: center;
-    height: 64px;
-    padding: 0 18px;
-    border: 1px solid var(--student-admin-line);
-    border-radius: 8px;
-    color: var(--student-admin-muted);
-    background: #fff;
-}
-
-.student-search-field span {
-    display: grid;
-    gap: 5px;
-}
-
-.student-search-field strong,
+.student-search-field > span:first-child,
 .student-select-field > span,
 .student-status-editor > span:first-child {
     color: var(--student-admin-muted);
@@ -3196,6 +3207,7 @@ label span {
     font-weight: 700;
 }
 
+.student-search-shell,
 .student-select-shell {
     display: grid;
     grid-template-columns: 28px minmax(0, 1fr);

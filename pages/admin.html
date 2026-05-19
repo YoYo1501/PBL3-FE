@@ -104,11 +104,12 @@
 
             <main class="content">
                 <section class="panel active" id="section-overview">
-                    <div class="section-head page-head-section">
+                    <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
-                            <h2 class="page-heading">Tổng quan vận hành</h2>
+                            <h2 class="page-heading" style="color: #1E3A8A;">Tổng quan vận hành</h2>
+                            <p class="section-kicker">Theo dõi nhanh tình hình vận hành ký túc xá</p>
                         </div>
-                        <button type="button" class="primary-btn btn-refresh" id="refresh-dashboard-btn">
+                        <button type="button" class="primary-btn btn-refresh" id="refresh-dashboard-btn" style="padding: 8px 16px;">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                             Làm mới dữ liệu
                         </button>
@@ -178,24 +179,21 @@
             </section>
 
             <section class="panel" id="section-admin-profile">
-                <div class="admin-account-hero">
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
-                        <h2 class="page-heading">Thông tin tài khoản</h2>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Tài khoản admin</h2>
                         <p class="section-kicker">Quản lý thông tin tài khoản và bảo mật hệ thống</p>
                     </div>
-                    <div class="admin-security-art" aria-hidden="true">
-                        <img src="../assets/images/icon đẹp.png" alt="">
-                    </div>
+                    <button type="button" class="primary-btn admin-refresh-btn" id="reload-admin-profile-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Làm mới
+                    </button>
                 </div>
                 <div class="admin-account-grid">
                     <article class="content-card admin-account-card admin-profile-card">
                         <div class="admin-account-card-head">
                             <span class="admin-account-head-icon icon-account"></span>
                             <h3>Thông tin tài khoản</h3>
-                            <button type="button" class="secondary-btn admin-refresh-btn" id="reload-admin-profile-btn">
-                                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                                Làm mới
-                            </button>
                         </div>
                         <form id="admin-profile-form" class="form-stack admin-account-form">
                             <label class="admin-field admin-field-user">
@@ -298,13 +296,17 @@
             </section>
 
             <section class="panel" id="section-requests">
-                <div class="content-card request-admin-card">
-                    <div class="request-admin-head">
-                        <div>
-                            <h2 class="page-heading">Yêu cầu sinh viên</h2>
-                        </div>
-                        <button type="button" class="primary-btn request-reload-btn" id="reload-requests-btn">Tải lại</button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Yêu cầu sinh viên</h2>
+                        <p class="section-kicker">Quản lý và xử lý các yêu cầu hỗ trợ của sinh viên</p>
                     </div>
+                    <button type="button" class="primary-btn request-reload-btn" id="reload-requests-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="content-card request-admin-card">
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
@@ -330,13 +332,17 @@
             </section>
 
             <section class="panel" id="section-transfers">
-                <div class="content-card transfer-admin-card">
-                    <div class="transfer-admin-head">
-                        <div>
-                            <h2 class="page-heading">Chuyển phòng</h2>
-                        </div>
-                        <button type="button" class="primary-btn transfer-reload-btn" id="reload-transfers-btn">Tải lại</button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Chuyển phòng</h2>
+                        <p class="section-kicker">Quản lý và duyệt các yêu cầu chuyển phòng của sinh viên</p>
                     </div>
+                    <button type="button" class="primary-btn transfer-reload-btn" id="reload-transfers-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="content-card transfer-admin-card">
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
@@ -360,13 +366,17 @@
             </section>
 
             <section class="panel" id="section-renewals">
-                <div class="content-card renewal-admin-card">
-                    <div class="renewal-admin-head">
-                        <div>
-                            <h2 class="page-heading">Gia hạn hợp đồng</h2>
-                        </div>
-                        <button type="button" class="primary-btn renewal-reload-btn" id="reload-renewals-btn">Tải lại</button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Gia hạn hợp đồng</h2>
+                        <p class="section-kicker">Quản lý và duyệt các yêu cầu gia hạn hợp đồng lưu trú</p>
                     </div>
+                    <button type="button" class="primary-btn renewal-reload-btn" id="reload-renewals-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="content-card renewal-admin-card">
                     <div class="registration-filter-grid">
                         <label>
                             <span>Trạng thái</span>
@@ -390,26 +400,22 @@
             </section>
 
             <section class="panel" id="section-contracts">
-                <div class="contract-admin-shell">
-                    <div class="contract-admin-head">
-                        <div>
-                            <p class="contract-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M9 15h6M9 11h3"></path></svg>
-                                <span>Contracts</span>
-                            </p>
-                            <h2 class="page-heading">Quản lý hợp đồng lưu trú</h2>
-                        </div>
-                        <button type="button" class="primary-btn contract-reload-btn" id="reload-contracts-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            Tải lại
-                        </button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Quản lý hợp đồng lưu trú</h2>
+                        <p class="section-kicker">Theo dõi và cập nhật thông tin hợp đồng của sinh viên</p>
                     </div>
-
+                    <button type="button" class="primary-btn contract-reload-btn" id="reload-contracts-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="contract-admin-shell">
                     <div class="contract-admin-filter-row">
                         <label class="contract-search-field">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-                            <span>
-                                <strong>Tìm theo mã / sinh viên / phòng</strong>
+                            <span>Tìm theo mã / sinh viên / phòng</span>
+                            <span class="contract-search-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
                                 <input type="text" id="contract-search" placeholder="Ví dụ: HD, Nguyễn Văn A, A101">
                             </span>
                         </label>
@@ -559,10 +565,6 @@
                     <article class="content-card">
                         <div class="section-head">
                             <div>
-                                <p class="invoice-admin-kicker">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
-                                    <span>Hóa đơn</span>
-                                </p>
                                 <h2 class="page-heading">Import điện nước</h2>
                             </div>
                         </div>
@@ -583,10 +585,6 @@
                     <article class="content-card">
                         <div class="section-head">
                             <div>
-                                <p class="invoice-admin-kicker">
-                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
-                                    <span>Hóa đơn</span>
-                                </p>
                                 <h2 class="page-heading">Tạo hóa đơn nháp</h2>
                             </div>
                         </div>
@@ -612,10 +610,6 @@
                 <div class="content-card">
                     <div class="section-head">
                         <div>
-                            <p class="invoice-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M8 13h8M8 17h5"></path></svg>
-                                <span>Hóa đơn</span>
-                            </p>
                             <h2 class="page-heading">Quản lý hóa đơn</h2>
                         </div>
                         <div class="toolbar-actions">
@@ -648,17 +642,17 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Mã hóa đơn</th>
-                                    <th>Kỳ</th>
-                                    <th>Phòng</th>
-                                    <th>Sinh viên</th>
-                                    <th>Tiền phòng</th>
-                                    <th>Tiền điện</th>
-                                    <th>Tiền nước</th>
-                                    <th>Tổng cộng</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày phát hành</th>
-                                    <th>Thao tác</th>
+                                    <th><span class="admin-th-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></span>Mã hóa đơn</th>
+                                    <th><span class="admin-th-icon purple"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Kỳ</th>
+                                    <th><span class="admin-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg></span>Phòng</th>
+                                    <th><span class="admin-th-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span>Sinh viên</th>
+                                    <th><span class="admin-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg></span>Tiền phòng</th>
+                                    <th><span class="admin-th-icon orange"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"></path></svg></span>Tiền điện</th>
+                                    <th><span class="admin-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M12 2.69 5.6 9.09a9 9 0 1 0 12.8 0L12 2.69z"></path></svg></span>Tiền nước</th>
+                                    <th><span class="admin-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg></span>Tổng cộng</th>
+                                    <th><span class="admin-th-icon green"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Trạng thái</th>
+                                    <th><span class="admin-th-icon purple"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Ngày phát hành</th>
+                                    <th><span class="admin-th-icon red"><svg viewBox="0 0 24 24"><path d="M12 6v.01M12 12v.01M12 18v.01"></path></svg></span>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="invoices-table-body">
@@ -677,25 +671,22 @@
             </section>
 
             <section class="panel" id="section-rooms">
-                <div class="room-admin-shell">
-                    <div class="room-admin-head">
-                        <div>
-                            <p class="room-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg>
-                                <span>Rooms</span>
-                            </p>
-                            <h2 class="page-heading">Quản lý phòng</h2>
-                        </div>
-                        <button type="button" class="primary-btn room-reload-btn" id="reload-rooms-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            Tải lại
-                        </button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Quản lý phòng</h2>
+                        <p class="section-kicker">Quản lý phòng ở, sức chứa, trạng thái và giá phòng</p>
                     </div>
+                    <button type="button" class="primary-btn room-reload-btn" id="reload-rooms-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="room-admin-shell">
                     <div class="room-admin-filter-row">
                         <label class="room-search-field">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-                            <span>
-                                <strong>Tìm theo mã phòng / tòa / loại</strong>
+                            <span>Tìm theo mã phòng / tòa / loại</span>
+                            <span class="room-search-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
                                 <input type="text" id="room-search" placeholder="Ví dụ: A101, Tòa A, Phòng 4 người">
                             </span>
                         </label>
@@ -705,9 +696,9 @@
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
                                 <select id="room-filter-status">
                                     <option value="">Tất cả</option>
-                                    <option value="Available">Available</option>
-                                    <option value="Full">Full</option>
-                                    <option value="Locked">Locked</option>
+                                    <option value="Available">Còn trống</option>
+                                    <option value="Full">Đã đầy</option>
+                                    <option value="Locked">Đã khóa</option>
                                 </select>
                             </span>
                         </label>
@@ -822,9 +813,9 @@
                                     <span class="room-select-shell">
                                         <svg class="green" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-5"></path></svg>
                                         <select id="room-status">
-                                            <option value="Available">Available</option>
-                                            <option value="Full">Full</option>
-                                            <option value="Locked">Locked</option>
+                                            <option value="Available">Còn trống</option>
+                                            <option value="Full">Đã đầy</option>
+                                            <option value="Locked">Đã khóa</option>
                                         </select>
                                     </span>
                                 </label>
@@ -851,26 +842,22 @@
             </section>
 
             <section class="panel" id="section-facilities">
-                <div class="facility-admin-shell">
-                    <div class="facility-admin-head">
-                        <div>
-                            <p class="facility-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V7"></path><path d="M20 21V7"></path><path d="M4 7l8-4 8 4"></path><path d="M8 21v-8h8v8"></path><path d="M9 10h.01M15 10h.01"></path></svg>
-                                <span>Facilities</span>
-                            </p>
-                            <h2 class="page-heading">Quản lý thiết bị</h2>
-                        </div>
-                        <button type="button" class="primary-btn facility-reload-btn" id="reload-facilities-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            Tải lại
-                        </button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Quản lý thiết bị</h2>
+                        <p class="section-kicker">Theo dõi thiết bị theo phòng, số lượng và tình trạng sử dụng</p>
                     </div>
-
+                    <button type="button" class="primary-btn facility-reload-btn" id="reload-facilities-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="facility-admin-shell">
                     <div class="facility-admin-filter-row">
                         <label class="facility-search-field">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-                            <span>
-                                <strong>Tìm theo thiết bị / phòng</strong>
+                            <span>Tìm theo thiết bị / phòng</span>
+                            <span class="facility-search-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
                                 <input type="text" id="facility-inventory-search" placeholder="Ví dụ: Quạt, A102">
                             </span>
                         </label>
@@ -985,26 +972,22 @@
             </section>
 
             <section class="panel" id="section-students">
-                <div class="student-admin-shell">
-                    <div class="student-admin-head">
-                        <div>
-                            <p class="student-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                <span>Students</span>
-                            </p>
-                            <h2 class="page-heading">Quản lý sinh viên</h2>
-                        </div>
-                        <button type="button" class="primary-btn student-reload-btn" id="reload-students-btn">
-                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            Tải lại
-                        </button>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Quản lý sinh viên</h2>
+                        <p class="section-kicker">Tra cứu và cập nhật thông tin tài khoản sinh viên nội trú</p>
                     </div>
-
+                    <button type="button" class="primary-btn student-reload-btn" id="reload-students-btn" style="padding: 8px 16px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Tải lại
+                    </button>
+                </div>
+                <div class="student-admin-shell">
                     <div class="student-admin-filter-row">
                         <label class="student-search-field">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-                            <span>
-                                <strong>Tìm theo tên / CCCD / phòng</strong>
+                            <span>Tìm theo tên / CCCD / phòng</span>
+                            <span class="student-search-shell">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
                                 <input type="text" id="student-search" placeholder="Ví dụ: Nguyễn Văn A, 048..., A101">
                             </span>
                         </label>
@@ -1125,21 +1108,17 @@
             </section>
 
             <section class="panel" id="section-revenue">
-                <div class="content-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="revenue-admin-kicker">
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                                <span>Doanh thu</span>
-                            </p>
-                            <h2 class="page-heading">Báo cáo doanh thu</h2>
-                        </div>
-                        <div class="toolbar-actions">
-                            <button type="button" class="secondary-btn" id="load-revenue-btn">Xem báo cáo</button>
-                            <button type="button" class="primary-btn" id="export-revenue-btn">Xuất Excel</button>
-                        </div>
+                <div class="page-head-section" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h2 class="page-heading" style="color: #1E3A8A;">Báo cáo doanh thu</h2>
+                        <p class="section-kicker">Tổng hợp doanh thu phòng, điện nước và trạng thái hóa đơn</p>
                     </div>
-
+                    <div class="toolbar-actions">
+                        <button type="button" class="secondary-btn" id="load-revenue-btn">Xem báo cáo</button>
+                        <button type="button" class="primary-btn" id="export-revenue-btn">Xuất Excel</button>
+                    </div>
+                </div>
+                <div class="content-card">
                     <div class="revenue-filter-grid">
                         <label>
                             <span>Từ ngày</span>
@@ -1199,15 +1178,15 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Kỳ</th>
-                                    <th>Phòng</th>
-                                    <th>Sinh viên</th>
-                                    <th>Tiền phòng</th>
-                                    <th>Tiền điện</th>
-                                    <th>Tiền nước</th>
-                                    <th>Tổng cộng</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày tạo</th>
+                                    <th><span class="admin-th-icon purple"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Kỳ</th>
+                                    <th><span class="admin-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M3 21V9l9-6 9 6v12"></path><path d="M9 21v-8h6v8"></path></svg></span>Phòng</th>
+                                    <th><span class="admin-th-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span>Sinh viên</th>
+                                    <th><span class="admin-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg></span>Tiền phòng</th>
+                                    <th><span class="admin-th-icon orange"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"></path></svg></span>Tiền điện</th>
+                                    <th><span class="admin-th-icon cyan"><svg viewBox="0 0 24 24"><path d="M12 2.69 5.6 9.09a9 9 0 1 0 12.8 0L12 2.69z"></path></svg></span>Tiền nước</th>
+                                    <th><span class="admin-th-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8"></path></svg></span>Tổng cộng</th>
+                                    <th><span class="admin-th-icon green"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>Trạng thái</th>
+                                    <th><span class="admin-th-icon purple"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span>Ngày tạo</th>
                                 </tr>
                             </thead>
                             <tbody id="revenue-table-body">

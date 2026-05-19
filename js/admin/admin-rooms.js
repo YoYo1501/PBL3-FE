@@ -323,11 +323,11 @@ function renderRoomsTable() {
       (room) => `
         <tr class="${selectedRoomId === room.id ? "is-selected" : ""}" data-room-view="${room.id}">
             <td class="room-code-cell"><span class="room-code-pill">${escapeHtml(room.roomCode || "-")}</span></td>
-            <td>${escapeHtml(room.buildingName || room.buildingCode || "-")}</td>
-            <td>${escapeHtml(room.roomType || "-")}</td>
-            <td>${escapeHtml(normalizeRoomGender(room.genderAllowed))}</td>
-            <td class="room-capacity-cell">${escapeHtml(room.currentOccupancy ?? 0)}/${escapeHtml(room.capacity ?? 0)} (${escapeHtml(room.availableSlots ?? Math.max((room.capacity ?? 0) - (room.currentOccupancy ?? 0), 0))} chỗ trống)</td>
-            <td class="room-price-cell">${escapeHtml(formatCurrency(room.price))}</td>
+            <td><span class="room-row-icon orange">${roomBuildingIconSvg()}</span>${escapeHtml(room.buildingName || room.buildingCode || "-")}</td>
+            <td><span class="room-row-icon green">${roomTypeIconSvg()}</span>${escapeHtml(room.roomType || "-")}</td>
+            <td><span class="room-row-icon purple">${roomGenderIconSvg(room.genderAllowed)}</span>${escapeHtml(normalizeRoomGender(room.genderAllowed))}</td>
+            <td class="room-capacity-cell"><span class="room-row-icon cyan">${roomCapacityIconSvg()}</span>${escapeHtml(room.currentOccupancy ?? 0)}/${escapeHtml(room.capacity ?? 0)} (${escapeHtml(room.availableSlots ?? Math.max((room.capacity ?? 0) - (room.currentOccupancy ?? 0), 0))} chỗ trống)</td>
+            <td class="room-price-cell"><span class="room-row-icon amber">${roomPriceIconSvg()}</span>${escapeHtml(formatCurrency(room.price))}</td>
             <td>${roomStatusBadge(room.status)}</td>
         </tr>
     `,
@@ -392,9 +392,44 @@ function normalizeRoomGender(gender = "") {
   return gender || "-";
 }
 
+function roomIconSvg(content) {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${content}</svg>`;
+}
+
+function roomBuildingIconSvg() {
+  return roomIconSvg('<path d="M4 21V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16"></path><path d="M9 7h1M14 7h1M9 12h1M14 12h1M9 17h1M14 17h1"></path>');
+}
+
+function roomTypeIconSvg() {
+  return roomIconSvg('<path d="M16 21v-2a4 4 0 0 0-8 0v2"></path><circle cx="12" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M2 21v-2a4 4 0 0 1 3-3.87"></path>');
+}
+
+function roomGenderIconSvg(gender = "") {
+  return normalizeRoomGender(gender) === "Nữ"
+    ? roomIconSvg('<circle cx="12" cy="8" r="5"></circle><path d="M12 13v8M8 17h8"></path>')
+    : roomIconSvg('<circle cx="10" cy="14" r="5"></circle><path d="M14 10 21 3"></path><path d="M16 3h5v5"></path>');
+}
+
+function roomCapacityIconSvg() {
+  return roomIconSvg('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>');
+}
+
+function roomPriceIconSvg() {
+  return roomIconSvg('<circle cx="12" cy="12" r="10"></circle><path d="M12 6v12M16 9a4 4 0 0 0-4-2 4 4 0 0 0 0 8 4 4 0 0 1 0 0"></path>');
+}
+
+function getRoomStatusLabel(status = "") {
+  const labels = {
+    Available: "Còn trống",
+    Full: "Đã đầy",
+    Locked: "Đã khóa",
+  };
+  return labels[status] || status || "-";
+}
+
 function roomStatusBadge(status = "") {
   const normalized = String(status || "").toLowerCase();
   const className =
     normalized === "locked" ? "locked" : normalized === "full" ? "full" : "available";
-  return `<span class="room-status-pill ${className}">${escapeHtml(status || "-")}</span>`;
+  return `<span class="room-status-pill ${className}">${escapeHtml(getRoomStatusLabel(status))}</span>`;
 }

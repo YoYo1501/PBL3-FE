@@ -38,7 +38,7 @@ async function loadOverview() {
     })),
     ...reqList.map((item) => ({
       title: item.title,
-      meta: `${item.studentName} - ${item.requestType}`,
+      meta: `${item.studentName} - ${getOverviewRequestTypeLabel(item.requestType)}`,
       type: "Yêu cầu sinh viên",
       target: "section-requests",
     })),
@@ -97,6 +97,16 @@ async function loadOverview() {
         )
         .join("")
     : '<div class="empty-state">Chưa lấy được dữ liệu phòng.</div>';
+}
+
+function getOverviewRequestTypeLabel(type) {
+  const labels = {
+    Checkout: "Trả phòng",
+    Maintenance: "Bảo trì",
+    RoomTransfer: "Chuyển phòng",
+    Other: "Khác",
+  };
+  return labels[type] || type || "-";
 }
 
 function bindOverviewShortcuts() {

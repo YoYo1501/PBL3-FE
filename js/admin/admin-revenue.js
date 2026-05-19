@@ -16,6 +16,7 @@ function bindRevenueControls() {
 
   document.getElementById("load-revenue-btn")?.addEventListener("click", () => {
     adminRevenueStatusFilter = "";
+    adminRevenueHasLoaded = true;
     resetPage("revenue");
     loadRevenue();
   });
@@ -45,6 +46,10 @@ function bindRevenueStatusCard(valueId, status) {
       : "Hiển thị tất cả hóa đơn";
 
   const applyFilter = () => {
+    if (!adminRevenueHasLoaded) {
+      setRevenueError("Bấm Xem báo cáo để tải dữ liệu trước khi lọc hóa đơn.");
+      return;
+    }
     adminRevenueStatusFilter = status && adminRevenueStatusFilter !== status ? status : "";
     resetPage("revenue");
     loadRevenue();
@@ -76,7 +81,9 @@ function updateRevenueStatusCards() {
     const status = card.dataset.revenueStatusFilter || "";
     const active = status === adminRevenueStatusFilter;
     card.classList.toggle("is-filter-active", active);
+    card.classList.toggle("is-disabled", !adminRevenueHasLoaded);
     card.setAttribute("aria-pressed", String(active));
+    card.setAttribute("aria-disabled", String(!adminRevenueHasLoaded));
   });
 }
 
