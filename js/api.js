@@ -251,7 +251,7 @@ function statusBadge(status) {
         'Inactive':  { label: 'Vô hiệu',       cls: 'badge-muted'   },
         'Expired':   { label: 'Hết hạn',       cls: 'badge-muted'   },
         'Cancelled': { label: 'Đã hủy',          cls: 'badge-muted'   },
-        'Terminated': { label: 'Đã thanh lý',    cls: 'badge-danger'  },
+        'Terminated': { label: 'Đã chấm dứt',    cls: 'badge-danger'  },
         'Paid':      { label: 'Đã thanh toán',    cls: 'badge-success' },
         'Unpaid':    { label: 'Chưa thanh toán',  cls: 'badge-pending' },
         'Draft':     { label: 'Nháp',             cls: 'badge-muted'   },

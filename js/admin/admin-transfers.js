@@ -53,9 +53,14 @@ function renderTransfersList() {
     .map(
       (item) => `
         <article class="queue-item transfer-click-item" role="button" tabindex="0" data-transfer-id="${item.id}" aria-label="Xem chi tiet chuyen phong ${escapeHtml(item.studentName || "")}">
+            <span class="transfer-list-avatar ${transferStatusClass(item.status)}">${transferListIcon("user")}</span>
             <div class="queue-item-content">
                 <strong>${escapeHtml(item.studentName || "-")}</strong>
-                <p class="queue-body">${escapeHtml(item.fromRoomCode || "-")} -> ${escapeHtml(item.toRoomCode || "-")}</p>
+                <p class="queue-body transfer-route">
+                  <span>${escapeHtml(item.fromRoomCode || "-")}</span>
+                  ${transferListIcon("arrow")}
+                  <span>${escapeHtml(item.toRoomCode || "-")}</span>
+                </p>
                 ${
                   item.status === "Pending"
                     ? `<div class="transfer-inline-actions">
@@ -71,9 +76,16 @@ function renderTransfersList() {
                     : ""
                 }
             </div>
+            <div class="transfer-list-date">
+                <span class="transfer-date-icon">${transferListIcon("calendar")}</span>
+                <span>
+                    <em>Ngày yêu cầu</em>
+                    <strong>${escapeHtml(formatDate(item.requestedAt))} <b>•</b> ${escapeHtml(formatTimeValue(item.requestedAt))}</strong>
+                </span>
+            </div>
             <div class="queue-item-actions">
                 ${transferListStatusBadge(item.status)}
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="#9CA3AF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <span class="transfer-open-icon">${transferListIcon("chevron")}</span>
             </div>
         </article>
     `,
@@ -159,7 +171,36 @@ function transferStatusClass(status = "") {
 }
 
 function transferListStatusBadge(status = "") {
-  return `<span class="transfer-status-badge ${transferStatusClass(status)}">${escapeHtml(transferStatusLabel(status))}</span>`;
+  const statusClass = transferStatusClass(status);
+  return `<span class="transfer-status-badge ${statusClass}">${transferStatusIcon(statusClass)}${escapeHtml(transferStatusLabel(status))}</span>`;
+}
+
+function transferStatusIcon(statusClass = "") {
+  if (statusClass === "approved") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-5.4"></path></svg>';
+  }
+
+  if (statusClass === "rejected") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>';
+  }
+
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
+}
+
+function transferListIcon(icon) {
+  const icons = {
+    user: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+    arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>',
+    calendar: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>',
+    chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>',
+  };
+  return icons[icon] || "";
+}
+
+function formatTimeValue(value) {
+  const date = typeof parseDateValue === "function" ? parseDateValue(value) : new Date(value);
+  if (!date || Number.isNaN(date.getTime())) return "--:--";
+  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 }
 
 function bindTransferDetail(container) {

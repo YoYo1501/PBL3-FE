@@ -12,7 +12,9 @@
 
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: #f0f4f8;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(0, 94, 214, 0.08), transparent 28%),
+                linear-gradient(180deg, #f7fbff 0%, #edf5ff 100%);
             min-height: 100vh;
             color: #1e293b;
         }
@@ -20,98 +22,128 @@
         /* ===== HEADER ===== */
         .page-header {
             position: relative;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.94);
             color: #1e293b;
-            padding: 18px 28px;
-            display: flex;
+            padding: 14px 34px;
+            display: grid;
+            grid-template-columns: minmax(320px, 1fr) minmax(520px, 1.35fr) minmax(220px, 1fr);
             align-items: center;
-            min-height: 146px;
-            border-bottom: 1px solid #d7dde3;
+            gap: 24px;
+            min-height: 100px;
+            border-bottom: 1px solid #dce6f2;
+            box-shadow: 0 10px 34px rgba(22, 80, 140, 0.08);
         }
 
         .page-header::before {
-            content: "";
-            position: relative;
-            z-index: 1;
-            display: block;
-            width: 474px;
-            max-width: 100%;
-            height: 98px;
-            padding: 12px 14px;
-            background:
-                url("../assets/images/dn-ktx-banner.svg") center / calc(100% - 28px) auto no-repeat,
-                rgba(255, 255, 255, 0.92);
-            border-radius: 22px;
-            box-shadow: 0 10px 26px rgba(85, 123, 154, 0.08);
-        }
-
-        .page-header-icon {
             display: none;
         }
 
+        .portal-logo {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+        }
+
+        .portal-logo-mark {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            font-size: 0;
+            color: transparent;
+            background: #fff url("../assets/images/udn-logo.webp") center / contain no-repeat;
+            border: 2px solid #2f6f9f;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .portal-logo-copy {
+            display: grid;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .portal-logo-copy strong,
+        .portal-logo-copy span {
+            display: block;
+            color: #073d78;
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .portal-logo-copy strong {
+            justify-self: center;
+        }
+
         .page-header > div:nth-child(2) {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            position: static;
+            transform: none;
             text-align: center;
-            width: min(100%, 760px);
-            padding: 0 24px;
+            width: auto;
+            padding: 0;
         }
 
         .page-header h1 {
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 30px;
+            font-weight: 800;
             line-height: 1.2;
-            color: #2d98d1;
-            font-family: Arial, Helvetica, sans-serif;
+            color: #1d6fff;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
         }
 
         .page-header p {
-            color: #5f7081;
+            color: #64748b;
             font-size: 14px;
-            margin-top: 6px;
+            font-weight: 600;
+            margin-top: 8px;
         }
 
         .page-header-right {
-            margin-left: auto;
+            justify-self: end;
             position: relative;
             z-index: 1;
         }
 
         .btn-back {
-            color: #2f79a8;
+            color: #2563eb;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 17px;
+            font-weight: 800;
         }
 
         .btn-back:hover { text-decoration: underline; }
 
         /* ===== CONTAINER ===== */
         .page-body {
-            max-width: 860px;
+            max-width: 1110px;
             margin: 0 auto;
-            padding: 32px 16px;
+            padding: 24px 16px 26px;
         }
 
         /* ===== STEPS ===== */
         .steps {
             display: flex;
             gap: 0;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
             background: #fff;
             border-radius: 14px;
             border: 1px solid #dce4ef;
             overflow: hidden;
+            box-shadow: 0 12px 32px rgba(30, 89, 150, 0.1);
         }
 
         .step {
             flex: 1;
             padding: 14px 10px;
             text-align: center;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 800;
             color: #94a3b8;
             border-right: 1px solid #dce4ef;
             transition: background 0.2s, color 0.2s;
@@ -120,7 +152,7 @@
         .step:last-child { border-right: 0; }
 
         .step.active {
-            background: #eff6ff;
+            background: #f8fbff;
             color: #2563eb;
         }
 
@@ -171,23 +203,24 @@
             border: 1px solid #dce4ef;
             border-radius: 16px;
             padding: 24px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 24px 54px rgba(32, 85, 140, 0.12);
         }
 
         .card h2 {
-            font-size: 17px;
-            font-weight: 700;
-            color: #1e3a5f;
+            font-size: 21px;
+            font-weight: 850;
+            color: #0b2f60;
             margin-bottom: 18px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e8eff5;
+            padding-bottom: 0;
+            border-bottom: 0;
         }
 
         /* ===== FORM GRID ===== */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: 12px 24px;
         }
 
         .form-group {
@@ -199,9 +232,9 @@
         .form-group.full { grid-column: 1 / -1; }
 
         .form-group label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #475569;
+            font-size: 14px;
+            font-weight: 750;
+            color: #64748b;
         }
 
         .form-group label .req { color: #ef4444; margin-left: 2px; }
@@ -209,13 +242,15 @@
         .form-group input,
         .form-group select,
         .form-group textarea {
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d8e2ef;
             border-radius: 10px;
-            padding: 11px 13px;
-            font-size: 14px;
+            padding: 12px 16px;
+            min-height: 46px;
+            font-size: 15px;
             font-family: inherit;
-            color: #1e293b;
+            color: #334762;
             background: #fff;
+            font-weight: 700;
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
         }
@@ -236,7 +271,8 @@
         .field-error {
             font-size: 12px;
             color: #ef4444;
-            min-height: 16px;
+            min-height: 0;
+            line-height: 1.2;
         }
 
         /* ===== PHÒNG LIST ===== */
@@ -328,44 +364,113 @@
 
         /* ===== OCR SECTION ===== */
         .ocr-section {
-            background: #fffbeb;
-            border: 1px dashed #f59e0b;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f8ff 100%);
+            border: 2px solid #bfdbfe;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
         }
 
-        .ocr-section h3 { font-size: 15px; color: #92400e; margin-bottom: 8px; }
-        .ocr-section p  { font-size: 13px; color: #78350f; margin-bottom: 12px; }
+        .ocr-section h3 {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            color: #102a56;
+            margin-bottom: 8px;
+            font-weight: 850;
+        }
+
+        .ocr-section h3::before {
+            content: "";
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            border-radius: 50%;
+            border: 2px solid #60a5fa;
+            background-color: #eaf3ff;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h4'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 20px;
+        }
+
+        .ocr-section p  {
+            color: #4b5f82;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0 0 14px 44px;
+        }
 
         .ocr-upload-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 18px;
+            padding-left: 44px;
         }
 
         label.upload-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: #f59e0b;
+            gap: 10px;
+            background: linear-gradient(180deg, #2563eb, #1d4ed8);
             color: #fff;
             border: none;
             border-radius: 8px;
-            padding: 9px 14px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 11px 22px;
+            min-height: 44px;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
             transition: opacity 0.2s;
             font-family: inherit;
+            box-shadow: 0 12px 22px rgba(37, 99, 235, 0.18);
         }
 
         label.upload-btn:hover { opacity: 0.88; }
         #ocr-file-input { display: none; }
 
         .ocr-status {
-            font-size: 13px;
-            color: #6b7280;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .ocr-status::before {
+            content: "";
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .ocr-status.is-success {
+            color: #64748b;
+        }
+
+        .ocr-status.is-success::before {
+            background: #10b981;
+            box-shadow: inset 0 0 0 5px #10b981;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 15px;
+        }
+
+        .ocr-status.is-loading::before {
+            background: #2563eb;
+        }
+
+        .ocr-status.is-error {
+            color: #dc2626;
+        }
+
+        .ocr-status.is-error::before {
+            background: #ef4444;
         }
 
         /* ===== ACTIONS ===== */
@@ -374,7 +479,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .step-nav-actions {
@@ -394,12 +499,32 @@
             line-height: 1;
         }
 
+        .btn-next {
+            min-width: 154px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-next span {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 18px;
+            line-height: 1;
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
             color: #fff;
             border: none;
             border-radius: 10px;
-            padding: 12px 24px;
+            padding: 11px 22px;
             font-size: 15px;
             font-weight: 600;
             font-family: inherit;
@@ -415,7 +540,7 @@
             color: #475569;
             border: 1px solid #cbd5e1;
             border-radius: 10px;
-            padding: 12px 24px;
+            padding: 11px 22px;
             font-size: 15px;
             font-weight: 500;
             font-family: inherit;
@@ -473,29 +598,38 @@
             .page-header {
                 min-height: auto;
                 padding: 16px;
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr;
+                justify-items: center;
                 gap: 14px;
             }
-            .page-header::before {
-                width: 100%;
-                height: 92px;
-            }
             .page-header > div:nth-child(2) {
-                position: static;
-                transform: none;
                 width: auto;
                 padding: 0;
             }
             .page-header h1 { font-size: 26px; }
             .page-body   { padding: 20px 12px; }
+            .ocr-section p,
+            .ocr-upload-area {
+                margin-left: 0;
+                padding-left: 0;
+            }
+            .ocr-upload-area {
+                align-items: flex-start;
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
 
 <header class="page-header">
-    <div class="page-header-icon">🏛️</div>
+    <div class="portal-logo">
+        <div class="portal-logo-mark">KTX</div>
+        <div class="portal-logo-copy">
+            <strong>TRUNG TÂM QUẢN LÝ</strong>
+            <span>KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG</span>
+        </div>
+    </div>
     <div>
         <h1>Đăng ký ở trú Ký túc xá</h1>
         <p>Điền đầy đủ thông tin để gửi đơn đăng ký. Admin sẽ xét duyệt sau.</p>
@@ -545,12 +679,12 @@
 
             <!-- OCR CCCD -->
             <div class="ocr-section">
-                <h3>📸 Trích xuất từ ảnh CCCD (tùy chọn)</h3>
+                <h3>Trích xuất từ ảnh CCCD (tùy chọn)</h3>
                 <p>Tải ảnh CCCD để tự động điền thông tin. Bạn vẫn có thể điền tay.</p>
                 <div class="ocr-upload-area">
-                    <label class="upload-btn" for="ocr-file-input">📷 Chọn ảnh CCCD</label>
+                    <label class="upload-btn" for="ocr-file-input">Chọn ảnh CCCD</label>
                     <input type="file" id="ocr-file-input" accept="image/*">
-                    <span class="ocr-status" id="ocr-status">Chưa chọn ảnh</span>
+                    <span class="ocr-status is-idle" id="ocr-status">Chưa chọn ảnh</span>
                 </div>
             </div>
 
@@ -656,7 +790,7 @@
             <button type="button" class="btn-secondary" onclick="window.location.href='login.html'">Hủy</button>
             <div class="step-nav-actions">
                 <button type="button" class="btn-secondary btn-icon" id="prev-step-btn" aria-label="Quay lại bước trước" title="Quay lại bước trước">&larr;</button>
-                <button type="button" class="btn-primary btn-icon" id="next-step-btn" aria-label="Sang bước tiếp theo" title="Sang bước tiếp theo">&rarr;</button>
+                <button type="button" class="btn-primary btn-next" id="next-step-btn" aria-label="Sang bước tiếp theo" title="Sang bước tiếp theo"><span>&rarr;</span> Tiếp tục</button>
                 <button type="submit" class="btn-primary" id="submit-btn">📤 Gửi đơn đăng ký</button>
             </div>
         </div>
@@ -962,9 +1096,17 @@
     // ── OCR CCCD
     document.getElementById('ocr-file-input').addEventListener('change', async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
         const statusEl = document.getElementById('ocr-status');
-        statusEl.textContent = '⏳ Đang trích xuất...';
+        function setOcrStatus(text, state) {
+            statusEl.textContent = text;
+            statusEl.className = `ocr-status ${state || ''}`.trim();
+        }
+
+        if (!file) {
+            setOcrStatus('Chưa chọn ảnh', 'is-idle');
+            return;
+        }
+        setOcrStatus('Đang trích xuất...', 'is-loading');
 
         const formData = new FormData();
         formData.append('file', file);
@@ -981,12 +1123,12 @@
                 if (d.gender)      document.getElementById('reg-gender').value      = d.gender;
                 if (d.address)     document.getElementById('reg-address').value    = d.address;
                 refreshRoomList();
-                statusEl.textContent = '✅ Đã điền từ CCCD';
+                setOcrStatus('Đã điền từ CCCD', 'is-success');
             } else {
-                statusEl.textContent = '⚠️ Không đọc được, hãy điền tay.';
+                setOcrStatus('Không đọc được, hãy điền tay.', 'is-error');
             }
         } catch {
-            statusEl.textContent = '⚠️ Lỗi kết nối.';
+            setOcrStatus('Lỗi kết nối.', 'is-error');
         }
     });
 

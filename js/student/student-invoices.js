@@ -270,6 +270,47 @@ function invoiceFooterText(filteredCount, totalCount, label) {
     return `Hiển thị 1 đến ${filteredCount} trong tổng số ${totalCount} ${label}`;
 }
 
+function getReceiptPageSize() {
+    return typeof RECEIPT_PAGE_SIZE !== 'undefined' ? RECEIPT_PAGE_SIZE : 5;
+}
+
+function getReceiptPagedItems(filtered) {
+    const pageSize = getReceiptPageSize();
+    const totalItems = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+
+    if (receiptPage < 1) receiptPage = 1;
+    if (receiptPage > totalPages) receiptPage = totalPages;
+
+    const startIndex = (receiptPage - 1) * pageSize;
+    const items = filtered.slice(startIndex, startIndex + pageSize);
+
+    return {
+        items,
+        page: receiptPage,
+        pageSize,
+        totalItems,
+        totalPages,
+        startItem: totalItems ? startIndex + 1 : 0,
+        endItem: Math.min(startIndex + items.length, totalItems)
+    };
+}
+
+function receiptFooterText(pageInfo) {
+    if (!pageInfo.totalItems) return 'Hiển thị 0 trong tổng số 0 biên lai';
+    return `Hiển thị ${pageInfo.startItem} đến ${pageInfo.endItem} trong tổng số ${pageInfo.totalItems} biên lai`;
+}
+
+function renderReceiptPager(pageInfo) {
+    if (pageInfo.totalItems <= pageInfo.pageSize) return '';
+    return `
+        <div class="invoice-pager receipt-pager">
+            <button type="button" data-receipt-page="${pageInfo.page - 1}" ${pageInfo.page <= 1 ? 'disabled' : ''} aria-label="Trang trước">‹</button>
+            <strong>${escapeText(String(pageInfo.page))}</strong>
+            <button type="button" data-receipt-page="${pageInfo.page + 1}" ${pageInfo.page >= pageInfo.totalPages ? 'disabled' : ''} aria-label="Trang sau">›</button>
+        </div>`;
+}
+
 function getInvoicePeriodTotal(invoices, receipts) {
     const items = [...invoices, ...receipts];
     const periods = new Set(items.map(item => String(item?.period || '').trim()).filter(Boolean));
@@ -649,6 +690,7 @@ function bindInvoiceTabs(el) {
             receiptDateFrom = '';
             receiptDateTo = '';
             receiptMonthFilter = '';
+            receiptPage = 1;
             selectedInvoiceId = getActiveInvoiceItems()[0]
                 ? getInvoiceRecordId(getActiveInvoiceItems()[0])
                 : null;
@@ -708,6 +750,7 @@ function unusedRenderReceiptDashboard(el, filtered, activeItems) {
     const searchInput = document.getElementById('invoice-search');
     searchInput?.addEventListener('input', event => {
         invoiceSearchTerm = event.target.value || '';
+        if (invoiceActiveTab === 'receipt') receiptPage = 1;
         queueInvoiceSearchRender(event.target);
     });
     searchInput?.addEventListener('keydown', event => {
@@ -744,6 +787,16 @@ function unusedRenderReceiptDashboard(el, filtered, activeItems) {
             downloadReceipt(receipt);
         });
     });
+    el.querySelectorAll('[data-receipt-page]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            event.stopPropagation();
+            const nextPage = Number(btn.dataset.receiptPage);
+            const totalPages = Math.max(1, Math.ceil(filtered.length / getReceiptPageSize()));
+            if (!nextPage || nextPage < 1 || nextPage > totalPages) return;
+            receiptPage = nextPage;
+            renderInvoiceDashboard();
+        });
+    });
 }
 
 function renderInvoiceDashboard(options = {}) {
@@ -757,8 +810,10 @@ function renderInvoiceDashboard(options = {}) {
     const totalPeriods = getInvoicePeriodTotal(currentInvoices, currentReceipts);
     const activeItems = getActiveInvoiceItems();
     const filtered = getFilteredInvoices();
+    const receiptPageInfo = invoiceActiveTab === 'receipt' ? getReceiptPagedItems(filtered) : null;
+    const visibleItems = receiptPageInfo ? receiptPageInfo.items : filtered;
 
-    const selectedInvoice = getSelectedInvoice(filtered);
+    const selectedInvoice = getSelectedInvoice(visibleItems);
     selectedInvoiceId = selectedInvoice ? getInvoiceRecordId(selectedInvoice) : null;
 
     const totalPayable = paidTotal + unpaidTotal;
@@ -767,7 +822,7 @@ function renderInvoiceDashboard(options = {}) {
     const summaryCountHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${Math.max(totalPeriods, 0)} kỳ`;
     const summaryCountIcon = invoiceActiveTab === 'receipt' ? 'invoice-icon-receipt' : 'invoice-icon-count';
     const paidHint = invoiceActiveTab === 'receipt' ? `${currentReceipts.length} biên lai` : `${currentReceipts.length} giao dịch`;
-    const rows = invoiceActiveTab === 'receipt' ? renderReceiptCards(filtered) : renderInvoiceCards(filtered);
+    const rows = invoiceActiveTab === 'receipt' ? renderReceiptCards(visibleItems) : renderInvoiceCards(visibleItems);
     const emptyLabel = invoiceActiveTab === 'receipt' ? 'Chưa có biên lai nào.' : 'Không có hóa đơn chưa thanh toán.';
     const activeLabel = invoiceActiveTab === 'receipt' ? 'biên lai' : 'hóa đơn';
     const alertMessage = invoiceActiveTab === 'receipt'
@@ -813,7 +868,8 @@ function renderInvoiceDashboard(options = {}) {
                                ${renderInvoiceInfoNote()}`}
                     </div>
                     <div class="invoice-footer">
-                        <span>${escapeText(invoiceFooterText(filtered.length, activeItems.length, activeLabel))}</span>
+                        <span>${escapeText(receiptPageInfo ? receiptFooterText(receiptPageInfo) : invoiceFooterText(filtered.length, activeItems.length, activeLabel))}</span>
+                        ${receiptPageInfo ? renderReceiptPager(receiptPageInfo) : ''}
                     </div>
                 </section>
             </div>
@@ -849,6 +905,7 @@ function renderInvoiceDashboard(options = {}) {
             invoiceSearchDebounceTimer = null;
         }
         receiptMonthFilter = event.target.value || '';
+        receiptPage = 1;
         renderInvoiceDashboard();
     });
     if (options.focusSearch && searchInput) {
@@ -898,6 +955,16 @@ function renderInvoiceDashboard(options = {}) {
             event.stopPropagation();
             const receipt = currentReceipts.find(item => getInvoiceRecordId(item) === Number(btn.dataset.receiptDownload));
             downloadReceipt(receipt);
+        });
+    });
+    el.querySelectorAll('[data-receipt-page]').forEach(btn => {
+        btn.addEventListener('click', event => {
+            event.stopPropagation();
+            const nextPage = Number(btn.dataset.receiptPage);
+            const totalPages = Math.max(1, Math.ceil(filtered.length / getReceiptPageSize()));
+            if (!nextPage || nextPage < 1 || nextPage > totalPages) return;
+            receiptPage = nextPage;
+            renderInvoiceDashboard();
         });
     });
 }
@@ -954,6 +1021,7 @@ async function loadMyInvoices(options = {}) {
     receiptDateFrom = '';
     receiptDateTo = '';
     receiptMonthFilter = '';
+    receiptPage = 1;
 
     const selectedId = Number(options.selectedId);
     if (selectedId) {

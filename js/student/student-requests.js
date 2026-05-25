@@ -165,7 +165,14 @@ function setupCheckoutDateRules() {
 function updateCheckoutSubmitAvailability() {
     const btn = document.getElementById('req-submit-btn');
     const errEl = document.getElementById('req-error');
-    if (!btn || currentReqType !== 'Checkout') return;
+    if (!btn) return;
+
+    if (currentReqType !== 'Checkout') {
+        btn.disabled = false;
+        btn.title = '';
+        if (errEl?.textContent === CHECKOUT_PENDING_MESSAGE) errEl.textContent = '';
+        return;
+    }
 
     btn.disabled = hasPendingCheckoutRequest;
     btn.title = hasPendingCheckoutRequest ? CHECKOUT_PENDING_MESSAGE : '';

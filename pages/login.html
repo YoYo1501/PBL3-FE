@@ -5,156 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập hệ thống</title>
     <meta name="description" content="Đăng nhập hệ thống quản lý ký túc xá">
-    <!-- Google Fonts: Roboto Vietnamese -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap&subset=vietnamese" rel="stylesheet">
-    <link rel="stylesheet" href="../css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap&subset=vietnamese" rel="stylesheet">
+    <link rel="stylesheet" href="../css/login.css?v=20260520-ktx-3">
 </head>
 <body class="login-page">
-    <div class="top-stripe"></div>
-
-    <header class="portal-header">
-        <div class="portal-brand">
+    <main class="login-hero">
+        <header class="portal-header">
             <div class="portal-logo">
-                <img src="../assets/images/udn-logo.webp" alt="Logo Đại học Đà Nẵng" class="portal-logo-image">
-            </div>
-            <div class="portal-title-block">
-                <p class="portal-title-line">TRUNG TÂM QUẢN LÝ</p>
-                <p class="portal-title-line">KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG</p>
-            </div>
-        </div>
-        <h1 class="portal-title">HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ</h1>
-    </header>
-
-    <main class="login-layout">
-        <section class="login-panel">
-            <div class="login-card">
-                <div class="auth-view" id="login-view">
-                    <h2 class="login-title">ĐĂNG NHẬP</h2>
-                    <p class="login-error" id="login-error" role="alert"></p>
-
-                    <form class="login-form" id="login-form" novalidate>
-                        <div class="field-wrap">
-                            <label for="username">CMND/CCCD</label>
-                            <div class="input-shell">
-                                <span class="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" focusable="false">
-                                        <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Zm0 2c-3.04 0-5.95 1.23-8.1 3.4a1 1 0 0 0 .71 1.7h14.78a1 1 0 0 0 .71-1.7A11.4 11.4 0 0 0 12 14Z"/>
-                                    </svg>
-                                </span>
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    placeholder="Nhập 12 số CCCD"
-                                    maxlength="12"
-                                    autocomplete="username"
-                                    inputmode="numeric"
-                                    required>
-                            </div>
-                        </div>
-
-                        <div class="field-wrap">
-                            <label for="password">Mật khẩu</label>
-                            <div class="input-shell">
-                                <span class="input-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" focusable="false">
-                                        <path d="M17 9h-1V7a4 4 0 1 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4Zm2 8.75A1.75 1.75 0 1 1 13.75 14 1.75 1.75 0 0 1 12 15.75Z"/>
-                                    </svg>
-                                </span>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Nhập mật khẩu"
-                                    autocomplete="current-password"
-                                    required>
-                                <button type="button" class="password-toggle" id="password-toggle" aria-label="Hiển thị mật khẩu" aria-pressed="false">
-                                    <svg class="eye-open" viewBox="0 0 24 24" focusable="false">
-                                        <path d="M12 5C6.5 5 2.1 8.4.3 12c1.8 3.6 6.2 7 11.7 7s9.9-3.4 11.7-7C21.9 8.4 17.5 5 12 5Zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-6a2 2 0 1 0 2 2 2 2 0 0 0-2-2Z"/>
-                                    </svg>
-                                    <svg class="eye-closed" viewBox="0 0 24 24" focusable="false">
-                                        <path d="m3.3 2.3-1 1 3 3A13.8 13.8 0 0 0 .3 12c1.8 3.6 6.2 7 11.7 7a12.3 12.3 0 0 0 5.1-1.1l3.6 3.6 1-1Zm8.7 4.7a5 5 0 0 1 5 5 4.9 4.9 0 0 1-.6 2.4l-1.5-1.5a2.9 2.9 0 0 0 0-.9 3 3 0 0 0-3-3 2.9 2.9 0 0 0-.9.1L9.5 7.6A4.9 4.9 0 0 1 12 7Zm-8.8 5a11.8 11.8 0 0 1 3.6-3.7l1.6 1.6a4.9 4.9 0 0 0-.4 2.1 5 5 0 0 0 5 5 4.9 4.9 0 0 0 2.1-.4l1.3 1.3A10.5 10.5 0 0 1 12 17c-4.5 0-8.2-2.6-9.8-5Zm8.1-1.1 2.8 2.8A3 3 0 0 1 11.3 10.9Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="remember-row">
-                            <label class="remember-box" for="remember">
-                                <input type="checkbox" id="remember" name="remember">
-                                <span>Ghi nhớ đăng nhập</span>
-                            </label>
-                        </div>
-
-                        <button type="submit" class="login-btn" id="login-btn">Đăng nhập</button>
-                        <button type="button" class="forgot-btn" id="forgot-link">Quên mật khẩu</button>
-                    </form>
+                <div class="portal-logo-mark">KTX</div>
+                <div class="portal-logo-copy">
+                    <strong>TRUNG TÂM QUẢN LÝ</strong>
+                    <span>KÝ TÚC XÁ ĐẠI HỌC ĐÀ NẴNG</span>
                 </div>
+            </div>
+            <h1 class="portal-title">HỆ THỐNG QUẢN LÝ KÝ TÚC XÁ</h1>
+            <div class="dot-pattern dot-pattern-top" aria-hidden="true"></div>
+        </header>
 
-                <div class="auth-view forgot-view" id="forgot-view" hidden>
-                    <h2 class="login-title forgot-title" id="forgot-title">LẤY LẠI MẬT KHẨU</h2>
-                    <div class="forgot-divider" aria-hidden="true"></div>
-                    <p class="forgot-success-message">
-                        Mật khẩu được gửi vào email sinh viên đã đăng ký trên hệ thống
-                    </p>
+        <section class="login-card">
+            <div class="auth-view" id="login-view">
+                <div class="card-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M4 21V7.4L12 3l8 4.4V21h-6v-5h-4v5H4Zm2-2h2v-5h8v5h2V8.6l-6-3.3-6 3.3V19Zm3-7h2v-2H9v2Zm0-4h2V6H9v2Zm4 4h2v-2h-2v2Zm0-4h2V6h-2v2Z"/>
+                    </svg>
+                </div>
+                <h2 class="login-title">ĐĂNG NHẬP</h2>
+                <div class="title-underline" aria-hidden="true"></div>
+                <p class="card-subtitle">Hệ thống quản lý ký túc xá</p>
+                <p class="login-error" id="login-error" role="alert"></p>
 
-                    <form class="forgot-form" id="forgot-form" novalidate>
-                        <div class="input-shell input-shell-plain">
+                <form class="login-form" id="login-form" novalidate>
+                    <div class="field-wrap">
+                        <label for="username">CMND/CCCD</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-3.33 0-6.2 1.67-7.72 4.08A1.25 1.25 0 0 0 5.34 20h13.32a1.25 1.25 0 0 0 1.06-1.92C18.2 15.67 15.33 14 12 14Z"/>
+                                </svg>
+                            </span>
                             <input
                                 type="text"
-                                id="forgot-cccd"
-                                name="forgot-cccd"
-                                placeholder="CMND/CCCD"
+                                id="username"
+                                name="username"
+                                placeholder="Nhập CMND/CCCD"
                                 maxlength="12"
+                                autocomplete="username"
                                 inputmode="numeric"
-                                autocomplete="off">
-                            <span class="input-side-icon" aria-hidden="true">
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="field-wrap">
+                        <label for="password">Mật khẩu</label>
+                        <div class="input-shell">
+                            <span class="input-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false">
-                                    <path d="M12 12a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 12 12Zm0 2c-3.04 0-5.95 1.23-8.1 3.4a1 1 0 0 0 .71 1.7h14.78a1 1 0 0 0 .71-1.7A11.4 11.4 0 0 0 12 14Z"/>
+                                    <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4Zm2 9a1.7 1.7 0 1 1 1.7-1.7A1.7 1.7 0 0 1 12 16Z"/>
                                 </svg>
                             </span>
-                        </div>
-
-                        <div class="input-shell input-shell-plain">
                             <input
-                                type="email"
-                                id="forgot-email"
-                                name="forgot-email"
-                                placeholder="Email"
-                                autocomplete="email">
-                            <span class="input-side-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" focusable="false">
-                                    <path d="M3 6.75A1.75 1.75 0 0 1 4.75 5h14.5A1.75 1.75 0 0 1 21 6.75v10.5A1.75 1.75 0 0 1 19.25 19H4.75A1.75 1.75 0 0 1 3 17.25Zm1.94.26 6.53 5.18a.85.85 0 0 0 1.06 0l6.53-5.18a.25.25 0 0 0-.16-.44H5.1a.25.25 0 0 0-.16.44Zm14.56 1.62-5.99 4.75a2.35 2.35 0 0 1-2.92 0L4.5 8.63v8.62c0 .14.11.25.25.25h14.5c.14 0 .25-.11.25-.25Z"/>
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Nhập mật khẩu"
+                                autocomplete="current-password"
+                                required>
+                            <button type="button" class="password-toggle" id="password-toggle" aria-label="Hiển thị mật khẩu" aria-pressed="false">
+                                <svg class="eye-open" viewBox="0 0 24 24" focusable="false">
+                                    <path d="M12 5C6.48 5 2.08 8.36.28 12c1.8 3.64 6.2 7 11.72 7s9.92-3.36 11.72-7C21.92 8.36 17.52 5 12 5Zm0 11a4 4 0 1 1 4-4 4 4 0 0 1-4 4Zm0-6a2 2 0 1 0 2 2 2 2 0 0 0-2-2Z"/>
                                 </svg>
-                            </span>
+                                <svg class="eye-closed" viewBox="0 0 24 24" focusable="false">
+                                    <path d="m3.28 2.22 18.5 18.5-1.42 1.42-3.24-3.24A12.28 12.28 0 0 1 12 20C6.48 20 2.08 16.64.28 13a13.18 13.18 0 0 1 4.6-5.2L1.86 4.64l1.42-1.42ZM12 6c5.52 0 9.92 3.36 11.72 7a13.1 13.1 0 0 1-3.08 4.14l-2.36-2.36A5.94 5.94 0 0 0 12 7a5.7 5.7 0 0 0-1.52.2L8.62 5.34A12.12 12.12 0 0 1 12 6Zm-5.66 3.2A11.3 11.3 0 0 0 2.58 13C4.1 15.56 7.6 18 12 18a9.88 9.88 0 0 0 3.46-.62l-2.04-2.04a4 4 0 0 1-5.08-5.08L6.34 9.2Z"/>
+                                </svg>
+                            </button>
                         </div>
+                    </div>
 
-                        <button type="submit" class="submit-btn forgot-submit-btn">Lấy Mật Khẩu</button>
-                    </form>
+                    <div class="form-options">
+                        <label class="remember-box" for="remember">
+                            <input type="checkbox" id="remember" name="remember">
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
+                        <button type="button" class="forgot-inline" id="forgot-link">Quên mật khẩu?</button>
+                    </div>
 
-                    <div class="forgot-separator"><span>Hoặc</span></div>
-                    <a href="#" class="back-to-login" id="back-to-login-btn">Quay lại đăng nhập</a>
-                </div>
+                    <button type="submit" class="login-btn" id="login-btn">
+                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                            <path d="M17 9h-1V7a4 4 0 0 0-8 0v2H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2Zm-7-2a2 2 0 1 1 4 0v2h-4Z"/>
+                        </svg>
+                        <span>Đăng nhập</span>
+                    </button>
+                    <div class="form-separator"><span>Hoặc</span></div>
+                    <a href="register.html" class="register-link">
+                        <span class="register-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M3 21V10.8L12 4l9 6.8V21h-6v-6H9v6H3Zm2-2h2v-6h10v6h2v-7.2l-7-5.3-7 5.3V19Z"/>
+                            </svg>
+                        </span>
+                        <span>Đăng ký nội trú</span>
+                        <span class="register-arrow" aria-hidden="true">›</span>
+                    </a>
+                </form>
             </div>
 
-            <section class="guide-card" id="guide-card">
-                <h3>HƯỚNG DẪN SINH VIÊN ĐĂNG NHẬP VÀO TRANG TRA CỨU THÔNG TIN</h3>
-                <div class="guide-points">
-                    <p><strong>User:</strong> CMND/CCCD</p>
-                    <p><strong>Mật khẩu:</strong> Mặc định đăng nhập lần đầu là số CMND/CCCD</p>
-                </div>
-                <p class="guide-note">
-                    Trường hợp sinh viên đã thay đổi mật khẩu và quên mật khẩu, mà trước khi vào ở KTX có khai báo email trên hệ thống nhưng đến nay email không còn sử dụng, để lấy lại mật khẩu thì sinh viên liên hệ trưởng nhà cập nhật lại email, sau đó thực hiện thao tác Quên mật khẩu và làm theo hướng dẫn trên form. Xin cảm ơn.
+            <div class="auth-view forgot-view" id="forgot-view" hidden>
+                <h2 class="login-title">LẤY LẠI MẬT KHẨU</h2>
+                <div class="title-underline" aria-hidden="true"></div>
+                <p class="forgot-success-message">
+                    Mật khẩu được gửi vào email sinh viên đã đăng ký trên hệ thống.
                 </p>
 
-                <div class="guide-register-block">
-                    <p class="guide-register-text">
-                        Nếu bạn là sinh viên mới và chưa đăng ký nội trú, vui lòng nhấn vào nút bên dưới để làm thủ tục.
-                    </p>
-                    <a href="register.html" class="guide-register-button">Đăng ký ngay</a>
-                </div>
-            </section>
+                <form class="forgot-form" id="forgot-form" novalidate>
+                    <div class="field-wrap">
+                        <label for="forgot-cccd">CMND/CCCD</label>
+                        <div class="input-shell">
+                            <input type="text" id="forgot-cccd" name="forgot-cccd" placeholder="Nhập CMND/CCCD" maxlength="12" inputmode="numeric" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="field-wrap">
+                        <label for="forgot-email">Email</label>
+                        <div class="input-shell">
+                            <input type="email" id="forgot-email" name="forgot-email" placeholder="Nhập email" autocomplete="email">
+                        </div>
+                    </div>
+                    <button type="submit" class="login-btn forgot-submit-btn">Lấy mật khẩu</button>
+                </form>
+                <button type="button" class="back-to-login" id="back-to-login-btn">Quay lại đăng nhập</button>
+            </div>
         </section>
+
+        <footer class="portal-footer">
+        <div class="footer-info">
+            <div class="footer-shield" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 2 4 5.2v6.2c0 5.08 3.42 9.82 8 11.1 4.58-1.28 8-6.02 8-11.1V5.2L12 2Zm-1.1 14.1-3.2-3.2 1.4-1.4 1.8 1.8 4.7-4.7 1.4 1.4-6.1 6.1Z"/>
+                </svg>
+            </div>
+            <div>
+                <p>Hệ thống quản lý ký túc xá - Đại học Đà Nẵng</p>
+                <p>© 2024. All rights reserved.</p>
+            </div>
+        </div>
+        <div class="footer-contact">
+            <a href="tel:02361234567">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24 11.36 11.36 0 0 0 3.58.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.58 1 1 0 0 1-.24 1.01l-2.21 2.2Z"/>
+                </svg>
+                0236 1234 567
+            </a>
+            <a href="mailto:ktx@ac.udn.vn">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm8 7.4L4 7.2V17h16V7.2l-8 5.2Zm0-2.4L18.4 7H5.6L12 10Z"/>
+                </svg>
+                ktx@ac.udn.vn
+            </a>
+        </div>
+        </footer>
     </main>
 
     <script>
@@ -164,6 +170,7 @@
         var API_BASE = 'http://localhost:5280';
         var loginForm = document.getElementById('login-form');
         var loginBtn = document.getElementById('login-btn');
+        var loginBtnText = loginBtn.querySelector('span');
         var errorEl = document.getElementById('login-error');
         var rememberEl = document.getElementById('remember');
         var passwordInput = document.getElementById('password');
@@ -171,7 +178,6 @@
         var loginView = document.getElementById('login-view');
         var forgotView = document.getElementById('forgot-view');
         var forgotForm = document.getElementById('forgot-form');
-        var guideCard = document.getElementById('guide-card');
 
         (function checkAuth() {
             var token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -193,7 +199,7 @@
 
         function setBusy(busy) {
             loginBtn.disabled = busy;
-            loginBtn.textContent = busy ? 'Đang đăng nhập...' : 'Đăng nhập';
+            loginBtnText.textContent = busy ? 'Đang đăng nhập...' : 'Đăng nhập';
         }
 
         function storeAuth(data) {
@@ -221,13 +227,11 @@
             clearError();
             loginView.hidden = true;
             forgotView.hidden = false;
-            guideCard.hidden = true;
         }
 
         function openLoginView() {
             forgotView.hidden = true;
             loginView.hidden = false;
-            guideCard.hidden = false;
         }
 
         async function doLogin(citizenId, password) {
@@ -262,8 +266,8 @@
             var citizenId = document.getElementById('username').value.trim();
             var password = passwordInput.value;
 
-            if (!/^\d{12}$/.test(citizenId)) {
-                showError('CCCD phải gồm đúng 12 chữ số.');
+            if (!/^\d{9,12}$/.test(citizenId)) {
+                showError('CMND/CCCD phải gồm 9 đến 12 chữ số.');
                 return;
             }
             if (!password) {
@@ -291,21 +295,15 @@
             syncPasswordToggle();
         });
 
-        document.getElementById('forgot-link').addEventListener('click', function () {
-            openForgotView();
-        });
-
-        document.getElementById('back-to-login-btn').addEventListener('click', function (e) {
-            e.preventDefault();
-            openLoginView();
-        });
+        document.getElementById('forgot-link').addEventListener('click', openForgotView);
+        document.getElementById('back-to-login-btn').addEventListener('click', openLoginView);
 
         forgotForm.addEventListener('submit', function (e) {
             e.preventDefault();
             var cccd = document.getElementById('forgot-cccd').value.trim();
             var email = document.getElementById('forgot-email').value.trim();
-            if (!/^\d{12}$/.test(cccd)) {
-                alert('Vui lòng nhập đúng 12 số CCCD.');
+            if (!/^\d{9,12}$/.test(cccd)) {
+                alert('Vui lòng nhập đúng CMND/CCCD.');
                 return;
             }
             if (!email) {
