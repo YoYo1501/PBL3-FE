@@ -31,7 +31,19 @@ function adminBadge(status) {
     damaged: "H\u01b0 h\u1ecfng",
     undermaintenance: "\u0110ang b\u1ea3o tr\u00ec",
   };
-  return `<span class="status-badge ${value}">${labels[value] || status || "Không rõ"}</span>`;
+  return `<span class="status-badge ${value}">${adminStatusIcon(value)}${labels[value] || status || "Không rõ"}</span>`;
+}
+
+function adminStatusIcon(statusClass = "") {
+  if (statusClass === "approved" || statusClass === "completed" || statusClass === "active") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-5.4"></path></svg>';
+  }
+
+  if (statusClass === "rejected" || statusClass === "cancelled" || statusClass === "terminated") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>';
+  }
+
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
 }
 
 function setStackLoading(id, message) {

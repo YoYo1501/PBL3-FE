@@ -249,7 +249,7 @@ async function selectContract(contractId) {
     contract.endDate,
   );
   document.getElementById("contract-price").value = contract.price ?? "";
-  document.getElementById("contract-status").value = contract.status || "";
+  document.getElementById("contract-status").value = contract.status || "Active";
   setContractError("");
   renderContractsTable();
 }
@@ -265,7 +265,7 @@ function clearContractDetail() {
   document.getElementById("contract-start-date").value = "";
   document.getElementById("contract-end-date").value = "";
   document.getElementById("contract-price").value = "";
-  document.getElementById("contract-status").value = "";
+  document.getElementById("contract-status").value = "Active";
   setContractError("");
   renderContractsTable();
 }

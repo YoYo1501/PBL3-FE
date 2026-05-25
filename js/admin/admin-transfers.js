@@ -1,4 +1,4 @@
-
+﻿
 async function loadTransfers() {
   setStackLoading("transfers-list", "Đang tải yêu cầu chuyển phòng...");
   const state = paginationState.transfers;
@@ -75,13 +75,6 @@ function renderTransfersList() {
                     </div>`
                     : ""
                 }
-            </div>
-            <div class="transfer-list-date">
-                <span class="transfer-date-icon">${transferListIcon("calendar")}</span>
-                <span>
-                    <em>Ngày yêu cầu</em>
-                    <strong>${escapeHtml(formatDate(item.requestedAt))} <b>•</b> ${escapeHtml(formatTimeValue(item.requestedAt))}</strong>
-                </span>
             </div>
             <div class="queue-item-actions">
                 ${transferListStatusBadge(item.status)}

@@ -12,6 +12,13 @@ function setStudentError(message = "") {
   if (el) el.textContent = message;
 }
 
+function setStudentDetailVisible(isVisible) {
+  document
+    .querySelector(".student-admin-shell")
+    ?.classList.toggle("has-selected-student", Boolean(isVisible));
+  document.body.classList.toggle("modal-open", Boolean(isVisible));
+}
+
 function bindStudentControls() {
   const rerenderStudents = () => {
     resetPage("students");
@@ -24,6 +31,24 @@ function bindStudentControls() {
   document
     .getElementById("student-filter-active")
     ?.addEventListener("change", rerenderStudents);
+
+  document
+    .getElementById("student-detail-close-btn")
+    ?.addEventListener("click", clearStudentDetail);
+
+  document
+    .getElementById("student-detail-modal")
+    ?.addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) clearStudentDetail();
+    });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const modal = document.getElementById("student-detail-modal");
+    if (modal && getComputedStyle(modal).display !== "none") {
+      clearStudentDetail();
+    }
+  });
 
   document
     .getElementById("student-form")
@@ -175,8 +200,15 @@ async function selectStudent(studentId) {
   }
 
   selectedStudentId = student.id;
+  setStudentDetailVisible(true);
   document.getElementById("student-detail-name").textContent =
     student.fullName || "Đã chọn";
+  document.getElementById("student-detail-citizen-id").textContent =
+    student.citizenId || "-";
+  document.getElementById("student-detail-gender").textContent =
+    normalizeGenderLabel(student.gender);
+  document.getElementById("student-detail-room").textContent =
+    student.roomCode || "ChÆ°a cÃ³ phÃ²ng";
   document.getElementById("student-detail-email").textContent =
     student.email || "-";
   document.getElementById("student-detail-created").textContent = formatDate(
@@ -193,13 +225,19 @@ async function selectStudent(studentId) {
 }
 
 function clearStudentDetail() {
+  selectedStudentId = null;
+  setStudentDetailVisible(false);
   document.getElementById("student-detail-name").textContent = "Chưa chọn";
+  document.getElementById("student-detail-citizen-id").textContent = "-";
+  document.getElementById("student-detail-gender").textContent = "-";
+  document.getElementById("student-detail-room").textContent = "-";
   document.getElementById("student-detail-email").textContent = "-";
   document.getElementById("student-detail-created").textContent = "-";
   document.getElementById("student-phone").value = "";
   document.getElementById("student-address").value = "";
   document.getElementById("student-is-active").value = "true";
   setStudentError("");
+  renderStudentsTable();
 }
 
 function isFemaleGender(gender = "") {

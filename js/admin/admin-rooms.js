@@ -21,6 +21,19 @@ function setRoomError(message = "") {
   if (el) el.textContent = message;
 }
 
+function setRoomDetailVisible(isVisible) {
+  document
+    .querySelector(".room-admin-shell")
+    ?.classList.toggle("has-selected-room", Boolean(isVisible));
+  document.body.classList.toggle("modal-open", Boolean(isVisible));
+}
+
+function openNewRoomForm() {
+  selectedRoomId = null;
+  clearRoomDetail();
+  setRoomDetailVisible(true);
+}
+
 function bindRoomControls() {
   const rerenderRooms = () => {
     clearRoomOverviewFilter(false);
@@ -37,10 +50,25 @@ function bindRoomControls() {
     .getElementById("room-overview-filter-clear")
     ?.addEventListener("click", () => clearRoomOverviewFilter(true));
 
-  document.getElementById("new-room-btn")?.addEventListener("click", () => {
-    selectedRoomId = null;
-    clearRoomDetail();
-    renderRoomsTable();
+  document
+    .getElementById("new-room-open-btn")
+    ?.addEventListener("click", openNewRoomForm);
+  document.getElementById("new-room-btn")?.addEventListener("click", openNewRoomForm);
+
+  document
+    .getElementById("room-detail-close-btn")
+    ?.addEventListener("click", clearRoomDetail);
+
+  document
+    .getElementById("room-detail-modal")
+    ?.addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) clearRoomDetail();
+    });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const modal = document.getElementById("room-detail-modal");
+    if (modal && getComputedStyle(modal).display !== "none") clearRoomDetail();
   });
 
   document
@@ -353,6 +381,7 @@ async function selectRoom(roomId) {
   }
 
   selectedRoomId = room.id;
+  setRoomDetailVisible(true);
   document.getElementById("room-detail-code").textContent =
     room.roomCode || "Đã chọn";
   document.getElementById("room-detail-building").textContent =
@@ -371,6 +400,8 @@ async function selectRoom(roomId) {
 }
 
 function clearRoomDetail() {
+  selectedRoomId = null;
+  setRoomDetailVisible(false);
   document.getElementById("room-detail-code").textContent = "Chưa chọn";
   document.getElementById("room-detail-building").textContent = "-";
   document.getElementById("room-detail-gender").textContent = "-";
@@ -383,6 +414,7 @@ function clearRoomDetail() {
   document.getElementById("room-price").value = "";
   document.getElementById("room-status").value = "Available";
   setRoomError("");
+  renderRoomsTable();
 }
 
 function normalizeRoomGender(gender = "") {
