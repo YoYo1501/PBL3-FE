@@ -22,7 +22,7 @@ function adminBadge(status) {
     inactive: "Vô hiệu",
     completed: "Ho\u00e0n th\u00e0nh",
     cancelled: "Đã hủy",
-    terminated: "Đã thanh lý",
+    terminated: "Đã chấm dứt",
     draft: "Nháp",
     expired: "Hết hạn",
     paid: "Đã thanh toán",

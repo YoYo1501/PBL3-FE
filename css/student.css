@@ -5662,6 +5662,11 @@ body.modal-open {
     gap: 10px;
 }
 
+.invoice-dashboard.is-receipt .invoice-pager,
+.receipt-pager {
+    display: flex;
+}
+
 .invoice-pager button,
 .invoice-pager strong {
     width: 36px;

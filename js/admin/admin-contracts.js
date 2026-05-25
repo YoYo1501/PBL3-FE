@@ -12,6 +12,13 @@ function setContractError(message = "") {
   if (el) el.textContent = message;
 }
 
+function setContractDetailVisible(isVisible) {
+  document
+    .querySelector(".contract-admin-shell")
+    ?.classList.toggle("has-selected-contract", Boolean(isVisible));
+  document.body.classList.toggle("modal-open", Boolean(isVisible));
+}
+
 function bindContractControls() {
   const rerenderContracts = () => {
     contractPage = 1;
@@ -116,6 +123,22 @@ function bindContractControls() {
         );
       }
     });
+
+  document
+    .getElementById("contract-detail-close-btn")
+    ?.addEventListener("click", clearContractDetail);
+
+  document
+    .getElementById("contract-detail-modal")
+    ?.addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) clearContractDetail();
+    });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const modal = document.getElementById("contract-detail-modal");
+    if (modal && getComputedStyle(modal).display !== "none") clearContractDetail();
+  });
 }
 
 //6. Hợp đồng
@@ -207,6 +230,7 @@ async function selectContract(contractId) {
   }
 
   selectedContractId = contract.id;
+  setContractDetailVisible(true);
   document.getElementById("contract-detail-code").textContent =
     contract.contractCode || "Đã chọn";
   document.getElementById("contract-detail-student").textContent =
@@ -216,7 +240,7 @@ async function selectContract(contractId) {
   document.getElementById("contract-detail-days").textContent =
     `${contract.daysRemaining ?? 0} ngày`;
   document.getElementById("contract-detail-renew").textContent =
-    contract.canRenew ? "Có thể gia hạn" : "Chưa đến hạn gia hạn";
+    getContractRenewalLabel(contract);
 
   document.getElementById("contract-start-date").value = toDateInputValue(
     contract.startDate,
@@ -231,6 +255,8 @@ async function selectContract(contractId) {
 }
 
 function clearContractDetail() {
+  selectedContractId = null;
+  setContractDetailVisible(false);
   document.getElementById("contract-detail-code").textContent = "Chưa chọn";
   document.getElementById("contract-detail-student").textContent = "-";
   document.getElementById("contract-detail-room").textContent = "-";
@@ -241,6 +267,12 @@ function clearContractDetail() {
   document.getElementById("contract-price").value = "";
   document.getElementById("contract-status").value = "";
   setContractError("");
+  renderContractsTable();
+}
+
+function getContractRenewalLabel(contract) {
+  if (contract?.status !== "Active") return "Không thể gia hạn";
+  return contract.canRenew ? "Có thể gia hạn" : "Chưa đến hạn gia hạn";
 }
 
 function toDateInputValue(value) {
@@ -258,26 +290,22 @@ function contractStatusBadge(status = "") {
       ? "active"
       : normalized === "expired"
         ? "expired"
-        : normalized === "terminated"
+        : normalized === "terminated" || normalized === "inactive" || normalized === "cancelled"
           ? "terminated"
-          : normalized === "cancelled"
-            ? "cancelled"
-            : "inactive";
+          : "inactive";
   return `<span class="contract-status-pill ${className}">${escapeHtml(normalizeContractStatusLabel(status))}</span>`;
 }
 
 function normalizeContractStatusLabel(status = "") {
+  if (status === "Cancelled" || status === "Inactive") return "Đã chấm dứt";
+
   switch (status) {
     case "Active":
       return "Đang hiệu lực";
     case "Expired":
       return "Hết hạn";
     case "Terminated":
-      return "Đã thanh lý";
-    case "Inactive":
-      return "Vô hiệu";
-    case "Cancelled":
-      return "Đã hủy";
+      return "Đã chấm dứt";
     default:
       return status || "-";
   }

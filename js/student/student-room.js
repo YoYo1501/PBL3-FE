@@ -11,7 +11,7 @@ function getRoomStatusMeta(status) {
         Active: { label: 'Đang hiệu lực', cls: 'is-available', contractLabel: 'Đang hiệu lực' },
         Inactive: { label: 'Vô hiệu', cls: 'is-locked', contractLabel: 'Vô hiệu' },
         Expired: { label: 'Hết hạn', cls: 'is-locked', contractLabel: 'Hết hạn' },
-        Terminated: { label: 'Đã thanh lý', cls: 'is-locked', contractLabel: 'Đã thanh lý' }
+        Terminated: { label: 'Đã chấm dứt', cls: 'is-locked', contractLabel: 'Đã chấm dứt' }
     };
     return map[normalized] || { label: normalized || '—', cls: 'is-muted', contractLabel: normalized || '—' };
 }
