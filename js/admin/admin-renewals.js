@@ -167,7 +167,7 @@ function renewalStatusLabel(status = "") {
 
 function renewalListStatusBadge(status = "") {
   const statusClass = getRenewalStatusClass(status).replace("is-", "");
-  return `<span class="renewal-status-badge ${statusClass}">${escapeHtml(renewalStatusLabel(status))}</span>`;
+  return `<span class="renewal-status-badge ${statusClass}">${adminStatusIcon(statusClass)}${escapeHtml(renewalStatusLabel(status))}</span>`;
 }
 
 function getRenewalIcon(status) {
@@ -373,7 +373,7 @@ function renewalStatusPill(status) {
   const value = String(status || "").toLowerCase();
   return `
     <strong class="registration-status-pill ${value}">
-      <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      ${adminStatusIcon(value)}
       ${escapeHtml(renewalStatusLabel(status))}
     </strong>
   `;

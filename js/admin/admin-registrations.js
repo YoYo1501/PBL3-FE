@@ -316,7 +316,7 @@ function registrationStatusPill(status) {
   };
   return `
     <strong class="registration-status-pill ${value}">
-      <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+      ${adminStatusIcon(value)}
       ${escapeHtml(labels[value] || status || "Không rõ")}
     </strong>
   `;

@@ -14,6 +14,19 @@ function setFacilityError(message = "") {
   if (el) el.textContent = message;
 }
 
+function setFacilityDetailVisible(isVisible) {
+  document
+    .querySelector(".facility-admin-shell")
+    ?.classList.toggle("has-selected-facility", Boolean(isVisible));
+  document.body.classList.toggle("modal-open", Boolean(isVisible));
+}
+
+function openNewFacilityForm() {
+  selectedFacilityId = null;
+  clearFacilityForm();
+  setFacilityDetailVisible(true);
+}
+
 function bindFacilityControls() {
   const rerenderFacilities = () => {
     resetPage("facilities");
@@ -34,10 +47,27 @@ function bindFacilityControls() {
       loadFacilitiesInventory();
     });
 
-  document.getElementById("new-facility-btn")?.addEventListener("click", () => {
-    selectedFacilityId = null;
-    clearFacilityForm();
-    renderFacilitiesInventory();
+  document
+    .getElementById("new-facility-open-btn")
+    ?.addEventListener("click", openNewFacilityForm);
+  document
+    .getElementById("new-facility-btn")
+    ?.addEventListener("click", openNewFacilityForm);
+
+  document
+    .getElementById("facility-detail-close-btn")
+    ?.addEventListener("click", clearFacilityForm);
+
+  document
+    .getElementById("facility-detail-modal")
+    ?.addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) clearFacilityForm();
+    });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const modal = document.getElementById("facility-detail-modal");
+    if (modal && getComputedStyle(modal).display !== "none") clearFacilityForm();
   });
 
   document
@@ -218,8 +248,12 @@ function selectFacility(facilityId) {
   const facility = adminFacilities.find((item) => item.id === facilityId);
   if (!facility) return;
   selectedFacilityId = facility.id;
+  setFacilityDetailVisible(true);
   document.getElementById("facility-detail-name").textContent =
     facility.name || "Đã chọn";
+  document.getElementById("facility-detail-created").textContent = formatDate(
+    facility.createdAt,
+  );
   const roomSelect = document.getElementById("facility-room-id");
   if (
     facility.roomId &&
@@ -242,7 +276,10 @@ function selectFacility(facilityId) {
 }
 
 function clearFacilityForm() {
+  selectedFacilityId = null;
+  setFacilityDetailVisible(false);
   document.getElementById("facility-detail-name").textContent = "Chưa chọn";
+  document.getElementById("facility-detail-created").textContent = "-";
   document.getElementById("facility-room-id").disabled = false;
   if (facilityRooms.length) {
     document.getElementById("facility-room-id").value = facilityRooms[0].id;
@@ -253,6 +290,7 @@ function clearFacilityForm() {
   document.getElementById("facility-quantity").value = 1;
   document.getElementById("facility-status").value = "Good";
   setFacilityError("");
+  renderFacilitiesInventory();
 }
 
 function normalizeFacilityStatusLabel(status = "") {
