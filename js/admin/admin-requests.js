@@ -3,18 +3,40 @@ async function loadRequests() {
   setStackLoading("requests-list", "Đang tải yêu cầu sinh viên...");
   const state = paginationState.requests;
   const status = getRequestStatusFilter();
-  const query = new URLSearchParams({
-    page: String(state.page),
-    pageSize: String(state.size),
-  });
-  if (status) query.set("status", status);
-  const res = await callApi(`/studentrequests?${query.toString()}`);
-  adminRequests = applyServerPagination("requests", res?.data);
+  const res = await callApi("/studentrequests");
+  let items = Array.isArray(res?.data) ? res.data : [];
+  if (status) {
+    const normalizedStatus = status.toLowerCase();
+    items = items.filter(
+      (item) => String(item.status || "").toLowerCase() === normalizedStatus,
+    );
+  }
+  items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+  state.totalItems = items.length;
+  const totalPages = Math.max(1, Math.ceil(items.length / state.size));
+  if (state.page > totalPages) state.page = totalPages;
+  const start = (state.page - 1) * state.size;
+  adminRequests = items.slice(start, start + state.size);
   renderRequestsList();
 }
 
 function getRequestStatusFilter() {
-  return document.getElementById("request-filter-status")?.value ?? "Pending";
+  const value = document.getElementById("request-filter-status")?.value;
+  return value == null ? "Pending" : value.trim();
+}
+
+function getRequestEmptyHtml() {
+  const status = getRequestStatusFilter();
+  const messages = {
+    Pending: "Khong co yeu cau sinh vien nao dang cho duyet.",
+    Approved: "Khong co yeu cau sinh vien nao da duyet.",
+    InProgress: "Khong co yeu cau bao tri nao dang sua.",
+    Completed: "Khong co yeu cau sinh vien nao da hoan thanh.",
+    Rejected: "Khong co yeu cau sinh vien nao bi tu choi.",
+  };
+
+  return `<div class="empty-state">${escapeHtml(messages[status] || "Khong co yeu cau sinh vien nao.")}</div>`;
 }
 
 function bindRequestControls() {

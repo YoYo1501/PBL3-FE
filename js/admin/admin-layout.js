@@ -53,12 +53,7 @@ function bindNavigation() {
     button.addEventListener("click", (event) => {
       event.preventDefault();
       showAdminSection(button.dataset.target);
-      if (
-        button.dataset.target === "section-notifications" &&
-        typeof loadAdminInbox === "function"
-      ) {
-        loadAdminInbox();
-      }
+      loadAdminSectionData(button.dataset.target);
     });
   });
 
@@ -81,6 +76,31 @@ function showAdminSection(sectionId) {
     .querySelector(`.nav-link[data-target="${sectionId}"]`)
     ?.classList.add("active");
   document.getElementById(sectionId)?.classList.add("active");
+}
+
+function loadAdminSectionData(sectionId) {
+  const loaders = {
+    "section-overview": () => loadOverview(),
+    "section-admin-profile": () => loadAdminProfile(),
+    "section-registrations": () => loadRegistrations(),
+    "section-requests": () => loadRequests(),
+    "section-transfers": () => loadTransfers(),
+    "section-renewals": () => loadRenewals(),
+    "section-contracts": () => loadContracts(),
+    "section-invoices": () => loadInvoices(),
+    "section-rooms": () => loadRooms(),
+    "section-facilities": () => {
+      loadFacilityRooms();
+      loadFacilitiesInventory();
+    },
+    "section-students": () => loadStudents(),
+    "section-notifications": () => {
+      loadNotifications();
+      if (typeof loadAdminInbox === "function") loadAdminInbox();
+    },
+  };
+
+  loaders[sectionId]?.();
 }
 
 function bindReloadButtons() {

@@ -2796,7 +2796,11 @@ label span {
     overflow-y: auto;
 }
 
-.room-admin-shell.has-selected-room .room-detail-panel {
+.room-admin-shell.has-selected-room #room-detail-modal {
+    display: flex;
+}
+
+.room-detail-panel.is-open {
     display: flex;
 }
 
@@ -3846,6 +3850,32 @@ label span {
     background: #edf1f5;
 }
 
+.student-residence-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 30px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #075fd4;
+    background: #eaf3ff;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.student-residence-pill::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.student-residence-pill.away {
+    color: #8a5b0a;
+    background: #fff4d6;
+}
+
 .student-pagination {
     justify-content: space-between;
     align-items: center;
@@ -4059,6 +4089,10 @@ label span {
     color: #ff7a1a;
 }
 
+.student-info-box > svg.red {
+    color: #dc2626;
+}
+
 .student-info-box span {
     display: grid;
     gap: 4px;
@@ -4096,6 +4130,36 @@ label span {
     resize: vertical;
     min-height: 44px;
     line-height: 1.45;
+}
+
+.student-account-reason {
+    display: none;
+}
+
+.student-account-reason.is-visible {
+    display: flex;
+}
+
+.student-account-audit {
+    display: none;
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+    border: 1px solid #fee2e2;
+    background: #fff7f7;
+    border-radius: 8px;
+    color: #7f1d1d;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.student-account-audit.is-visible {
+    display: block;
+}
+
+.student-account-audit strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #991b1b;
 }
 
 .student-status-editor {
@@ -4204,7 +4268,11 @@ label span {
     padding: 20px;
     background: rgba(15, 23, 42, 0.42);
     backdrop-filter: blur(6px);
-    z-index: 150;
+    z-index: 2000;
+}
+
+.room-create-actions {
+    grid-template-columns: minmax(150px, 1fr) minmax(126px, 0.55fr);
 }
 
 .app-confirm-backdrop.open {
