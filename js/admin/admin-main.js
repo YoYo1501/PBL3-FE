@@ -20,15 +20,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadOverview();
   loadAdminProfile();
-  loadRegistrations();
-  loadRequests();
-  loadTransfers();
-  loadRenewals();
-  loadContracts();
-  loadInvoices();
-  loadRooms();
-  loadFacilityRooms();
-  loadFacilitiesInventory();
-  loadStudents();
-  loadNotifications();
+  bindOverviewAutoRefresh();
 });
+
+function isOverviewActive() {
+  return document.getElementById("section-overview")?.classList.contains("active");
+}
+
+function bindOverviewAutoRefresh() {
+  window.addEventListener("pageshow", () => {
+    if (isOverviewActive()) loadOverview();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && isOverviewActive()) {
+      loadOverview();
+    }
+  });
+
+  window.setInterval(() => {
+    if (document.visibilityState === "visible" && isOverviewActive()) {
+      loadOverview();
+    }
+  }, 30000);
+}

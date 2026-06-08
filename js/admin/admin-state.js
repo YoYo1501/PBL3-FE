@@ -16,6 +16,7 @@ let adminFacilities = [];
 let facilityRooms = [];
 let adminStudents = [];
 let selectedStudentId = null;
+let selectedStudentIsActive = true;
 let adminInvoices = [];
 let adminNotifications = [];
 let selectedNotificationId = null;

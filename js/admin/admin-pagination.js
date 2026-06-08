@@ -74,6 +74,11 @@ function preparePagedList(key, elementId, items, emptyHtml) {
   updatePaginationUi(key, paginationState[key].totalItems || items.length);
 
   if (!items.length) {
+    if (key === "requests" && typeof getRequestEmptyHtml === "function") {
+      container.innerHTML = getRequestEmptyHtml();
+      return null;
+    }
+
     container.innerHTML = emptyHtml;
     return null;
   }

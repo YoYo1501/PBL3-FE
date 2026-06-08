@@ -53,21 +53,10 @@ function bindContractControls() {
         return;
       }
 
-      const startDate = document.getElementById("contract-start-date").value;
-      const endDate = document.getElementById("contract-end-date").value;
       const priceValue = document.getElementById("contract-price").value;
-      const status = document.getElementById("contract-status").value;
-
-      if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-        setContractError("Ngay bat dau khong duoc lon hon ngay ket thuc.");
-        return;
-      }
 
       const payload = {};
-      if (startDate) payload.startDate = new Date(startDate).toISOString();
-      if (endDate) payload.endDate = new Date(endDate).toISOString();
       if (priceValue !== "") payload.price = Number(priceValue);
-      if (status) payload.status = status;
 
       if (!Object.keys(payload).length) {
         setContractError("Hãy nhập ít nhất một thông tin cần cập nhật.");
@@ -242,14 +231,11 @@ async function selectContract(contractId) {
   document.getElementById("contract-detail-renew").textContent =
     getContractRenewalLabel(contract);
 
-  document.getElementById("contract-start-date").value = toDateInputValue(
-    contract.startDate,
-  );
-  document.getElementById("contract-end-date").value = toDateInputValue(
-    contract.endDate,
-  );
+  document.getElementById("contract-detail-period").textContent =
+    `${formatDate(contract.startDate)} - ${formatDate(contract.endDate)}`;
+  document.getElementById("contract-detail-status").textContent =
+    normalizeContractStatusLabel(contract.status);
   document.getElementById("contract-price").value = contract.price ?? "";
-  document.getElementById("contract-status").value = contract.status || "Active";
   setContractError("");
   renderContractsTable();
 }
@@ -262,10 +248,9 @@ function clearContractDetail() {
   document.getElementById("contract-detail-room").textContent = "-";
   document.getElementById("contract-detail-days").textContent = "-";
   document.getElementById("contract-detail-renew").textContent = "-";
-  document.getElementById("contract-start-date").value = "";
-  document.getElementById("contract-end-date").value = "";
+  document.getElementById("contract-detail-period").textContent = "-";
+  document.getElementById("contract-detail-status").textContent = "-";
   document.getElementById("contract-price").value = "";
-  document.getElementById("contract-status").value = "Active";
   setContractError("");
   renderContractsTable();
 }
@@ -273,14 +258,6 @@ function clearContractDetail() {
 function getContractRenewalLabel(contract) {
   if (contract?.status !== "Active") return "Không thể gia hạn";
   return contract.canRenew ? "Có thể gia hạn" : "Chưa đến hạn gia hạn";
-}
-
-function toDateInputValue(value) {
-  if (!value) return "";
-  const date =
-    typeof parseDateValue === "function" ? parseDateValue(value) : new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toISOString().slice(0, 10);
 }
 
 function contractStatusBadge(status = "") {

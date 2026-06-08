@@ -170,7 +170,9 @@ function renderRenewalTermCard(pkg, index) {
 }
 
 async function submitRenewal(renewalPackageId) {
-    if (!confirm('Xác nhận gửi yêu cầu gia hạn hợp đồng?')) return;
+    const confirmed = await confirmRenewalSubmission(renewalPackageId);
+    if (!confirmed) return;
+
     const errEl = document.getElementById('renewal-error');
     if (errEl) errEl.textContent = '';
 
@@ -188,6 +190,86 @@ async function submitRenewal(renewalPackageId) {
     } else {
         if (errEl) errEl.textContent = res?.data?.message || 'Gửi yêu cầu thất bại.';
     }
+}
+
+function confirmRenewalSubmission(renewalPackageId) {
+    const card = Array.from(document.querySelectorAll('.renewal-term-card'))
+        .find(item => String(item.dataset.pkgId) === String(renewalPackageId));
+    const title = card?.querySelector('h4')?.textContent?.trim() || 'kỳ gia hạn đã chọn';
+    const newEndDate = card?.querySelector('.renewal-term-date strong')?.textContent?.trim() || 'ngày kết thúc mới';
+    const modal = ensureRenewalConfirmModal();
+
+    modal.querySelector('[data-renewal-confirm-package]').textContent = title;
+    modal.querySelector('[data-renewal-confirm-date]').textContent = newEndDate;
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    modal.querySelector('[data-renewal-confirm-submit]')?.focus();
+
+    return new Promise(resolve => {
+        const cleanup = result => {
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            modal.removeEventListener('click', onClick);
+            document.removeEventListener('keydown', onKeydown);
+            resolve(result);
+        };
+
+        const onClick = event => {
+            if (event.target === modal || event.target.closest('[data-renewal-confirm-cancel]')) cleanup(false);
+            if (event.target.closest('[data-renewal-confirm-submit]')) cleanup(true);
+        };
+
+        const onKeydown = event => {
+            if (event.key === 'Escape') cleanup(false);
+        };
+
+        modal.addEventListener('click', onClick);
+        document.addEventListener('keydown', onKeydown);
+    });
+}
+
+function ensureRenewalConfirmModal() {
+    let modal = document.getElementById('renewal-confirm-modal');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'renewal-confirm-modal';
+    modal.className = 'renewal-detail-overlay renewal-confirm-overlay';
+    modal.style.display = 'none';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'renewal-confirm-title');
+    modal.innerHTML = `
+        <div class="renewal-confirm-dialog">
+            <button type="button" class="renewal-detail-close" data-renewal-confirm-cancel aria-label="Đóng">×</button>
+            <div class="renewal-confirm-content">
+                <div class="renewal-detail-head renewal-confirm-head">
+                    <span class="renewal-detail-head-icon"></span>
+                    <div>
+                        <h3 id="renewal-confirm-title">Xác nhận gia hạn hợp đồng</h3>
+                        <p>Vui lòng kiểm tra kỳ gia hạn trước khi gửi yêu cầu đến quản trị viên.</p>
+                    </div>
+                </div>
+                <div class="renewal-confirm-summary">
+                    <div>
+                        <span>Kỳ gia hạn</span>
+                        <strong data-renewal-confirm-package>—</strong>
+                    </div>
+                    <div>
+                        <span>Ngày kết thúc mới</span>
+                        <strong data-renewal-confirm-date>—</strong>
+                    </div>
+                </div>
+                <p class="renewal-confirm-note">Sau khi gửi, yêu cầu sẽ ở trạng thái chờ duyệt.</p>
+            </div>
+            <div class="renewal-confirm-actions">
+                <button type="button" class="renewal-detail-secondary" data-renewal-confirm-cancel>Hủy</button>
+                <button type="button" class="renewal-detail-print renewal-confirm-submit" data-renewal-confirm-submit>Gửi yêu cầu</button>
+            </div>
+        </div>`;
+
+    document.body.appendChild(modal);
+    return modal;
 }
 
 function getRenewalStatusMeta(status) {

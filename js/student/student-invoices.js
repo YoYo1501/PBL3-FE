@@ -336,24 +336,17 @@ function invoiceActionButtons(inv) {
         <button type="button" class="invoice-dl-btn" data-invoice-download="${id}" title="Tải hóa đơn"><span class="inv-dl-icon"></span>Tải hóa đơn</button>`;
 }
 
-function downloadInvoice(inv) {
+async function downloadInvoice(inv) {
     if (!inv) return;
-    const content = [
-        'HOA DON KY TUC XA',
-        `Ma hoa don: ${getInvoiceDisplayCode(inv)}`,
-        `Sinh vien: ${inv.studentName || ''}`,
-        `Ky thanh toan: ${inv.period || ''}`,
-        `Phong: ${inv.roomCode || ''}`,
-        `Ngay phat hanh: ${formatDate(inv.issuedAt)}`,
-        `Han thanh toan: ${invoiceDueDateText(inv)}`,
-        `Tien phong: ${formatCurrency(inv.roomFee)}`,
-        `Tien dien: ${formatCurrency(inv.electricFee)}`,
-        `Tien nuoc: ${formatCurrency(inv.waterFee)}`,
-        `Tong cong: ${formatCurrency(inv.totalAmount)}`,
-        `Trang thai: ${invoiceStatusMeta(inv.status).label}`
-    ].join('\n');
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    saveBlob(blob, `hoa-don-${inv.period || inv.id}.txt`);
+    const safeCode = String(getInvoiceDisplayCode(inv) || inv.period || inv.id).replace(/[^\w-]+/g, '-');
+    try {
+        if (document.fonts?.ready) await document.fonts.ready;
+        const blob = await createCanvasPdfBlob(drawInvoicePdfCanvas(inv));
+        saveBlob(blob, `hoa-don-${safeCode}.pdf`);
+    } catch (error) {
+        console.error('downloadInvoice PDF error:', error);
+        showToast('Không thể tạo file PDF hóa đơn.', true);
+    }
 }
 
 function saveBlob(blob, fileName) {
@@ -370,14 +363,244 @@ function saveBlob(blob, fileName) {
 async function downloadReceipt(receipt) {
     if (!receipt) return;
     const invoiceId = getInvoiceRecordId(receipt);
-    const res = await callApiBlob(`/receipts/my/${invoiceId}/download`);
-    if (!res?.ok || !res.blob) {
-        showToast('Không thể tải biên lai.', true);
+    const safeCode = String(receipt.receiptCode || invoiceId).replace(/[^\w-]+/g, '-');
+    try {
+        if (document.fonts?.ready) await document.fonts.ready;
+        const blob = await createCanvasPdfBlob(drawReceiptPdfCanvas(receipt));
+        saveBlob(blob, `bien-lai-${safeCode}.pdf`);
+    } catch (error) {
+        console.error('downloadReceipt PDF error:', error);
+        showToast('Không thể tạo file PDF biên lai.', true);
+    }
+}
+
+function drawReceiptPdfCanvas(receipt) {
+    const canvas = createPdfCanvas();
+    const ctx = canvas.getContext('2d');
+    const amount = receipt.paidAmount ?? receipt.totalAmount;
+
+    preparePdfPage(ctx, canvas);
+    drawPdfHeader(ctx, 'CHI TIẾT\nBIÊN LAI', 'Thanh toán thành công');
+    drawPdfField(ctx, 155, 'Mã biên lai', `#${getReceiptDisplayCode(receipt)}`, { hero: true, valueColor: '#00a651' });
+
+    let y = 290;
+    y = drawPdfField(ctx, y, 'Kỳ thanh toán', formatReceiptPeriod(receipt.period));
+    y = drawPdfField(ctx, y, 'Phòng', receipt.roomCode || '—');
+    y = drawPdfField(ctx, y, 'Ngày thanh toán', formatReceiptDateTime(receipt.paidAt));
+    y = drawPdfField(ctx, y, 'Phương thức', getReceiptPaymentMethod(receipt));
+    y = drawPdfField(ctx, y, 'Mã giao dịch', receipt.transactionCode || '—');
+    y = drawPdfField(ctx, y, 'Trạng thái', 'Thanh toán thành công', { badge: true });
+
+    drawPdfDivider(ctx, y + 18);
+    drawPdfSectionTitle(ctx, y + 70, 'CHI TIẾT THANH TOÁN');
+    let detailY = y + 135;
+    detailY = drawPdfField(ctx, detailY, 'Tiền phòng', formatCurrency(receipt.roomFee));
+    detailY = drawPdfField(ctx, detailY, 'Tiền điện', formatCurrency(receipt.electricFee));
+    detailY = drawPdfField(ctx, detailY, 'Tiền nước', formatCurrency(receipt.waterFee));
+    drawPdfDivider(ctx, detailY + 10, '#dce6f2');
+    drawPdfTotal(ctx, detailY + 80, 'Tổng cộng', formatCurrency(amount));
+
+    return canvas;
+}
+
+function drawInvoicePdfCanvas(inv) {
+    const canvas = createPdfCanvas();
+    const ctx = canvas.getContext('2d');
+    const status = invoiceStatusMeta(inv.status);
+    const isPaid = normalizeInvoiceStatus(inv.status) === 'Paid';
+    const statusText = status.label || 'Chưa thanh toán';
+
+    preparePdfPage(ctx, canvas);
+    drawPdfHeader(ctx, 'CHI TIẾT\nHÓA ĐƠN', statusText, isPaid ? '#dcf8e8' : '#fff3d6', isPaid ? '#009b4e' : '#d97706');
+    drawPdfField(ctx, 155, 'Mã hóa đơn', `#${getInvoiceDisplayCode(inv)}`, { hero: true, valueColor: '#0067e8' });
+
+    let y = 290;
+    y = drawPdfField(ctx, y, 'Kỳ thanh toán', formatReceiptPeriod(inv.period));
+    y = drawPdfField(ctx, y, 'Phòng', inv.roomCode || '—');
+    y = drawPdfField(ctx, y, 'Ngày phát hành', formatDate(inv.issuedAt));
+    y = drawPdfField(ctx, y, 'Hạn thanh toán', invoiceDueDateText(inv));
+    y = drawPdfField(ctx, y, 'Trạng thái', statusText, {
+        badge: true,
+        badgeBg: isPaid ? '#dcf8e8' : '#fff3d6',
+        badgeColor: isPaid ? '#009b4e' : '#d97706'
+    });
+
+    drawPdfDivider(ctx, y + 18);
+    drawPdfSectionTitle(ctx, y + 70, 'CHI TIẾT THANH TOÁN');
+    let detailY = y + 135;
+    detailY = drawPdfField(ctx, detailY, 'Tiền phòng', formatCurrency(inv.roomFee));
+    detailY = drawPdfField(ctx, detailY, 'Tiền điện', formatCurrency(inv.electricFee));
+    detailY = drawPdfField(ctx, detailY, 'Tiền nước', formatCurrency(inv.waterFee));
+    drawPdfDivider(ctx, detailY + 10, '#dce6f2');
+    drawPdfTotal(ctx, detailY + 80, 'Tổng cộng', formatCurrency(inv.totalAmount));
+
+    return canvas;
+}
+
+function createPdfCanvas() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 794;
+    canvas.height = 1123;
+    return canvas;
+}
+
+function preparePdfPage(ctx, canvas) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.textBaseline = 'alphabetic';
+}
+
+function pdfFont(weight, size) {
+    return `${weight} ${size}px "Be Vietnam Pro", Arial, sans-serif`;
+}
+
+function drawPdfHeader(ctx, title, badgeText, badgeBg = '#dcf8e8', badgeColor = '#009b4e') {
+    ctx.fillStyle = '#002b5c';
+    ctx.font = pdfFont(900, 34);
+    const titleLines = title.split('\n');
+    titleLines.forEach((line, index) => ctx.fillText(line, 60, 74 + index * 42));
+
+    const badgeWidth = Math.max(260, ctx.measureText(badgeText).width + 58);
+    drawRoundRect(ctx, 740 - badgeWidth, 42, badgeWidth, 68, 16, badgeBg);
+    ctx.fillStyle = badgeColor;
+    ctx.font = pdfFont(800, 21);
+    ctx.textAlign = 'center';
+    ctx.fillText(badgeText, 740 - badgeWidth / 2, 84);
+    ctx.textAlign = 'left';
+}
+
+function drawPdfField(ctx, y, label, value, options = {}) {
+    ctx.fillStyle = '#4d5f7f';
+    ctx.font = pdfFont(500, options.hero ? 22 : 23);
+    ctx.fillText(label, 60, y);
+
+    if (options.hero) {
+        ctx.fillStyle = options.valueColor || '#00a651';
+        ctx.font = pdfFont(900, 40);
+        ctx.fillText(value || '—', 60, y + 68);
+        return y + 125;
+    }
+
+    if (options.badge) {
+        const text = value || '—';
+        ctx.font = pdfFont(800, 21);
+        const width = Math.max(280, ctx.measureText(text).width + 54);
+        drawRoundRect(ctx, 740 - width, y - 32, width, 64, 15, options.badgeBg || '#dcf8e8');
+        ctx.fillStyle = options.badgeColor || '#009b4e';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, 740 - width / 2, y + 8);
+        ctx.textAlign = 'left';
+        return y + 80;
+    }
+
+    ctx.fillStyle = '#002b5c';
+    ctx.font = pdfFont(900, 28);
+    ctx.textAlign = 'right';
+    ctx.fillText(value || '—', 740, y);
+    ctx.textAlign = 'left';
+    return y + 80;
+}
+
+function drawPdfDivider(ctx, y, color = '#cbd7e6') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(60, y);
+    ctx.lineTo(740, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function drawPdfSectionTitle(ctx, y, title) {
+    ctx.fillStyle = '#002b5c';
+    ctx.font = pdfFont(900, 27);
+    ctx.fillText(title, 60, y);
+}
+
+function drawPdfTotal(ctx, y, label, value) {
+    ctx.fillStyle = '#002b5c';
+    ctx.font = pdfFont(900, 27);
+    ctx.fillText(label, 60, y);
+    ctx.fillStyle = '#0067e8';
+    ctx.font = pdfFont(900, 32);
+    ctx.textAlign = 'right';
+    ctx.fillText(value || '—', 740, y);
+    ctx.textAlign = 'left';
+}
+
+function drawRoundRect(ctx, x, y, width, height, radius, fillStyle) {
+    ctx.fillStyle = fillStyle;
+    if (typeof ctx.roundRect === 'function') {
+        ctx.beginPath();
+        ctx.roundRect(x, y, width, height, radius);
+        ctx.fill();
         return;
     }
 
-    const safeCode = String(receipt.receiptCode || invoiceId).replace(/[^\w-]+/g, '-');
-    saveBlob(res.blob, `bien-lai-${safeCode}.xlsx`);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+}
+
+async function createCanvasPdfBlob(canvas) {
+    if (document.fonts?.ready) await document.fonts.ready;
+    const imageBlob = await new Promise((resolve, reject) => {
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Cannot render PDF image')), 'image/jpeg', 0.96);
+    });
+    const bytes = new Uint8Array(await imageBlob.arrayBuffer());
+    return createImagePdfBlob(bytes, 595, 842);
+}
+
+function createImagePdfBlob(imageBytes, pageWidth, pageHeight) {
+    const content = `q\n${pageWidth} 0 0 ${pageHeight} 0 0 cm\n/Im0 Do\nQ`;
+    const encoder = new TextEncoder();
+    const parts = [];
+    const offsets = [0];
+    let length = 0;
+    const addText = text => {
+        const bytes = encoder.encode(text);
+        parts.push(bytes);
+        length += bytes.length;
+    };
+    const addBytes = bytes => {
+        parts.push(bytes);
+        length += bytes.length;
+    };
+    const addObject = (index, writeBody) => {
+        offsets.push(length);
+        addText(`${index} 0 obj\n`);
+        writeBody();
+        addText('\nendobj\n');
+    };
+
+    addText('%PDF-1.4\n');
+    addObject(1, () => addText('<< /Type /Catalog /Pages 2 0 R >>'));
+    addObject(2, () => addText('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'));
+    addObject(3, () => addText(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
+    addObject(4, () => {
+        addText(`<< /Type /XObject /Subtype /Image /Width 794 /Height 1123 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBytes.length} >>\nstream\n`);
+        addBytes(imageBytes);
+        addText('\nendstream');
+    });
+    addObject(5, () => addText(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`));
+
+    const xrefOffset = length;
+    addText(`xref\n0 6\n0000000000 65535 f \n`);
+    offsets.slice(1).forEach(offset => {
+        addText(`${String(offset).padStart(10, '0')} 00000 n \n`);
+    });
+    addText(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+    return new Blob(parts, { type: 'application/pdf' });
 }
 
 function renderReceiptDetail(receipt) {

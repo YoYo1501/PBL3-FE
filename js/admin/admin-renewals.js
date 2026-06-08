@@ -16,7 +16,7 @@ async function loadRenewals() {
     if (status) {
       items = items.filter((item) => item.status === status);
     }
-    items.sort((a, b) => new Date(b.requestedAt || 0) - new Date(a.requestedAt || 0));
+    items.sort((a, b) => new Date(a.requestedAt || 0) - new Date(b.requestedAt || 0));
 
     state.totalItems = items.length;
     const totalPages = Math.max(1, Math.ceil(items.length / state.size));

@@ -1,13 +1,20 @@
 
+function toRevenueDateInputValue(value) {
+  const date =
+    typeof parseDateValue === "function" ? parseDateValue(value) : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
 function bindRevenueControls() {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  const today = toDateInputValue(now);
+  const today = toRevenueDateInputValue(now);
   const startEl = document.getElementById("revenue-start-date");
   const endEl = document.getElementById("revenue-end-date");
   if (startEl) {
     startEl.max = today;
-    if (!startEl.value) startEl.value = toDateInputValue(start);
+    if (!startEl.value) startEl.value = toRevenueDateInputValue(start);
   }
   if (endEl) {
     endEl.max = today;
@@ -99,7 +106,7 @@ function validateRevenuePayload(payload, missingMessage) {
   if (payload.startDate > payload.endDate) {
     return "Ngày bắt đầu không được lớn hơn ngày kết thúc.";
   }
-  if (payload.endDate > toDateInputValue(new Date())) {
+  if (payload.endDate > toRevenueDateInputValue(new Date())) {
     return "Ngày kết thúc không được vượt quá ngày hiện tại.";
   }
   return "";
