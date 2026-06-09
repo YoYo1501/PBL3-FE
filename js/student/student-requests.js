@@ -11,6 +11,7 @@ const TRANSFER_PENDING_MESSAGE = 'Bạn đang có yêu cầu chuyển phòng đa
 let requestHistoryPage = 1;
 let hasPendingCheckoutRequest = false;
 let hasPendingTransferRequest = false;
+let transferHistoryItems = [];
 
 function loadRequestSection(reqType) {
     currentReqType = reqType || 'Other';
@@ -239,11 +240,12 @@ function bindRequestSubmit() {
     });
 }
 
-async function loadMyRequests() {
+async function loadMyRequests(options = {}) {
+    const silent = Boolean(options.silent);
     const listEl = document.getElementById('my-requests-list');
     if (!listEl) return;
     listEl.classList.remove('is-empty');
-    listEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
+    if (!silent) listEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
 
     const res = await callApi('/studentrequests/my');
     if (!res?.ok || !Array.isArray(res.data) || res.data.length === 0) {
@@ -291,12 +293,19 @@ async function loadMyRequests() {
 
     listEl.querySelectorAll('[data-req-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Xác nhận hủy yêu cầu này?')) return;
+            const confirmed = await showAppConfirm({
+                title: 'Hủy yêu cầu?',
+                message: 'Yêu cầu đang chờ duyệt sẽ được chuyển sang trạng thái đã hủy.',
+                confirmText: 'Hủy yêu cầu',
+                cancelText: 'Giữ lại',
+                tone: 'danger'
+            });
+            if (!confirmed) return;
             const res2 = await callApi(`/studentrequests/${btn.dataset.reqId}/cancel`, { method: 'PUT' });
             if (res2?.ok) {
                 showToast('Đã hủy yêu cầu.');
                 requestHistoryPage = 1;
-                await loadMyRequests();
+                await loadMyRequests({ silent: true });
             }
             else showToast(res2?.data?.message || 'Không thể hủy.', true);
         });
@@ -314,7 +323,10 @@ async function loadMyRequests() {
                 item.description || '',
                 item.resolutionNote ? `\nPhản hồi: ${item.resolutionNote}` : ''
             ].join('\n');
-            alert(detail);
+            showAppAlert({
+                title: item.title || 'Chi tiết yêu cầu',
+                message: detail
+            });
         });
     });
 }
@@ -545,10 +557,11 @@ function getOtherRequestCode(item) {
 // ======================================================================
 // 12. CHUYỂN PHÒNG – GET /api/roomtransfers/available & POST
 // ======================================================================
-async function loadTransferRooms() {
+async function loadTransferRooms(options = {}) {
+    const silent = Boolean(options.silent);
     const listEl = document.getElementById('transfer-room-list');
     if (!listEl) return;
-    listEl.innerHTML = '<div class="loading-state">Đang tải danh sách phòng khả dụng...</div>';
+    if (!silent) listEl.innerHTML = '<div class="loading-state">Đang tải danh sách phòng khả dụng...</div>';
 
     const res = await callApi('/roomtransfers/available');
     if (!res?.ok) {
@@ -759,13 +772,15 @@ function bindTransferSubmit() {
 // ======================================================================
 // 12b. LỊCH SỬ YÊu CẦU CHUYỂN PHÒNG
 // ======================================================================
-async function loadTransferHistory() {
+async function loadTransferHistory(options = {}) {
+    const silent = Boolean(options.silent);
     const histEl = document.getElementById('transfer-history-list');
     if (!histEl) return;
-    histEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
+    if (!silent) histEl.innerHTML = '<div class="loading-state">Đang tải...</div>';
 
     const res = await callApi('/roomtransfers/my');
     if (!res?.ok || !Array.isArray(res.data) || !res.data.length) {
+        transferHistoryItems = [];
         updateTransferHistoryStats([]);
         hasPendingTransferRequest = false;
         updateTransferSubmitAvailability();
@@ -780,23 +795,37 @@ async function loadTransferHistory() {
         if (aPending !== bPending) return aPending ? -1 : 1;
         return new Date(b.requestedAt || b.createdAt || 0) - new Date(a.requestedAt || a.createdAt || 0);
     });
-    updateTransferHistoryStats(allItems);
-    hasPendingTransferRequest = allItems.some(item => String(item.status || '') === 'Pending');
+    transferHistoryItems = allItems;
+    renderTransferHistoryList();
+}
+
+function renderTransferHistoryList() {
+    const histEl = document.getElementById('transfer-history-list');
+    if (!histEl) return;
+
+    updateTransferHistoryStats(transferHistoryItems);
+    hasPendingTransferRequest = transferHistoryItems.some(item => String(item.status || '') === 'Pending');
     updateTransferSubmitAvailability();
 
     const filtered = transferStatusFilter
-        ? allItems.filter(t => String(t.status || '') === transferStatusFilter)
-        : allItems;
+        ? transferHistoryItems.filter(t => String(t.status || '') === transferStatusFilter)
+        : transferHistoryItems;
 
     if (!filtered.length) {
         histEl.innerHTML = '<div class="empty-state">Không có yêu cầu phù hợp với bộ lọc.</div>';
-        updateTransferHistoryFooter(0, allItems.length);
+        updateTransferHistoryFooter(0, transferHistoryItems.length);
         return;
     }
 
     const visibleItems = filtered.slice(0, 4);
     histEl.innerHTML = visibleItems.map(renderTransferHistoryItem).join('');
     updateTransferHistoryFooter(visibleItems.length, filtered.length);
+    bindTransferHistoryActions(filtered);
+}
+
+function bindTransferHistoryActions(filtered) {
+    const histEl = document.getElementById('transfer-history-list');
+    if (!histEl) return;
 
     histEl.querySelectorAll('[data-transfer-detail]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -811,23 +840,73 @@ async function loadTransferHistory() {
                 item.reason || '',
                 item.rejectionReason ? `\nLý do từ chối: ${item.rejectionReason}` : ''
             ].join('\n');
-            alert(detail);
+            showAppAlert({
+                title: 'Chi tiết chuyển phòng',
+                message: detail
+            });
         });
     });
 
     histEl.querySelectorAll('[data-transfer-cancel]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Xác nhận hủy yêu cầu chuyển phòng này?')) return;
+            const confirmed = await showAppConfirm({
+                title: 'Hủy yêu cầu chuyển phòng?',
+                message: 'Yêu cầu đang chờ duyệt sẽ được chuyển sang trạng thái đã hủy.',
+                confirmText: 'Hủy yêu cầu',
+                cancelText: 'Giữ lại',
+                tone: 'danger'
+            });
+            if (!confirmed) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Đang hủy...';
             const res2 = await callApi(`/roomtransfers/${btn.dataset.transferCancel}/cancel`, { method: 'DELETE' });
             if (res2?.ok) {
+                const cancelledId = String(btn.dataset.transferCancel);
+                transferHistoryItems = transferHistoryItems.map(item =>
+                    String(item.id) === cancelledId
+                        ? { ...item, status: 'Cancelled' }
+                        : item
+                );
+                applyTransferCancelToView(cancelledId);
                 showToast('Đã hủy yêu cầu chuyển phòng.');
-                loadTransferHistory();
-                loadTransferRooms();
             } else {
+                btn.disabled = false;
+                btn.textContent = 'Hủy yêu cầu';
                 showToast(res2?.data?.message || 'Không thể hủy yêu cầu chuyển phòng.', true);
             }
         });
     });
+}
+
+function applyTransferCancelToView(cancelledId) {
+    updateTransferHistoryStats(transferHistoryItems);
+    hasPendingTransferRequest = transferHistoryItems.some(item => String(item.status || '') === 'Pending');
+    updateTransferSubmitAvailability();
+
+    const item = transferHistoryItems.find(t => String(t.id) === String(cancelledId));
+    const row = [...document.querySelectorAll('[data-transfer-item]')]
+        .find(el => String(el.dataset.transferItem) === String(cancelledId));
+    if (!item || !row) {
+        renderTransferHistoryList();
+        return;
+    }
+
+    if (transferStatusFilter && transferStatusFilter !== 'Cancelled') {
+        row.remove();
+        const filteredCount = transferHistoryItems.filter(t => String(t.status || '') === transferStatusFilter).length;
+        updateTransferHistoryFooter(Math.min(filteredCount, 4), filteredCount);
+        if (!filteredCount) {
+            const histEl = document.getElementById('transfer-history-list');
+            if (histEl) histEl.innerHTML = '<div class="empty-state">Không có yêu cầu phù hợp với bộ lọc.</div>';
+        }
+        return;
+    }
+
+    row.className = `transfer-history-item status-${String(item.status || '').toLowerCase()}`;
+    const statusSlot = row.querySelector('[data-transfer-status-slot]');
+    if (statusSlot) statusSlot.innerHTML = renderRequestStatusPill(item.status);
+    row.querySelector('[data-transfer-cancel]')?.remove();
 }
 
 function updateTransferHistoryStats(items) {
@@ -848,7 +927,7 @@ function renderTransferHistoryItem(t) {
     const toRoom = t.toRoomCode || t.toRoomId || 'Phòng mới';
 
     return `
-        <article class="transfer-history-item status-${status.toLowerCase()}">
+        <article class="transfer-history-item status-${status.toLowerCase()}" data-transfer-item="${escapeText(t.id)}">
             <span class="transfer-timeline-dot"></span>
             <span class="transfer-history-icon"></span>
             <div class="transfer-history-body">
@@ -858,7 +937,7 @@ function renderTransferHistoryItem(t) {
                     <span>Gửi ngày: ${escapeText(formatDate(sentDate))}${time ? ` <b>•</b> ${escapeText(time)}` : ''}</span>
                 </div>
                 <div class="transfer-history-actions">
-                    ${renderRequestStatusPill(status)}
+                    <span data-transfer-status-slot>${renderRequestStatusPill(status)}</span>
                     <button type="button" class="request-detail-btn" data-transfer-detail="${t.id}">Xem chi tiết</button>
                     ${status === 'Pending'
                         ? `<button type="button" class="request-cancel-btn" data-transfer-cancel="${t.id}">Hủy yêu cầu</button>`

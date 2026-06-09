@@ -39,7 +39,8 @@ function showAppConfirm(options = {}) {
         message: options.message || 'Bạn có chắc muốn tiếp tục?',
         confirmText: options.confirmText || 'Xác nhận',
         cancelText: options.cancelText || 'Hủy',
-        tone: options.tone || 'default'
+        tone: options.tone || 'default',
+        hideCancel: Boolean(options.hideCancel)
     };
 
     let modal = document.getElementById('app-confirm-modal');
@@ -70,7 +71,9 @@ function showAppConfirm(options = {}) {
     messageEl.textContent = settings.message;
     cancelBtn.textContent = settings.cancelText;
     okBtn.textContent = settings.confirmText;
+    cancelBtn.hidden = settings.hideCancel;
     modal.dataset.tone = settings.tone;
+    modal.classList.toggle('is-alert', settings.hideCancel);
 
     return new Promise(resolve => {
         const close = (result) => {
@@ -98,5 +101,15 @@ function showAppConfirm(options = {}) {
 
         modal.classList.add('open');
         okBtn.focus();
+    });
+}
+
+function showAppAlert(options = {}) {
+    return showAppConfirm({
+        title: options.title || 'Thong bao',
+        message: options.message || '',
+        confirmText: options.confirmText || 'Dong',
+        tone: options.tone || 'default',
+        hideCancel: true
     });
 }

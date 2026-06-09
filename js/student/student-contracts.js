@@ -76,10 +76,11 @@ async function loadMyContract() {
     if (renewSec) renewSec.style.display = 'none';
 }
 
-async function loadRenewalPackages() {
+async function loadRenewalPackages(options = {}) {
+    const silent = Boolean(options.silent);
     const listEl = document.getElementById('renewal-packages-list');
     if (!listEl) return;
-    listEl.innerHTML = '<div class="loading-state">Đang tải kỳ gia hạn...</div>';
+    if (!silent) listEl.innerHTML = '<div class="loading-state">Đang tải kỳ gia hạn...</div>';
 
     const res = await callApi('/contracts/renewal-packages');
     if (!res?.ok) {
@@ -296,13 +297,14 @@ function bindRenewalHistoryRefresh() {
     });
 }
 
-async function loadRenewalHistory(keepSectionVisible = false) {
+async function loadRenewalHistory(keepSectionVisible = false, options = {}) {
+    const silent = Boolean(options.silent);
     const listEl = document.getElementById('renewal-history-list');
     const historySection = document.getElementById('renewal-history-section');
     if (!listEl) return [];
 
     if (historySection) historySection.style.display = 'grid';
-    listEl.innerHTML = '<div class="loading-state">Đang tải lịch sử gia hạn...</div>';
+    if (!silent) listEl.innerHTML = '<div class="loading-state">Đang tải lịch sử gia hạn...</div>';
     const res = await callApi('/contracts/renewals/my');
     const items = Array.isArray(res?.data) ? res.data : Array.isArray(res?.data?.data) ? res.data.data : [];
 
@@ -382,7 +384,6 @@ function renderRenewalHistoryTable(items) {
                         <th>Ngày kết thúc mới</th>
                         <th>Trạng thái</th>
                         <th>Ghi chú</th>
-                        <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -394,15 +395,11 @@ function renderRenewalHistoryTable(items) {
 
 function renderRenewalHistoryRow(item, index) {
     const status = getRenewalStatusMeta(item.status);
-    const canCancel = status.key === 'pending';
     const note = item.rejectionReason ? escapeText(item.rejectionReason) : '—';
     const period = `${escapeText(formatDate(item.contractEndDateBeforeRenewal))} <span>→</span> ${escapeText(formatDate(item.contractEndDateAfterRenewal))}`;
-    const action = canCancel
-        ? `<button type="button" class="renewal-cancel-btn renewal-table-action is-danger" data-renewal-cancel="${escapeText(item.id)}"><span></span>Hủy yêu cầu</button>`
-        : `<button type="button" class="renewal-detail-btn renewal-table-action" data-renewal-detail="${escapeText(item.id)}"><span></span>Xem chi tiết</button>`;
 
     return `
-        <tr class="renewal-history-row status-${escapeText(status.key)}">
+        <tr class="renewal-history-row status-${escapeText(status.key)}" data-renewal-row="${escapeText(item.id)}" tabindex="0" role="button" aria-label="Xem chi tiết yêu cầu gia hạn">
             <td>${index + 1}</td>
             <td><strong>${escapeText(formatRenewalPackageName(item))}</strong></td>
             <td>${escapeText(formatRenewalDateTime(item.requestedAt))}</td>
@@ -410,17 +407,18 @@ function renderRenewalHistoryRow(item, index) {
             <td><strong>${escapeText(formatDate(item.contractEndDateAfterRenewal))}</strong></td>
             <td><span class="renewal-status ${status.cls}">${escapeText(status.label)}</span></td>
             <td>${note}</td>
-            <td class="renewal-history-action-cell">${action}</td>
         </tr>`;
 }
 
 function bindRenewalHistoryActions(rootEl) {
-    rootEl.querySelectorAll('[data-renewal-cancel]').forEach(button => {
-        button.addEventListener('click', () => cancelRenewalRequest(Number(button.dataset.renewalCancel)));
-    });
-
-    rootEl.querySelectorAll('[data-renewal-detail]').forEach(button => {
-        button.addEventListener('click', () => showRenewalDetail(Number(button.dataset.renewalDetail)));
+    rootEl.querySelectorAll('[data-renewal-row]').forEach(row => {
+        const openDetail = () => showRenewalDetail(Number(row.dataset.renewalRow));
+        row.addEventListener('click', openDetail);
+        row.addEventListener('keydown', event => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openDetail();
+        });
     });
 }
 
@@ -597,13 +595,22 @@ function printRenewalDetail(modal) {
 }
 
 async function cancelRenewalRequest(requestId) {
-    if (!confirm('Hủy yêu cầu gia hạn đang chờ duyệt?')) return;
+    const confirmed = await showAppConfirm({
+        title: 'Hủy yêu cầu gia hạn?',
+        message: 'Yêu cầu gia hạn đang chờ duyệt sẽ được chuyển sang trạng thái đã hủy.',
+        confirmText: 'Hủy yêu cầu',
+        cancelText: 'Giữ lại',
+        tone: 'danger'
+    });
+    if (!confirmed) return;
 
     const res = await callApi(`/contracts/renewals/${requestId}/cancel`, { method: 'PUT' });
     if (res?.ok) {
         showToast('Đã hủy yêu cầu gia hạn.');
-        await loadRenewalHistory(true);
-        await loadRenewalPackages();
+        await Promise.all([
+            loadRenewalHistory(true, { silent: true }),
+            loadRenewalPackages({ silent: true })
+        ]);
     } else {
         showToast(res?.data?.message || 'Không thể hủy yêu cầu gia hạn.', true);
     }

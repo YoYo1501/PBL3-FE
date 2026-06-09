@@ -63,10 +63,6 @@ function updateAdminPasswordStrength(password = "") {
 }
 
 function bindAdminProfileControls() {
-  document
-    .getElementById("reload-admin-profile-btn")
-    ?.addEventListener("click", loadAdminProfile);
-
   const adminNewPasswordInput = document.getElementById("admin-new-password");
   adminNewPasswordInput?.addEventListener("input", () =>
     updateAdminPasswordStrength(adminNewPasswordInput.value),

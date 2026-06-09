@@ -54,7 +54,7 @@ function bindRevenueStatusCard(valueId, status) {
 
   const applyFilter = () => {
     if (!adminRevenueHasLoaded) {
-      setRevenueError("Bấm Xem báo cáo để tải dữ liệu trước khi lọc hóa đơn.");
+      setRevenueError("Dữ liệu doanh thu đang được tải tự động.");
       return;
     }
     adminRevenueStatusFilter = status && adminRevenueStatusFilter !== status ? status : "";

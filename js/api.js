@@ -1,11 +1,88 @@
 // api.js – API layer dùng chung
 const API_URL = 'http://localhost:5280/api';
+const DATA_CHANGE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const DATA_CHANGE_EVENT = 'app:data-changed';
+const DATA_CHANGE_STORAGE_KEY = 'ktx:data-changed';
+const DATA_CHANGE_CLIENT_KEY = 'ktx:realtime-client';
+const dataChangeChannel = 'BroadcastChannel' in window
+    ? new BroadcastChannel(DATA_CHANGE_STORAGE_KEY)
+    : null;
+let realtimeEventSource = null;
+
+function getRealtimeClientId() {
+    let clientId = sessionStorage.getItem(DATA_CHANGE_CLIENT_KEY);
+    if (!clientId) {
+        clientId = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        sessionStorage.setItem(DATA_CHANGE_CLIENT_KEY, clientId);
+    }
+    return clientId;
+}
+
+function getRequestMethod(options = {}) {
+    return String(options.method || 'GET').toUpperCase();
+}
+
+function notifyDataChanged(detail = {}) {
+    const payload = {
+        endpoint: detail.endpoint || '',
+        method: detail.method || '',
+        clientId: detail.clientId || getRealtimeClientId(),
+        at: Date.now()
+    };
+
+    if (!detail.skipCurrentTab) {
+        window.dispatchEvent(new CustomEvent(DATA_CHANGE_EVENT, { detail: payload }));
+    }
+    dataChangeChannel?.postMessage(payload);
+
+    try {
+        localStorage.setItem(DATA_CHANGE_STORAGE_KEY, JSON.stringify(payload));
+    } catch (_) {
+        // Ignore storage errors; same-tab and BroadcastChannel still work.
+    }
+}
+
+function onDataChanged(handler) {
+    window.addEventListener(DATA_CHANGE_EVENT, event => handler(event.detail || {}));
+    dataChangeChannel?.addEventListener('message', event => handler(event.data || {}));
+    window.addEventListener('storage', event => {
+        if (event.key !== DATA_CHANGE_STORAGE_KEY || !event.newValue) return;
+        try {
+            handler(JSON.parse(event.newValue));
+        } catch (_) {
+            handler({});
+        }
+    });
+}
+
+function connectRealtimeUpdates() {
+    if (realtimeEventSource || !('EventSource' in window)) return;
+    const token = getToken();
+    if (!token) return;
+
+    realtimeEventSource = new EventSource(`${API_URL}/realtime/events?access_token=${encodeURIComponent(token)}`);
+    realtimeEventSource.addEventListener('data-changed', event => {
+        try {
+            const payload = JSON.parse(event.data || '{}');
+            if (payload.clientId && payload.clientId === getRealtimeClientId()) return;
+            notifyDataChanged(payload);
+        } catch (_) {
+            notifyDataChanged({ method: 'REMOTE', endpoint: 'realtime' });
+        }
+    });
+    realtimeEventSource.onerror = () => {
+        realtimeEventSource?.close();
+        realtimeEventSource = null;
+        window.setTimeout(connectRealtimeUpdates, 3000);
+    };
+}
 
 /**
  * Gọi API có Bearer token (dành cho Student/Admin đã đăng nhập).
  * Tự redirect về login.html nếu chưa có token hoặc 401.
  */
 async function callApi(endpoint, options = {}) {
+    // API LAYER: moi request can dang nhap se di qua day de lay token hien tai.
     const token = getToken();
     if (!token) {
         window.location.href = 'login.html';
@@ -13,11 +90,13 @@ async function callApi(endpoint, options = {}) {
     }
 
     try {
+        // API LAYER: gui request len BE, gan Bearer token de Controller [Authorize] doc duoc user/role.
         const res = await fetch(`${API_URL}${endpoint}`, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
+                'X-Realtime-Client': getRealtimeClientId(),
                 ...(options.headers || {})
             }
         });
@@ -44,12 +123,17 @@ async function callApi(endpoint, options = {}) {
         }
 
         // Trả về { ok, status, data } để caller biết thành công hay thất bại
+        // API LAYER: Controller tra JSON thi parse thanh data de JS phia tren xu ly tiep.
         let data = null;
         const ct = res.headers.get('content-type') || '';
         if (ct.includes('application/json')) {
             data = await res.json();
         }
-        return { ok: res.ok, status: res.status, data };
+        const result = { ok: res.ok, status: res.status, data };
+        if (result.ok && DATA_CHANGE_METHODS.has(getRequestMethod(options))) {
+            notifyDataChanged({ endpoint, method: getRequestMethod(options), skipCurrentTab: true });
+        }
+        return result;
     } catch (e) {
         console.error('callApi error:', e);
         return null;
@@ -146,6 +230,7 @@ async function callApiUpload(endpoint, formData) {
     try {
         const headers = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
+        headers['X-Realtime-Client'] = getRealtimeClientId();
         const res = await fetch(`${API_URL}${endpoint}`, {
             method: 'POST',
             headers,
@@ -154,7 +239,11 @@ async function callApiUpload(endpoint, formData) {
         let data = null;
         const ct = res.headers.get('content-type') || '';
         if (ct.includes('application/json')) data = await res.json();
-        return { ok: res.ok, status: res.status, data };
+        const result = { ok: res.ok, status: res.status, data };
+        if (result.ok) {
+            notifyDataChanged({ endpoint, method: 'POST', skipCurrentTab: true });
+        }
+        return result;
     } catch (e) {
         console.error('callApiUpload error:', e);
         return null;

@@ -271,7 +271,7 @@ function renderFacilityRepairHistory(requests = currentFacilityRepairHistory) {
             const res = await callApi(`/studentrequests/${btn.dataset.cancelRepairId}/cancel`, { method: 'PUT' });
             if (res?.ok) {
                 showToast('Đã hủy báo cáo hỏng.');
-                loadFacilitiesSection();
+                loadFacilitiesSection({ silent: true });
             } else {
                 btn.disabled = false;
                 showToast(res?.data?.message || 'Không thể hủy báo cáo.', true);
@@ -327,17 +327,20 @@ function bindFacilityReportSubmit() {
             document.getElementById('facility-report-title').value = '';
             document.getElementById('facility-report-desc').value = '';
             document.querySelector('.facility-tab-btn[data-facility-panel="facility-history-panel"]')?.click();
-            loadFacilitiesSection();
+            loadFacilitiesSection({ silent: true });
         } else if (errEl) {
             errEl.textContent = res?.data?.message || 'Gửi báo hỏng thất bại.';
         }
     });
 }
 
-async function loadFacilitiesSection() {
-    setLoading('my-room-facilities', 'Đang tải danh sách thiết bị...');
-    setLoading('facilities-repair-history', 'Đang tải lịch sử sửa chữa...');
-    setFacilityStats([], []);
+async function loadFacilitiesSection(options = {}) {
+    const silent = Boolean(options.silent);
+    if (!silent) {
+        setLoading('my-room-facilities', '�ang t?i danh s�ch thi?t b?...');
+        setLoading('facilities-repair-history', '�ang t?i l?ch s? s?a ch?a...');
+        setFacilityStats([], []);
+    }
 
     const roomRes = await callApi('/room/my-room');
     currentFacilityRoom = roomRes?.ok ? roomRes.data : null;

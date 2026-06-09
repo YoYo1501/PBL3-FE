@@ -114,6 +114,7 @@
                 <p class="forgot-success-message">
                     Mật khẩu được gửi vào email sinh viên đã đăng ký trên hệ thống.
                 </p>
+                <p class="login-error" id="forgot-error" role="alert"></p>
 
                 <form class="forgot-form" id="forgot-form" novalidate>
                     <div class="field-wrap">
@@ -128,7 +129,7 @@
                             <input type="email" id="forgot-email" name="forgot-email" placeholder="Nhập email" autocomplete="email">
                         </div>
                     </div>
-                    <button type="submit" class="login-btn forgot-submit-btn">Lấy mật khẩu</button>
+                    <button type="submit" class="login-btn forgot-submit-btn" id="forgot-submit-btn">Lấy mật khẩu</button>
                 </form>
                 <button type="button" class="back-to-login" id="back-to-login-btn">Quay lại đăng nhập</button>
             </div>
@@ -178,6 +179,8 @@
         var loginView = document.getElementById('login-view');
         var forgotView = document.getElementById('forgot-view');
         var forgotForm = document.getElementById('forgot-form');
+        var forgotErrorEl = document.getElementById('forgot-error');
+        var forgotSubmitBtn = document.getElementById('forgot-submit-btn');
 
         (function checkAuth() {
             var token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -195,6 +198,18 @@
         function clearError() {
             errorEl.textContent = '';
             errorEl.classList.remove('visible');
+        }
+
+        function showForgotMessage(msg, isError) {
+            forgotErrorEl.textContent = msg;
+            forgotErrorEl.classList.add('visible');
+            forgotErrorEl.style.color = isError ? '' : '#047857';
+        }
+
+        function clearForgotMessage() {
+            forgotErrorEl.textContent = '';
+            forgotErrorEl.classList.remove('visible');
+            forgotErrorEl.style.color = '';
         }
 
         function setBusy(busy) {
@@ -225,11 +240,13 @@
 
         function openForgotView() {
             clearError();
+            clearForgotMessage();
             loginView.hidden = true;
             forgotView.hidden = false;
         }
 
         function openLoginView() {
+            clearForgotMessage();
             forgotView.hidden = true;
             loginView.hidden = false;
         }
@@ -257,6 +274,23 @@
                 fullName: payload.fullName || payload.FullName || '',
                 mustChangePassword: payload.mustChangePassword || false
             };
+        }
+
+        async function requestForgotPassword(citizenId, email) {
+            var res = await fetch(API_BASE + '/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ citizenId: citizenId, email: email })
+            });
+
+            var payload = {};
+            try { payload = await res.json(); } catch (_) {}
+
+            if (!res.ok) {
+                throw new Error(payload.message || 'Không thể gửi yêu cầu lấy lại mật khẩu.');
+            }
+
+            return payload.message || 'Nếu thông tin hợp lệ, mật khẩu tạm thời đã được gửi về email đã đăng ký.';
         }
 
         loginForm.addEventListener('submit', async function (e) {
@@ -298,21 +332,31 @@
         document.getElementById('forgot-link').addEventListener('click', openForgotView);
         document.getElementById('back-to-login-btn').addEventListener('click', openLoginView);
 
-        forgotForm.addEventListener('submit', function (e) {
+        forgotForm.addEventListener('submit', async function (e) {
             e.preventDefault();
+            clearForgotMessage();
             var cccd = document.getElementById('forgot-cccd').value.trim();
             var email = document.getElementById('forgot-email').value.trim();
             if (!/^\d{9,12}$/.test(cccd)) {
-                alert('Vui lòng nhập đúng CMND/CCCD.');
+                showForgotMessage('Vui lòng nhập đúng CMND/CCCD.', true);
                 return;
             }
             if (!email) {
-                alert('Vui lòng nhập email sinh viên.');
+                showForgotMessage('Vui lòng nhập email sinh viên.', true);
                 return;
             }
-            alert('Yêu cầu lấy lại mật khẩu đã được ghi nhận.');
-            forgotForm.reset();
-            openLoginView();
+            try {
+                forgotSubmitBtn.disabled = true;
+                forgotSubmitBtn.textContent = 'Đang gửi...';
+                var message = await requestForgotPassword(cccd, email);
+                showForgotMessage(message, false);
+                forgotForm.reset();
+            } catch (err) {
+                showForgotMessage(err.message || 'Không thể gửi yêu cầu lấy lại mật khẩu.', true);
+            } finally {
+                forgotSubmitBtn.disabled = false;
+                forgotSubmitBtn.textContent = 'Lấy mật khẩu';
+            }
         });
 
         syncPasswordToggle();

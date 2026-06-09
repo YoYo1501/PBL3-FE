@@ -3,6 +3,8 @@
 // ======================================================================
 
 const NOTIF_PAGE_SIZE = typeof NOTIFICATION_PAGE_SIZE !== 'undefined' ? NOTIFICATION_PAGE_SIZE : 5;
+let notificationRelativeTimeTimer = null;
+let notificationServerClockOffsetMs = 0;
 
 function truncateText(text, maxLen = 120) {
     if (!text) return '';
@@ -73,18 +75,38 @@ function parseNotificationDate(value) {
 }
 
 function getNotificationCreatedAt(notification) {
-    return notification.createdAt || notification.CreatedAt || notification.createdDate || notification.date || notification.sentAt;
+    return notification.createdAtUtc || notification.CreatedAtUtc || notification.createdAt || notification.CreatedAt || notification.createdDate || notification.date || notification.sentAt;
+}
+
+function updateNotificationServerClockOffset(notifications = []) {
+    const sample = notifications.find(item => item?.serverNowUtc || item?.ServerNowUtc);
+    const serverNow = parseNotificationDate(sample?.serverNowUtc || sample?.ServerNowUtc);
+    notificationServerClockOffsetMs = serverNow ? serverNow.getTime() - Date.now() : 0;
 }
 
 function timeAgo(dateStr) {
     const date = parseNotificationDate(dateStr);
     if (!date) return '';
 
-    const diff = Math.max(0, (Date.now() - date.getTime()) / 1000);
+    const now = Date.now() + notificationServerClockOffsetMs;
+    const diff = Math.max(0, (now - date.getTime()) / 1000);
     if (diff < 60) return 'Vừa xong';
     if (diff < 3600) return Math.floor(diff / 60) + ' phút trước';
     if (diff < 86400) return Math.floor(diff / 3600) + ' giờ trước';
     return Math.floor(diff / 86400) + ' ngày trước';
+}
+
+function refreshNotificationRelativeTimes() {
+    document.querySelectorAll('[data-notif-created-at]').forEach(el => {
+        const value = el.dataset.notifCreatedAt;
+        el.textContent = timeAgo(value);
+        el.title = formatNotificationDateTime(value);
+    });
+}
+
+function ensureNotificationRelativeTimeTimer() {
+    if (notificationRelativeTimeTimer) return;
+    notificationRelativeTimeTimer = window.setInterval(refreshNotificationRelativeTimes, 30000);
 }
 
 function formatNotificationDateTime(value) {
@@ -261,7 +283,7 @@ function renderNotificationsList(notifications) {
                 <div class="notif-row-head">
                     <span class="notif-row-title">${escapeText(item.title)}</span>
                     ${getNotifBadge(item)}
-                    <span class="notif-row-time" title="${escapeText(formatNotificationDateTime(getNotificationCreatedAt(item)))}">${timeAgo(getNotificationCreatedAt(item))}</span>
+                    <span class="notif-row-time" data-notif-created-at="${escapeText(getNotificationCreatedAt(item) || '')}" title="${escapeText(formatNotificationDateTime(getNotificationCreatedAt(item)))}">${timeAgo(getNotificationCreatedAt(item))}</span>
                     <span class="notif-row-chevron">›</span>
                 </div>
                 <p class="notif-row-preview">${escapeText(truncateText(item.message, 140))}</p>
@@ -322,6 +344,9 @@ function renderNotificationsList(notifications) {
             openNotification(button.dataset.notifyOpen);
         });
     });
+
+    refreshNotificationRelativeTimes();
+    ensureNotificationRelativeTimeTimer();
 }
 
 async function loadNotificationCount(notifications = null) {
@@ -356,6 +381,7 @@ async function loadNotifications() {
             const dateB = parseNotificationDate(getNotificationCreatedAt(b))?.getTime() || 0;
             return dateB - dateA;
         });
+    updateNotificationServerClockOffset(currentNotifications);
 
     renderNotificationBadges(currentNotifications);
     renderNotificationsList(currentNotifications);

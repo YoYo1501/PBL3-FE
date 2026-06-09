@@ -30,6 +30,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load section đầu tiên
     await loadProfile();
     await loadNotificationCount();
+    connectRealtimeUpdates();
+    bindStudentAutoRefresh();
 });
 
 // =====================================================================
