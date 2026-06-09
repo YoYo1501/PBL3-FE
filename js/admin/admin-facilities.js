@@ -40,12 +40,6 @@ function bindFacilityControls() {
     .getElementById("facility-inventory-status")
     ?.addEventListener("change", rerenderFacilities);
   window.addEventListener("admin:rooms-changed", loadFacilityRooms);
-  document
-    .getElementById("reload-facilities-btn")
-    ?.addEventListener("click", () => {
-      loadFacilityRooms();
-      loadFacilitiesInventory();
-    });
 
   document
     .getElementById("new-facility-open-btn")

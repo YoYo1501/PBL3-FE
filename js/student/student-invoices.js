@@ -729,7 +729,7 @@ function renderInvoiceRows(filtered) {
                     <td>
                         <div class="receipt-actions">
                             <button type="button" class="receipt-view-btn" data-invoice-select="${id}" title="Xem chi tiết"><span class="receipt-eye-icon"></span>Xem</button>
-                            <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải PDF"><span class="inv-dl-icon"></span>Tải PDF</button>
+                            <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải biên lai"><span class="inv-dl-icon"></span>Tải biên lai</button>
                         </div>
                     </td>
                 </tr>`;
@@ -829,7 +829,7 @@ function renderReceiptCards(filtered) {
                 </div>
                 <div class="receipt-card-actions">
                     <button type="button" class="receipt-view-btn" data-receipt-view="${id}" title="Xem chi tiết"><span class="receipt-eye-icon"></span>Xem</button>
-                    <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải biên lai PDF"><span class="inv-dl-icon"></span>Tải PDF</button>
+                    <button type="button" class="invoice-dl-btn" data-receipt-download="${id}" title="Tải biên lai"><span class="inv-dl-icon"></span>Tải biên lai</button>
                 </div>
             </article>`;
     }).join('');
@@ -887,9 +887,6 @@ function renderInvoiceCards(filtered) {
                 <div class="invoice-card-amount">
                     <span>Số tiền</span>
                     <strong>${escapeText(formatCurrency(inv.totalAmount))}</strong>
-                </div>
-                <div class="invoice-card-status">
-                    ${invoiceStatusPill(inv.status)}
                 </div>
                 <div class="invoice-card-actions">
                     <button type="button" class="invoice-pay-btn" data-inv-id="${id}"><span class="inv-pay-icon"></span>Thanh toán ngay</button>
@@ -1163,6 +1160,7 @@ function renderInvoiceDashboard(options = {}) {
     el.querySelectorAll('.invoice-pay-btn, .invoice-detail-pay').forEach(btn => {
         btn.addEventListener('click', event => {
             event.stopPropagation();
+            // FE STEP 1: nguoi dung bam "Thanh toan ngay", lay invoiceId tren nut va bat dau luong VNPAY.
             payInvoice(Number(btn.dataset.invId));
         });
     });
@@ -1212,7 +1210,7 @@ function sortReceiptsDesc(items) {
         return getInvoiceRecordId(b) - getInvoiceRecordId(a);
     });
 }
-
+//hóa đơn và biên lai 
 async function loadMyInvoices(options = {}) {
     setLoading('invoice-content');
     const [invoiceRes, receiptRes] = await Promise.all([
@@ -1258,6 +1256,7 @@ async function loadMyInvoices(options = {}) {
 }
 
 async function payInvoice(invoiceId) {
+    // FE STEP 2: hoi lai truoc khi chuyen nguoi dung sang cong thanh toan ben ngoai.
     const confirmed = typeof showAppConfirm === 'function'
         ? await showAppConfirm({
             title: 'Thanh toán qua VNPAY',
@@ -1270,9 +1269,14 @@ async function payInvoice(invoiceId) {
 
     if (!confirmed) return;
 
+    // FE STEP 3: gui returnPage de BE biet sau callback VNPAY phai quay lai trang sinh vien nao.
     const returnPage = window.location.href.split('#')[0];
+
+    // FE STEP 4: goi Controller /api/payments/create-payment-url/{invoiceId}.
+    // BE se kiem tra hoa don, tao URL VNPAY va tra ve { url }.
     const res = await callApi(`/payments/create-payment-url/${invoiceId}?returnPage=${encodeURIComponent(returnPage)}`, { method: 'POST' });
     if (res?.ok && res.data?.url) {
+        // FE STEP 5: chuyen trinh duyet sang cong VNPAY, tu day nguoi dung roi khoi website minh.
         window.location.href = res.data.url;
     } else {
         showToast(res?.data?.message || 'Không thể tạo link thanh toán.', true);

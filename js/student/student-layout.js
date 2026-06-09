@@ -50,11 +50,15 @@ function activateStudentSection(targetId) {
 }
 
 function handlePaymentReturnState() {
+    // FE RETURN STEP 1: sau khi BE xu ly callback VNPAY, trinh duyet quay lai trang sinh vien
+    // voi query paymentStatus/paymentInvoiceId. Neu khong co query nay thi khong lam gi.
     const params = new URLSearchParams(window.location.search);
     const paymentStatus = params.get('paymentStatus');
     if (!paymentStatus) return;
 
     const paymentInvoiceId = params.get('paymentInvoiceId');
+    // FE RETURN STEP 2: mo man hinh hoa don va load lai du lieu moi nhat tu BE.
+    // Success thi hien tab bien lai, failed thi quay lai tab hoa don.
     activateStudentSection('section-invoice');
     loadMyInvoices({
         initialTab: paymentStatus === 'success' ? 'receipt' : 'invoice',
@@ -67,6 +71,7 @@ function handlePaymentReturnState() {
         showToast('Thanh toán chưa hoàn tất hoặc đã bị hủy.', true);
     }
 
+    // FE RETURN STEP 3: xoa query paymentStatus khoi URL de refresh trang khong hien toast lai.
     params.delete('paymentStatus');
     params.delete('paymentInvoiceId');
     params.delete('paymentTxnId');
@@ -78,6 +83,7 @@ function handlePaymentReturnState() {
 }
 
 function onSectionActivated(sectionId, extra) {
+    lastStudentAutoRefreshAt = Date.now();
     switch (sectionId) {
         case 'section-info':     loadProfile();             break;
         case 'section-room':     loadMyRoom(); loadMyContract(); break;
@@ -92,6 +98,79 @@ function onSectionActivated(sectionId, extra) {
 // =====================================================================
 // 3. SUB-TABS (Trong section Thông tin sinh viên)
 // =====================================================================
+const STUDENT_AUTO_REFRESH_INTERVAL_MS = 15000;
+let lastStudentAutoRefreshAt = Date.now();
+let pendingStudentRealtimeRefresh = false;
+let studentRealtimeRefreshTimer = null;
+
+function getActiveStudentSectionId() {
+    return document.querySelector('.tab-panel.active')?.id || 'section-info';
+}
+
+function shouldPauseStudentAutoRefresh() {
+    if (document.visibilityState !== 'visible') return true;
+    const active = document.activeElement;
+    if (active?.matches?.('input, textarea, select')) return true;
+    if (document.body.classList.contains('modal-open')) return true;
+    return false;
+}
+
+function refreshActiveStudentSection(force = false) {
+    if (shouldPauseStudentAutoRefresh()) return;
+    const now = Date.now();
+    if (!force && now - lastStudentAutoRefreshAt < STUDENT_AUTO_REFRESH_INTERVAL_MS) return;
+    lastStudentAutoRefreshAt = now;
+    const sectionId = getActiveStudentSectionId();
+    onSectionActivated(sectionId, sectionId === 'section-request' ? currentReqType : null);
+    loadNotificationCount();
+}
+
+function scheduleStudentRealtimeRefresh() {
+    if (shouldPauseStudentAutoRefresh()) {
+        pendingStudentRealtimeRefresh = true;
+        return;
+    }
+    window.clearTimeout(studentRealtimeRefreshTimer);
+    studentRealtimeRefreshTimer = window.setTimeout(() => {
+        refreshActiveStudentSection(true);
+    }, 250);
+}
+
+function bindStudentAutoRefresh() {
+    lastStudentAutoRefreshAt = Date.now();
+    let lastHandledChangeAt = 0;
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) refreshActiveStudentSection(true);
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        if (pendingStudentRealtimeRefresh) {
+            pendingStudentRealtimeRefresh = false;
+            refreshActiveStudentSection(true);
+            return;
+        }
+        refreshActiveStudentSection();
+    });
+    document.addEventListener('focusout', () => {
+        if (!pendingStudentRealtimeRefresh) return;
+        window.setTimeout(() => {
+            if (shouldPauseStudentAutoRefresh()) return;
+            pendingStudentRealtimeRefresh = false;
+            refreshActiveStudentSection(true);
+        }, 0);
+    });
+    if (typeof onDataChanged === 'function') {
+        onDataChanged((detail = {}) => {
+            const now = Date.now();
+            if (detail.at && detail.at === lastHandledChangeAt) return;
+            if (now - lastHandledChangeAt < 800) return;
+            lastHandledChangeAt = detail.at || now;
+            scheduleStudentRealtimeRefresh();
+        });
+    }
+    window.setInterval(refreshActiveStudentSection, STUDENT_AUTO_REFRESH_INTERVAL_MS);
+}
+
 function initSubTabs() {
     document.querySelectorAll('.s-tab').forEach(btn => {
         btn.addEventListener('click', () => {

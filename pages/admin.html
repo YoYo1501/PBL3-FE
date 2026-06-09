@@ -109,39 +109,35 @@
                             <h2 class="page-heading" style="color: #1E3A8A;">Tổng quan vận hành</h2>
                             <p class="section-kicker">Theo dõi nhanh tình hình vận hành ký túc xá</p>
                         </div>
-                        <button type="button" class="primary-btn btn-refresh" id="refresh-dashboard-btn" style="padding: 8px 16px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                            Làm mới dữ liệu
-                        </button>
                     </div>
 
                     <div class="stats-grid">
-                        <article class="stat-card" data-overview-target="section-registrations" role="button" tabindex="0" aria-label="Mở trang đơn đăng ký chờ duyệt">
-                            <div class="stat-icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                        <article class="stat-card overview-stat-card overview-registration-card" data-overview-target="section-registrations" role="button" tabindex="0" aria-label="Mở trang đơn đăng ký chờ duyệt">
+                            <div class="stat-icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v5h5"></path><path d="M9 13h6"></path><path d="M9 17h4"></path></svg></div>
                             <div class="stat-info">
                                 <span class="stat-label">Đơn đăng ký chờ duyệt</span>
                                 <strong class="stat-value" id="stat-registrations">0</strong>
                                 <span class="stat-desc">Đơn</span>
                             </div>
                         </article>
-                        <article class="stat-card" data-overview-target="section-requests" role="button" tabindex="0" aria-label="Mở trang yêu cầu sinh viên đang chờ">
-                            <div class="stat-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                        <article class="stat-card overview-stat-card overview-request-card" data-overview-target="section-requests" role="button" tabindex="0" aria-label="Mở trang yêu cầu sinh viên đang chờ">
+                            <div class="stat-icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
                             <div class="stat-info">
                                 <span class="stat-label">Yêu cầu đang chờ</span>
                                 <strong class="stat-value" id="stat-requests">0</strong>
                                 <span class="stat-desc">Yêu cầu</span>
                             </div>
                         </article>
-                        <article class="stat-card" data-overview-target="section-transfers" role="button" tabindex="0" aria-label="Mở trang yêu cầu chuyển phòng">
-                            <div class="stat-icon bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><polyline points="8 12 12 16 16 12"></polyline><line x1="12" y1="8" x2="12" y2="16"></line></svg></div>
+                        <article class="stat-card overview-stat-card overview-transfer-card" data-overview-target="section-transfers" role="button" tabindex="0" aria-label="Mở trang yêu cầu chuyển phòng">
+                            <div class="stat-icon bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11"></path><path d="m14 3 4 4-4 4"></path><path d="M17 17H6"></path><path d="m10 13-4 4 4 4"></path></svg></div>
                             <div class="stat-info">
                                 <span class="stat-label">Yêu cầu chuyển phòng</span>
                                 <strong class="stat-value" id="stat-transfers">0</strong>
                                 <span class="stat-desc">Yêu cầu</span>
                             </div>
                         </article>
-                        <article class="stat-card" data-overview-target="section-renewals" role="button" tabindex="0" aria-label="Mở trang gia hạn hợp đồng">
-                            <div class="stat-icon bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                        <article class="stat-card overview-stat-card overview-renewal-card" data-overview-target="section-renewals" role="button" tabindex="0" aria-label="Mở trang gia hạn hợp đồng">
+                            <div class="stat-icon bg-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path><path d="M17 14a3 3 0 1 0 2.4 4.8"></path><path d="M21 17v3h-3"></path></svg></div>
                             <div class="stat-info">
                                 <span class="stat-label">Gia hạn hợp đồng</span>
                                 <strong class="stat-value" id="stat-renewals">0</strong>
@@ -184,10 +180,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Tài khoản admin</h2>
                         <p class="section-kicker">Quản lý thông tin tài khoản và bảo mật hệ thống</p>
                     </div>
-                    <button type="button" class="primary-btn admin-refresh-btn" id="reload-admin-profile-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Làm mới
-                    </button>
                 </div>
                 <div class="admin-account-grid">
                     <article class="content-card admin-account-card admin-profile-card">
@@ -261,6 +253,40 @@
                         <strong>Bảo mật tài khoản</strong>
                         <p>Hãy đảm bảo thông tin tài khoản luôn được cập nhật và sử dụng mật khẩu mạnh để bảo vệ tài khoản của bạn.</p>
                     </div>
+                    <div class="admin-security-visual" aria-hidden="true">
+                        <svg viewBox="0 0 320 120" role="img">
+                            <defs>
+                                <linearGradient id="adminLockGradient" x1="214" y1="62" x2="292" y2="124" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#4d9cff"></stop>
+                                    <stop offset="1" stop-color="#0f63e8"></stop>
+                                </linearGradient>
+                            </defs>
+                            <g class="security-leaves">
+                                <path d="M42 86c18-30 42-36 58-24-20 5-32 18-42 38Z"></path>
+                                <path d="M74 92c13-24 34-29 48-18-16 4-26 14-34 30Z"></path>
+                                <path d="M254 86c-18-30-42-36-58-24 20 5 32 18 42 38Z"></path>
+                                <path d="M222 92c-13-24-34-29-48-18 16 4 26 14 34 30Z"></path>
+                            </g>
+                            <g class="security-sparkles">
+                                <circle cx="86" cy="18" r="5"></circle>
+                                <circle cx="260" cy="24" r="4"></circle>
+                                <path d="M42 34h10M47 29v10"></path>
+                                <path d="M286 44h10M291 39v10"></path>
+                                <path d="m68 48 4 4 4-4-4-4Z"></path>
+                                <path d="m244 52 4 4 4-4-4-4Z"></path>
+                            </g>
+                            <path class="security-ground" d="M36 104h250"></path>
+                            <path class="security-shield-fill" d="M150 14 205 36v38c0 32-22 58-55 70-33-12-55-38-55-70V36Z"></path>
+                            <path class="security-shield" d="M150 14 205 36v38c0 32-22 58-55 70-33-12-55-38-55-70V36Z"></path>
+                            <path class="security-check" d="m122 70 22 22 44-46"></path>
+                            <g class="security-lock">
+                                <path class="security-lock-shackle" d="M228 62V45a24 24 0 0 1 48 0v17"></path>
+                                <rect x="214" y="62" width="78" height="62" rx="12"></rect>
+                                <circle cx="253" cy="91" r="7"></circle>
+                                <path d="M253 98v13"></path>
+                            </g>
+                        </svg>
+                    </div>
                 </aside>
             </section>
 
@@ -270,7 +296,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Duyệt đơn đăng ký ở trú</h2>
                         <p class="section-kicker">Quản lý và duyệt các đơn đăng ký ở trú của sinh viên</p>
                     </div>
-                    <button type="button" class="primary-btn" id="reload-registrations-btn" style="padding: 8px 16px;"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Tải lại</button>
                 </div>
                 <div class="content-card">
                     <div class="registration-filter-grid">
@@ -301,10 +326,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Yêu cầu sinh viên</h2>
                         <p class="section-kicker">Quản lý và xử lý các yêu cầu hỗ trợ của sinh viên</p>
                     </div>
-                    <button type="button" class="primary-btn request-reload-btn" id="reload-requests-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Tải lại
-                    </button>
                 </div>
                 <div class="content-card request-admin-card">
                     <div class="registration-filter-grid">
@@ -337,10 +358,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Chuyển phòng</h2>
                         <p class="section-kicker">Quản lý và duyệt các yêu cầu chuyển phòng của sinh viên</p>
                     </div>
-                    <button type="button" class="primary-btn transfer-reload-btn" id="reload-transfers-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Tải lại
-                    </button>
                 </div>
                 <div class="content-card transfer-admin-card">
                     <div class="registration-filter-grid">
@@ -371,10 +388,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Gia hạn hợp đồng</h2>
                         <p class="section-kicker">Quản lý và duyệt các yêu cầu gia hạn hợp đồng lưu trú</p>
                     </div>
-                    <button type="button" class="primary-btn renewal-reload-btn" id="reload-renewals-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Tải lại
-                    </button>
                 </div>
                 <div class="content-card renewal-admin-card">
                     <div class="registration-filter-grid">
@@ -405,10 +418,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Quản lý hợp đồng lưu trú</h2>
                         <p class="section-kicker">Theo dõi và cập nhật thông tin hợp đồng của sinh viên</p>
                     </div>
-                    <button type="button" class="primary-btn contract-reload-btn" id="reload-contracts-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Tải lại
-                    </button>
                 </div>
                 <div class="contract-admin-shell">
                     <div class="contract-admin-filter-row">
@@ -643,10 +652,6 @@
                             <h2 class="page-heading">Quản lý hóa đơn</h2>
                         </div>
                         <div class="toolbar-actions invoice-toolbar-actions">
-                            <button type="button" class="secondary-btn" id="reload-invoices-btn">
-                                <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.4 6.4"></path><path d="M3 12A9 9 0 0 1 18.4 5.6"></path><path d="M18 2v4h-4"></path><path d="M6 22v-4h4"></path></svg>
-                                Tải lại
-                            </button>
                             <button type="button" class="secondary-btn" id="publish-invoices-btn">
                                 <svg viewBox="0 0 24 24"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4z"></path></svg>
                                 Phát hành kỳ đang lọc
@@ -727,10 +732,6 @@
                         <button type="button" class="secondary-btn room-new-open-btn" id="new-room-open-btn" style="padding: 8px 16px;">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
                             Tạo phòng
-                        </button>
-                        <button type="button" class="primary-btn room-reload-btn" id="reload-rooms-btn" style="padding: 8px 16px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                            Tải lại
                         </button>
                     </div>
                 </div>
@@ -971,10 +972,6 @@
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
                             Thêm thiết bị
                         </button>
-                        <button type="button" class="primary-btn facility-reload-btn" id="reload-facilities-btn" style="padding: 8px 16px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                            Tải lại
-                        </button>
                     </div>
                 </div>
                 <div class="facility-admin-shell">
@@ -1113,10 +1110,6 @@
                         <h2 class="page-heading" style="color: #1E3A8A;">Quản lý sinh viên</h2>
                         <p class="section-kicker">Tra cứu và cập nhật thông tin tài khoản sinh viên nội trú</p>
                     </div>
-                    <button type="button" class="primary-btn student-reload-btn" id="reload-students-btn" style="padding: 8px 16px;">
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-                        Tải lại
-                    </button>
                 </div>
                 <div class="student-admin-shell">
                     <div class="student-admin-filter-row">
@@ -1318,36 +1311,106 @@
                     <p class="form-error" id="revenue-form-error"></p>
 
                     <div class="stats-grid revenue-stats-grid">
-                        <article class="stat-card">
-                            <span class="stat-label">Tổng tiền phòng</span>
-                            <strong class="stat-value" id="revenue-room-fee">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-room-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 21h16"></path>
+                                    <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"></path>
+                                    <path d="M9 7h1"></path>
+                                    <path d="M14 7h1"></path>
+                                    <path d="M9 11h1"></path>
+                                    <path d="M14 11h1"></path>
+                                    <path d="M9 15h1"></path>
+                                    <path d="M14 15h1"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Tổng tiền phòng</span>
+                                <strong class="stat-value" id="revenue-room-fee">0</strong>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Tổng tiền điện</span>
-                            <strong class="stat-value" id="revenue-electric-fee">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-electric-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M13.2 2.4 4.9 13.1c-.4.5 0 1.3.7 1.3h5.1l-1.4 7c-.2.9.9 1.4 1.5.7l8.3-10.7c.4-.5 0-1.3-.7-1.3h-5.1l1.4-7c.2-.9-.9-1.4-1.5-.7Z"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Tổng tiền điện</span>
+                                <strong class="stat-value" id="revenue-electric-fee">0</strong>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Tổng tiền nước</span>
-                            <strong class="stat-value" id="revenue-water-fee">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-water-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2.5S5.5 10 5.5 15a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5Z"></path>
+                                    <path d="M8.7 15.3a3.5 3.5 0 0 0 3.5 3.2"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Tổng tiền nước</span>
+                                <strong class="stat-value" id="revenue-water-fee">0</strong>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Tổng doanh thu</span>
-                            <strong class="stat-value" id="revenue-grand-total">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-total-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19V9"></path>
+                                    <path d="M9.3 19v-6"></path>
+                                    <path d="M14.7 19v-9"></path>
+                                    <path d="M20 19V5"></path>
+                                    <path d="m4 14 5.3-5.2 5.4 3.2L20 5"></path>
+                                    <path d="M17 5h3v3"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Tổng doanh thu</span>
+                                <strong class="stat-value" id="revenue-grand-total">0</strong>
+                            </div>
                         </article>
                     </div>
 
                     <div class="stats-grid revenue-stats-grid secondary-stats-grid">
-                        <article class="stat-card">
-                            <span class="stat-label">Tổng hóa đơn</span>
-                            <strong class="stat-value" id="revenue-total-invoices">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-invoice-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7Z"></path>
+                                    <path d="M14 2v5h5"></path>
+                                    <path d="M9 13h6"></path>
+                                    <path d="M9 17h4"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Tổng hóa đơn</span>
+                                <strong class="stat-value" id="revenue-total-invoices">0</strong>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Đã thanh toán</span>
-                            <strong class="stat-value" id="revenue-paid-invoices">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-paid-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9"></circle>
+                                    <path d="m8.5 12.2 2.3 2.3 4.8-5"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Đã thanh toán</span>
+                                <strong class="stat-value" id="revenue-paid-invoices">0</strong>
+                            </div>
                         </article>
-                        <article class="stat-card">
-                            <span class="stat-label">Chưa thanh toán</span>
-                            <strong class="stat-value" id="revenue-unpaid-invoices">0</strong>
+                        <article class="stat-card revenue-stat-card revenue-unpaid-card">
+                            <div class="revenue-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6 2h12"></path>
+                                    <path d="M6 22h12"></path>
+                                    <path d="M17 2v4.2a4.6 4.6 0 0 1-1.4 3.3L13 12l2.6 2.5a4.6 4.6 0 0 1 1.4 3.3V22"></path>
+                                    <path d="M7 2v4.2a4.6 4.6 0 0 0 1.4 3.3L11 12l-2.6 2.5A4.6 4.6 0 0 0 7 17.8V22"></path>
+                                    <path d="M9 18h6"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Chưa thanh toán</span>
+                                <strong class="stat-value" id="revenue-unpaid-invoices">0</strong>
+                            </div>
                         </article>
                     </div>
 
@@ -1400,9 +1463,15 @@
                                     <option value="all-students">Tất cả sinh viên</option>
                                 </select>
                             </label>
-                            <label>
-                                <span>User ID</span>
-                                <input type="number" id="notif-user-id" min="1" placeholder="Nhập ID người dùng">
+                            <label class="notification-student-picker-field" id="notif-student-picker-field">
+                                <span>Sinh viên nhận</span>
+                                <input type="hidden" id="notif-user-id">
+                                <div class="notification-student-picker" id="notif-student-picker">
+                                    <input type="text" id="notif-student-search" autocomplete="off" placeholder="Nhập tên, mã sinh viên/CCCD, email, số điện thoại, phòng...">
+                                    <button type="button" class="notification-student-clear" id="notif-student-clear-btn" aria-label="Bỏ chọn sinh viên">×</button>
+                                    <div class="notification-student-suggestions" id="notif-student-suggestions" hidden></div>
+                                </div>
+                                <div class="notification-student-selected" id="notif-student-selected" hidden></div>
                             </label>
                             <label>
                                 <span>Tiêu đề</span>
@@ -1430,7 +1499,6 @@
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <span class="nav-badge admin-notif-count" id="admin-inbox-badge" hidden>0</span>
-                                <button type="button" class="secondary-btn" id="reload-admin-inbox-btn">Tải lại</button>
                             </div>
                         </div>
                         <div id="admin-inbox-list" class="notification-inbox-list">
@@ -1456,9 +1524,6 @@
 
                     <!-- Panel ẩn mặc định -->
                     <div id="sent-history-panel" hidden>
-                        <div class="toolbar-actions" style="margin-bottom:10px;">
-                            <button type="button" class="secondary-btn" id="reload-notifications-btn">Tải lại</button>
-                        </div>
                         <div class="notification-filter-grid">
                             <label>
                                 <span>Tìm theo tiêu đề / nội dung</span>

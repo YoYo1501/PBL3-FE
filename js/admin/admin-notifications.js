@@ -97,6 +97,10 @@ const adminInboxState = {
   items: [],
 };
 
+let notificationStudentSearchTimer = null;
+let notificationStudentSearchSeq = 0;
+let selectedNotificationStudent = null;
+
 function getNotificationKind(item) {
   const text = formatSystemNotificationText(`${item?.title || ""} ${item?.message || ""}`).toLowerCase();
   if (text.includes("gia hạn") || text.includes("gia han")) return "renewal";
@@ -212,19 +216,220 @@ function renderAdminInboxList() {
   });
 }
 
+function getStudentNotificationUserId(student) {
+  return Number(student?.userId ?? student?.UserId ?? 0);
+}
+
+function getStudentNotificationId(student) {
+  return Number(student?.id ?? student?.Id ?? 0);
+}
+
+function getStudentNotificationName(student) {
+  return student?.fullName || student?.FullName || "Sinh viên";
+}
+
+function getStudentNotificationCitizenId(student) {
+  return student?.citizenId || student?.CitizenId || "-";
+}
+
+function getStudentNotificationEmail(student) {
+  return student?.email || student?.Email || "-";
+}
+
+function getStudentNotificationPhone(student) {
+  return student?.phone || student?.Phone || "-";
+}
+
+function getStudentNotificationRoom(student) {
+  return student?.roomCode || student?.RoomCode || "Chưa có phòng";
+}
+
+function clearNotificationStudentSelection(options = {}) {
+  notificationStudentSearchSeq += 1;
+  selectedNotificationStudent = null;
+  const userIdEl = document.getElementById("notif-user-id");
+  const searchEl = document.getElementById("notif-student-search");
+  const selectedEl = document.getElementById("notif-student-selected");
+  const suggestionsEl = document.getElementById("notif-student-suggestions");
+
+  if (userIdEl) userIdEl.value = "";
+  if (searchEl && !options.keepSearch) searchEl.value = "";
+  if (selectedEl) {
+    selectedEl.hidden = true;
+    selectedEl.innerHTML = "";
+  }
+  if (suggestionsEl) {
+    suggestionsEl.hidden = true;
+    suggestionsEl.innerHTML = "";
+  }
+}
+
+function setNotificationStudentSelection(student) {
+  const userId = getStudentNotificationUserId(student);
+  if (!userId) {
+    setNotificationError("Không tìm thấy User ID của sinh viên được chọn.");
+    return;
+  }
+
+  selectedNotificationStudent = student;
+  const userIdEl = document.getElementById("notif-user-id");
+  const searchEl = document.getElementById("notif-student-search");
+  const selectedEl = document.getElementById("notif-student-selected");
+  const suggestionsEl = document.getElementById("notif-student-suggestions");
+  const name = getStudentNotificationName(student);
+  const citizenId = getStudentNotificationCitizenId(student);
+  const email = getStudentNotificationEmail(student);
+  const room = getStudentNotificationRoom(student);
+
+  if (userIdEl) userIdEl.value = String(userId);
+  if (searchEl) searchEl.value = `${name} - ${citizenId}`;
+  if (suggestionsEl) {
+    suggestionsEl.hidden = true;
+    suggestionsEl.innerHTML = "";
+  }
+  if (selectedEl) {
+    selectedEl.hidden = false;
+    selectedEl.innerHTML = `
+      <strong>${escapeHtml(name)}</strong>
+      <span>CCCD: ${escapeHtml(citizenId)}</span>
+      <span>Email: ${escapeHtml(email)}</span>
+      <span>Phòng: ${escapeHtml(room)}</span>
+    `;
+  }
+  setNotificationError("");
+}
+
+function renderNotificationStudentSuggestions(students, keyword) {
+  const suggestionsEl = document.getElementById("notif-student-suggestions");
+  if (!suggestionsEl) return;
+
+  if (!students.length) {
+    suggestionsEl.hidden = false;
+    suggestionsEl.innerHTML = `<div class="notification-student-empty">Không tìm thấy sinh viên phù hợp với "${escapeHtml(keyword)}".</div>`;
+    return;
+  }
+
+  suggestionsEl.hidden = false;
+  suggestionsEl.innerHTML = students
+    .map((student) => {
+      const userId = getStudentNotificationUserId(student);
+      const studentId = getStudentNotificationId(student);
+      const isSelectable = userId > 0;
+      return `
+        <button type="button" class="notification-student-option" data-user-id="${userId}" data-student-id="${studentId}" ${isSelectable ? "" : "disabled"}>
+          <strong>${escapeHtml(getStudentNotificationName(student))}</strong>
+          <span>${escapeHtml(getStudentNotificationCitizenId(student))}</span>
+          <span>${escapeHtml(getStudentNotificationEmail(student))}</span>
+          <small>${isSelectable
+            ? `${escapeHtml(getStudentNotificationRoom(student))} • ${escapeHtml(getStudentNotificationPhone(student))}`
+            : "Thiếu User ID - vui lòng restart backend để tải dữ liệu mới"}</small>
+        </button>
+      `;
+    })
+    .join("");
+
+  suggestionsEl.querySelectorAll("[data-user-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const student = students.find((item) =>
+        getStudentNotificationUserId(item) === Number(button.dataset.userId) &&
+        getStudentNotificationId(item) === Number(button.dataset.studentId)
+      );
+      if (student) setNotificationStudentSelection(student);
+    });
+  });
+}
+
+async function searchNotificationStudents(keyword) {
+  const suggestionsEl = document.getElementById("notif-student-suggestions");
+  if (!suggestionsEl) return;
+
+  const requestSeq = ++notificationStudentSearchSeq;
+  suggestionsEl.hidden = false;
+  suggestionsEl.innerHTML = '<div class="notification-student-empty">Đang tìm sinh viên...</div>';
+
+  const query = new URLSearchParams({
+    page: "1",
+    pageSize: "6",
+    keyword,
+  });
+
+  try {
+    const res = await callApi(`/students?${query.toString()}`);
+    if (requestSeq !== notificationStudentSearchSeq) return;
+    if (!res?.ok) {
+      suggestionsEl.innerHTML = '<div class="notification-student-empty">Không thể tải danh sách sinh viên.</div>';
+      return;
+    }
+
+    const students = Array.isArray(res.data?.items)
+      ? res.data.items
+      : (Array.isArray(res.data) ? res.data : []);
+    renderNotificationStudentSuggestions(students, keyword);
+  } catch (error) {
+    if (requestSeq !== notificationStudentSearchSeq) return;
+    suggestionsEl.innerHTML = '<div class="notification-student-empty">Không thể tải danh sách sinh viên.</div>';
+  }
+}
+
+function bindNotificationStudentPicker() {
+  const searchEl = document.getElementById("notif-student-search");
+  const clearBtn = document.getElementById("notif-student-clear-btn");
+  const suggestionsEl = document.getElementById("notif-student-suggestions");
+  if (!searchEl || searchEl._notificationPickerBound) return;
+  searchEl._notificationPickerBound = true;
+
+  searchEl.addEventListener("input", () => {
+    clearNotificationStudentSelection({ keepSearch: true });
+    window.clearTimeout(notificationStudentSearchTimer);
+    const keyword = searchEl.value.trim();
+    if (keyword.length < 2) {
+      if (suggestionsEl) {
+        suggestionsEl.hidden = true;
+        suggestionsEl.innerHTML = "";
+      }
+      return;
+    }
+    notificationStudentSearchTimer = window.setTimeout(() => {
+      searchNotificationStudents(keyword);
+    }, 250);
+  });
+
+  searchEl.addEventListener("focus", () => {
+    const keyword = searchEl.value.trim();
+    if (!selectedNotificationStudent && keyword.length >= 2) searchNotificationStudents(keyword);
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    clearNotificationStudentSelection();
+    searchEl.focus();
+  });
+
+  document.addEventListener("click", (event) => {
+    const picker = document.getElementById("notif-student-picker");
+    if (!picker?.contains(event.target) && suggestionsEl) suggestionsEl.hidden = true;
+  });
+}
+
 // â”€â”€ Bind form táº¡o/gá»­i thÃ´ng bÃ¡o â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function bindNotificationForm() {
   const targetTypeEl = document.getElementById("notif-target-type");
   const userIdEl = document.getElementById("notif-user-id");
+  const studentSearchEl = document.getElementById("notif-student-search");
+  const studentPickerField = document.getElementById("notif-student-picker-field");
 
   const updateNotificationTargetUi = () => {
     if (!targetTypeEl || !userIdEl) return;
     const isSingleTarget = targetTypeEl.value === "single";
-    userIdEl.disabled = !!selectedNotificationId || !isSingleTarget;
-    if (!isSingleTarget && !selectedNotificationId) userIdEl.value = "";
+    const shouldDisablePicker = !!selectedNotificationId || !isSingleTarget;
+    userIdEl.disabled = shouldDisablePicker;
+    if (studentSearchEl) studentSearchEl.disabled = shouldDisablePicker;
+    if (studentPickerField) studentPickerField.hidden = !isSingleTarget;
+    studentPickerField?.classList.toggle("is-disabled", shouldDisablePicker);
+    if (!isSingleTarget && !selectedNotificationId) clearNotificationStudentSelection();
   };
 
   targetTypeEl?.addEventListener("change", updateNotificationTargetUi);
+  bindNotificationStudentPicker();
 
   const messageEl = document.getElementById("notif-message");
   const messageCountEl = document.getElementById("notif-message-count");
@@ -237,11 +442,6 @@ function bindNotificationForm() {
   document
     .getElementById("reset-notification-form-btn")
     ?.addEventListener("click", resetNotificationForm);
-
-  // NÃºt táº£i láº¡i inbox
-  document
-    .getElementById("reload-admin-inbox-btn")
-    ?.addEventListener("click", () => loadAdminInbox());
 
   // NÃºt toggle lá»‹ch sá»­ Ä‘Ã£ gá»­i
   document
@@ -258,14 +458,6 @@ function bindNotificationForm() {
         resetPage("notifications");
         loadNotifications();
       }
-    });
-
-  // NÃºt táº£i láº¡i bÃªn trong panel lá»‹ch sá»­
-  document
-    .getElementById("reload-notifications-btn")
-    ?.addEventListener("click", () => {
-      resetPage("notifications");
-      loadNotifications();
     });
 
   // Filter thay Ä‘á»•i â†’ load láº¡i lá»‹ch sá»­ Ä‘Ã£ gá»­i
@@ -354,7 +546,7 @@ function bindNotificationForm() {
 
 async function createNotification({ sendToAllStudents, userId, title, message }) {
   if (!sendToAllStudents && !userId) {
-    setNotificationError("Vui lòng nhập User ID hợp lệ.");
+    setNotificationError("Vui lòng tìm và chọn đúng sinh viên nhận thông báo.");
     return null;
   }
 
@@ -375,6 +567,13 @@ function resetNotificationForm() {
   form?.reset();
   document.getElementById("notif-target-type").disabled = false;
   document.getElementById("notif-user-id").disabled = false;
+  document.getElementById("notif-student-search").disabled = false;
+  const pickerField = document.getElementById("notif-student-picker-field");
+  if (pickerField) {
+    pickerField.hidden = false;
+    pickerField.classList.remove("is-disabled");
+  }
+  clearNotificationStudentSelection();
   document.getElementById("notif-form-mode").textContent = "Tạo mới";
   document.getElementById("save-notification-btn").textContent = "Gửi thông báo";
   const messageCountEl = document.getElementById("notif-message-count");
@@ -385,7 +584,8 @@ function resetNotificationForm() {
   const userIdEl = document.getElementById("notif-user-id");
   if (targetTypeEl?.value !== "single") {
     userIdEl.disabled = true;
-    userIdEl.value = "";
+    clearNotificationStudentSelection();
+    if (pickerField) pickerField.hidden = true;
   }
   renderNotificationsList(); // cáº­p nháº­t highlight trong lá»‹ch sá»­ Ä‘Ã£ gá»­i
 }
@@ -397,6 +597,22 @@ function editNotification(item) {
   document.getElementById("notif-target-type").disabled = true;
   document.getElementById("notif-user-id").value = isBroadcast ? "" : item.userId || "";
   document.getElementById("notif-user-id").disabled = true;
+  const studentSearchEl = document.getElementById("notif-student-search");
+  if (studentSearchEl) {
+    studentSearchEl.value = isBroadcast ? "" : (item.recipientName || `User #${item.userId || ""}`);
+    studentSearchEl.disabled = true;
+  }
+  const pickerField = document.getElementById("notif-student-picker-field");
+  if (pickerField) {
+    pickerField.hidden = isBroadcast;
+    pickerField.classList.toggle("is-disabled", true);
+  }
+  const selectedEl = document.getElementById("notif-student-selected");
+  if (selectedEl) {
+    selectedEl.hidden = isBroadcast;
+    selectedEl.innerHTML = isBroadcast ? "" : `<strong>${escapeHtml(item.recipientName || `User #${item.userId || ""}`)}</strong><span>Đang sửa thông báo đã gửi</span>`;
+  }
+  document.getElementById("notif-student-suggestions")?.setAttribute("hidden", "");
   document.getElementById("notif-title").value = item.title || "";
   document.getElementById("notif-message").value = item.message || "";
   const messageCountEl = document.getElementById("notif-message-count");
@@ -474,15 +690,17 @@ function renderNotificationsList() {
           ? "Tất cả sinh viên"
           : item.recipientName || (item.userId ? `User #${item.userId}` : "Tất cả sinh viên");
         return `
-        <article class="queue-item ${selectedNotificationId === item.id ? 'is-selected' : ''}" data-notification-id="${item.id}" data-title="${escapeHtml(title)}" data-msg="${escapeHtml(message)}" data-date="${formatDate(item.createdAt)}" style="cursor:pointer;">
-            <div class="queue-head">
+        <article class="queue-item notification-history-item ${selectedNotificationId === item.id ? 'is-selected' : ''}" data-notification-id="${item.id}" data-title="${escapeHtml(title)}" data-msg="${escapeHtml(message)}" data-date="${formatDate(item.createdAt)}" style="cursor:pointer;">
+            <div class="notification-history-title">
                 <strong>${escapeHtml(title)}</strong>
-                <span class="pill neutral">Gửi đến: <strong>${escapeHtml(recipient)}</strong></span>
+                <span class="pill neutral notification-recipient-pill">Gửi đến: <strong>${escapeHtml(recipient)}</strong></span>
             </div>
-            <div class="queue-meta"><span>${formatDate(item.createdAt)}</span></div>
-            <p class="queue-preview">${truncateHtml(message, 120)}</p>
-            ${item.message.length > 120 ? '<span class="queue-expand-hint">▼ Xem chi tiết</span>' : ''}
-            <div class="queue-actions" style="margin-top:8px;">
+            <div class="queue-meta notification-history-date"><span>${formatDate(item.createdAt)}</span></div>
+            <div class="notification-history-message">
+                <p class="queue-preview">${truncateHtml(message, 120)}</p>
+                ${item.message.length > 120 ? '<span class="queue-expand-hint">▼ Xem chi tiết</span>' : ''}
+            </div>
+            <div class="queue-actions notification-history-actions">
                 <button type="button" class="secondary-btn" data-notif-edit="${item.id}">Sửa</button>
                 <button type="button" class="danger-btn" data-notif-delete="${item.id}">Xóa</button>
             </div>

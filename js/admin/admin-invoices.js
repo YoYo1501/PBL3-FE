@@ -417,6 +417,15 @@ function showInvoiceDetailModal(invoice) {
       <p>${escapeHtml(note)}</p>
     </section>
 
+    <footer class="invoice-detail-footer">
+      ${
+        isPaid
+          ? '<button type="button" class="secondary-btn" data-invoice-detail-close>Đóng</button>'
+          : `<button type="button" class="primary-btn invoice-cash-pay-btn" data-invoice-cash-pay="${escapeHtml(invoice.id)}">Xác nhận thu tiền mặt</button>
+             <button type="button" class="secondary-btn" data-invoice-detail-close>Đóng</button>`
+      }
+    </footer>
+
   `;
 
   overlay.style.display = "flex";
@@ -427,9 +436,209 @@ function showInvoiceDetailModal(invoice) {
     document.body.classList.remove("modal-open");
   };
   overlay.querySelector(".invoice-detail-close").onclick = close;
+  overlay.querySelectorAll("[data-invoice-detail-close]").forEach((button) => {
+    button.onclick = close;
+  });
+  overlay.querySelector("[data-invoice-cash-pay]")?.addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const confirmed = await confirmInvoiceCashPayment(invoice);
+    if (!confirmed) return;
+
+    await withAction(button, async () => {
+      const resPay = await callApi(`/invoices/${button.dataset.invoiceCashPay}/pay`, {
+        method: "PUT",
+      });
+
+      if (resPay?.ok) {
+        adminToast(resPay.data?.message || "Đã xác nhận thanh toán tiền mặt.");
+        close();
+        await loadInvoices();
+        await promptPrintCashReceipt(invoice.id);
+      } else {
+        adminToast(resPay?.data?.message || "Không thể xác nhận thanh toán.", true);
+      }
+    });
+  });
   overlay.onclick = (event) => {
     if (event.target === overlay) close();
   };
+}
+
+async function confirmInvoiceCashPayment(invoice) {
+  const message = [
+    `Xác nhận sinh viên ${invoice.studentName || "-"} đã nộp tiền tại phòng quản lý?`,
+    `Hóa đơn: ${getInvoiceDisplayCode(invoice)}`,
+    `Số tiền: ${formatCurrency(invoice.totalAmount)}`
+  ].join("\n");
+
+  if (typeof showAppConfirm === "function") {
+    return await showAppConfirm({
+      title: "Xác nhận thu tiền mặt",
+      message,
+      confirmText: "Xác nhận đã thu",
+      cancelText: "Hủy",
+      tone: "default",
+    });
+  }
+
+  return confirm(message);
+}
+
+async function promptPrintCashReceipt(invoiceId) {
+  const message = "Thu tiền mặt thành công. Bạn có muốn in hóa đơn không?";
+  const shouldPrint =
+    typeof showAppConfirm === "function"
+      ? await showAppConfirm({
+          title: "In hóa đơn",
+          message,
+          confirmText: "Có, in hóa đơn",
+          cancelText: "Không",
+          tone: "default",
+        })
+      : confirm(message);
+
+  if (!shouldPrint) return;
+
+  const receiptRes = await callApi(`/receipts/${invoiceId}`);
+  if (!receiptRes?.ok || !receiptRes.data) {
+    adminToast(receiptRes?.data?.message || "Không thể tải biên lai để in.", true);
+    return;
+  }
+
+  showReceiptPrintModal(receiptRes.data);
+}
+
+function showReceiptPrintModal(receipt) {
+  const overlay = ensureReceiptPrintModal();
+  const content = overlay.querySelector(".receipt-print-card");
+  const receiptCode = receipt.receiptCode || `BL-${receipt.invoiceId || ""}`;
+  const invoiceCode = receipt.invoiceCode || `HD-${String(receipt.invoiceId || "").padStart(6, "0")}`;
+
+  content.innerHTML = `
+    <button type="button" class="receipt-print-close no-print" aria-label="Đóng">×</button>
+    <section class="receipt-print-sheet" id="receipt-print-sheet">
+      <header class="receipt-print-header">
+        <div>
+          <strong>TRUNG TÂM QUẢN LÝ KÝ TÚC XÁ</strong>
+          <span>Đại học Đà Nẵng</span>
+        </div>
+        <div class="receipt-print-code">
+          <span>Mã biên lai</span>
+          <strong>${escapeHtml(receiptCode)}</strong>
+        </div>
+      </header>
+
+      <div class="receipt-print-title">
+        <h2>HÓA ĐƠN / BIÊN LAI THANH TOÁN</h2>
+        <p>Phương thức: ${escapeHtml(formatPaymentMethod(receipt.paymentMethod))}</p>
+      </div>
+
+      <div class="receipt-print-grid">
+        ${receiptPrintInfo("Mã hóa đơn", invoiceCode)}
+        ${receiptPrintInfo("Sinh viên", receipt.studentName || "-")}
+        ${receiptPrintInfo("Phòng", receipt.roomCode || "-")}
+        ${receiptPrintInfo("Kỳ thanh toán", receipt.period || "-")}
+        ${receiptPrintInfo("Ngày phát hành", formatDate(receipt.issuedAt))}
+        ${receiptPrintInfo("Ngày thanh toán", formatDate(receipt.paidAt))}
+      </div>
+
+      <table class="receipt-print-table">
+        <thead>
+          <tr>
+            <th>Nội dung</th>
+            <th>Số tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tiền phòng</td>
+            <td>${escapeHtml(formatCurrency(receipt.roomFee))}</td>
+          </tr>
+          <tr>
+            <td>Tiền điện</td>
+            <td>${escapeHtml(formatCurrency(receipt.electricFee))}</td>
+          </tr>
+          <tr>
+            <td>Tiền nước</td>
+            <td>${escapeHtml(formatCurrency(receipt.waterFee))}</td>
+          </tr>
+          <tr class="receipt-print-total">
+            <td>Tổng đã thu</td>
+            <td>${escapeHtml(formatCurrency(receipt.paidAmount ?? receipt.totalAmount))}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="receipt-print-meta">
+        ${receiptPrintInfo("Mã giao dịch", receipt.transactionCode || "-")}
+        ${receiptPrintInfo("Trạng thái", receipt.status || "Success")}
+      </div>
+
+      <footer class="receipt-print-signatures">
+        <div>
+          <span>Người nộp tiền</span>
+          <strong>${escapeHtml(receipt.studentName || "")}</strong>
+        </div>
+        <div>
+          <span>Người thu tiền</span>
+          <strong>Admin</strong>
+        </div>
+      </footer>
+    </section>
+
+    <footer class="receipt-print-actions no-print">
+      <button type="button" class="secondary-btn" data-receipt-print-close>Đóng</button>
+      <button type="button" class="primary-btn" data-receipt-print-now>In hóa đơn</button>
+    </footer>
+  `;
+
+  overlay.style.display = "flex";
+  document.body.classList.add("modal-open");
+  document.body.classList.add("receipt-print-open");
+
+  const close = () => {
+    overlay.style.display = "none";
+    document.body.classList.remove("modal-open");
+    document.body.classList.remove("receipt-print-open");
+  };
+
+  overlay.querySelector(".receipt-print-close").onclick = close;
+  overlay.querySelector("[data-receipt-print-close]").onclick = close;
+  overlay.querySelector("[data-receipt-print-now]").onclick = () => window.print();
+  overlay.onclick = (event) => {
+    if (event.target === overlay) close();
+  };
+}
+
+function ensureReceiptPrintModal() {
+  let overlay = document.getElementById("receipt-print-modal");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("div");
+  overlay.id = "receipt-print-modal";
+  overlay.className = "receipt-print-overlay";
+  overlay.style.display = "none";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.innerHTML = '<article class="receipt-print-card"></article>';
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function receiptPrintInfo(label, value) {
+  return `
+    <div class="receipt-print-info">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
+function formatPaymentMethod(method = "") {
+  const value = String(method || "").toLowerCase();
+  if (value === "cash") return "Tiền mặt";
+  if (value === "vnpay") return "VNPAY";
+  return method || "-";
 }
 
 function ensureInvoiceDetailModal() {

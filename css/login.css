@@ -244,6 +244,7 @@ input {
     right: 14px;
     width: 42px;
     height: 42px;
+    padding: 0;
     display: grid;
     place-items: center;
     border: 0;
@@ -251,6 +252,8 @@ input {
     color: #68758a;
     background: transparent;
     cursor: pointer;
+    line-height: 1;
+    transform: translateY(-50%);
 }
 
 .password-toggle:hover {
@@ -261,6 +264,7 @@ input {
 .password-toggle svg {
     width: 22px;
     height: 22px;
+    display: block;
     fill: currentColor;
 }
 

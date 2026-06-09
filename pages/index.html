@@ -54,6 +54,70 @@ function escapeText(value) {
         .replaceAll("'", '&#39;');
 }
 
+function showAppConfirm(options = {}) {
+    const settings = {
+        title: options.title || 'Xac nhan',
+        message: options.message || 'Ban co chac muon tiep tuc?',
+        confirmText: options.confirmText || 'Xac nhan',
+        cancelText: options.cancelText || 'Huy',
+        tone: options.tone || 'default'
+    };
+
+    let modal = document.getElementById('app-confirm-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'app-confirm-modal';
+        modal.className = 'app-confirm-backdrop';
+        modal.innerHTML = `
+            <div class="app-confirm-card" role="dialog" aria-modal="true" aria-labelledby="app-confirm-title">
+                <div class="app-confirm-icon" aria-hidden="true"></div>
+                <h3 id="app-confirm-title" class="app-confirm-title"></h3>
+                <p class="app-confirm-message"></p>
+                <div class="app-confirm-actions">
+                    <button type="button" class="app-confirm-btn app-confirm-cancel"></button>
+                    <button type="button" class="app-confirm-btn app-confirm-ok"></button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+
+    const titleEl = modal.querySelector('.app-confirm-title');
+    const messageEl = modal.querySelector('.app-confirm-message');
+    const cancelBtn = modal.querySelector('.app-confirm-cancel');
+    const okBtn = modal.querySelector('.app-confirm-ok');
+    titleEl.textContent = settings.title;
+    messageEl.textContent = settings.message;
+    cancelBtn.textContent = settings.cancelText;
+    okBtn.textContent = settings.confirmText;
+    modal.dataset.tone = settings.tone;
+
+    return new Promise(resolve => {
+        const close = (result) => {
+            modal.classList.remove('open');
+            modal.removeEventListener('click', handleBackdropClick);
+            document.removeEventListener('keydown', handleKeydown);
+            cancelBtn.removeEventListener('click', handleCancel);
+            okBtn.removeEventListener('click', handleConfirm);
+            resolve(result);
+        };
+        const handleCancel = () => close(false);
+        const handleConfirm = () => close(true);
+        const handleBackdropClick = (event) => {
+            if (event.target === modal) close(false);
+        };
+        const handleKeydown = (event) => {
+            if (event.key === 'Escape') close(false);
+        };
+
+        cancelBtn.addEventListener('click', handleCancel);
+        okBtn.addEventListener('click', handleConfirm);
+        modal.addEventListener('click', handleBackdropClick);
+        document.addEventListener('keydown', handleKeydown);
+        modal.classList.add('open');
+        okBtn.focus();
+    });
+}
+
 // =====================================================================
 // 1. KHá»žI Táº O
 // =====================================================================
@@ -1151,7 +1215,13 @@ async function loadRenewalPackages() {
 }
 
 async function submitRenewal(renewalPackageId) {
-    if (!confirm('XÃ¡c nháº­n gá»­i yÃªu cáº§u gia háº¡n há»£p Ä‘á»“ng?')) return;
+    const confirmed = await showAppConfirm({
+        title: 'Xac nhan gui yeu cau?',
+        message: 'Yeu cau gia han hop dong se duoc gui den ban quan ly de xet duyet.',
+        confirmText: 'Gui yeu cau',
+        cancelText: 'Huy'
+    });
+    if (!confirmed) return;
     const errEl = document.getElementById('renewal-error');
     if (errEl) errEl.textContent = '';
 
@@ -1639,7 +1709,14 @@ async function loadMyInvoices(options = {}) {
 }
 
 async function payInvoice(invoiceId) {
-    if (!confirm('Bạn muốn thanh toán hóa đơn này qua VNPAY?')) return;
+    const confirmed = await showAppConfirm({
+        title: 'Thanh toan qua VNPAY?',
+        message: 'Ban se duoc chuyen sang cong thanh toan VNPAY de hoan tat hoa don.',
+        confirmText: 'Thanh toan',
+        cancelText: 'Huy',
+        tone: 'payment'
+    });
+    if (!confirmed) return;
     const returnPage = window.location.href.split('#')[0];
     const res = await callApi(`/payments/create-payment-url/${invoiceId}?returnPage=${encodeURIComponent(returnPage)}`, { method: 'POST' });
     if (res?.ok && res.data?.url) {
@@ -1774,7 +1851,14 @@ async function loadMyRequests() {
 
     listEl.querySelectorAll('[data-req-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('XÃ¡c nháº­n há»§y yÃªu cáº§u nÃ y?')) return;
+            const confirmed = await showAppConfirm({
+                title: 'Huy yeu cau?',
+                message: 'Yeu cau dang cho duyet se duoc chuyen sang trang thai da huy.',
+                confirmText: 'Huy yeu cau',
+                cancelText: 'Giu lai',
+                tone: 'danger'
+            });
+            if (!confirmed) return;
             const res2 = await callApi(`/studentrequests/${btn.dataset.reqId}/cancel`, { method: 'PUT' });
             if (res2?.ok) { showToast('ÄÃ£ há»§y yÃªu cáº§u.'); loadMyRequests(); }
             else showToast(res2?.data?.message || 'KhÃ´ng thá»ƒ há»§y.', true);
@@ -1951,7 +2035,14 @@ async function loadTransferHistory() {
     // Xá»­ lÃ½ nÃºt há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng
     histEl.querySelectorAll('[data-cancel-transfer-id]').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('XÃ¡c nháº­n há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng nÃ y?')) return;
+            const confirmed = await showAppConfirm({
+                title: 'Huy yeu cau chuyen phong?',
+                message: 'Yeu cau dang cho duyet se duoc chuyen sang trang thai da huy.',
+                confirmText: 'Huy yeu cau',
+                cancelText: 'Giu lai',
+                tone: 'danger'
+            });
+            if (!confirmed) return;
             const res2 = await callApi(`/roomtransfers/${btn.dataset.cancelTransferId}/cancel`, { method: 'DELETE' });
             if (res2?.ok) {
                 showToast('ÄÃ£ há»§y yÃªu cáº§u chuyá»ƒn phÃ²ng.');
